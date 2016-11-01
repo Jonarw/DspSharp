@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Filter.Algorithms;
-using Filter.Extensions;
+using Filter.Exceptions;
+using Filter.Signal;
 
-namespace Filter.Signal
+namespace Filter.Extensions
 {
     public static class SignalExtensions
     {
@@ -12,7 +13,7 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             return new InfiniteSignal((start, length) => s1.GetWindowedSignal(start, length).Add(s2.GetWindowedSignal(start, length)), s1.SampleRate)
@@ -25,7 +26,7 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             return new FiniteSignal(
@@ -38,7 +39,7 @@ namespace Filter.Signal
         {
             if (input.SampleRate != filter.Samplerate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             if (input is FiniteSignal && !filter.HasInfiniteImpulseResponse)
@@ -53,24 +54,17 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
-            var l = s1.Length + s2.Length - 1;
-            var n = Fft.NextPowerOfTwo(l);
-            var spectrum1 = Fft.RealFft(s1.Signal, n);
-            var spectrum2 = Fft.RealFft(s2.Signal, n);
-            var spectrum = spectrum2.Multiply(spectrum1);
-            var signal = Fft.RealIfft(spectrum).Take(l);
-
-            return new FiniteSignal(signal.ToReadOnlyList(), s1.SampleRate, s1.Start + s2.Start) {Name = "convolution result"};
+            return new FiniteSignal(Dsp.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start) {Name = "convolution result"};
         }
 
         public static ISignal Convolve(this IFiniteSignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             return new InfiniteSignal(
@@ -103,7 +97,7 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSignal(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
@@ -121,7 +115,7 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             int start;
@@ -144,7 +138,7 @@ namespace Filter.Signal
         {
             if (s1.SampleRate != s2.SampleRate)
             {
-                throw new Exception();
+                throw new SamplerateMismatchException();
             }
 
             return new InfiniteSignal(

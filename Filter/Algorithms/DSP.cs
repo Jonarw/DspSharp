@@ -27,6 +27,117 @@ namespace Filter.Algorithms
             Smooth
         }
 
+        private static int WhiteNoiseSeedNumber { get; set; }
+
+        /// <summary>
+        ///     Interpolates a data series with x and y values to a new series with the specified x values.
+        ///     Depending on the local point density of the original and new x values either spline interpolation, linear
+        ///     interpolation or moving averaging is used to calculate the new y values.
+        /// </summary>
+        /// <param name="x">The original x values.</param>
+        /// <param name="y">The original y values; must be the same length as <paramref name="x" />.</param>
+        /// <param name="xtarget">The new x values.</param>
+        /// <param name="logX">Determines whether the calculation should be performed with logarithmic scaling along the x axis.</param>
+        /// <returns>The interpolated y values.</returns>
+        public static IEnumerable<double> AdaptiveInterpolation(
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
+            IReadOnlyList<double> xtarget,
+            bool logX = true)
+        {
+            if (x.Count != y.Count)
+            {
+                throw new ArgumentException();
+            }
+
+            IReadOnlyList<double> actualX;
+            IReadOnlyList<double> actualTargetX;
+            IReadOnlyList<double> spline = null;
+
+            if (logX)
+            {
+                actualX = x.Log(10).Select(d => Math.Max(d, -1e9)).ToReadOnlyList();
+                actualTargetX = xtarget.Log(10).Select(d => Math.Max(d, -1e9)).ToReadOnlyList();
+            }
+            else
+            {
+                actualX = x;
+                actualTargetX = xtarget;
+            }
+
+            var xCurrent = 0;
+            while (actualX[xCurrent + 1] < actualTargetX[0])
+            {
+                xCurrent += 1;
+            }
+
+            var xMax = actualX.Count - 1;
+            while (actualX[xMax - 1] > actualTargetX.Last())
+            {
+                xMax -= 1;
+            }
+
+            for (var c = 0; c < actualTargetX.Count; c++)
+            {
+                if (actualTargetX[c] < actualX.First())
+                {
+                    yield return double.NaN;
+                    continue;
+                }
+
+                if (actualTargetX[c] > actualX.Last())
+                {
+                    yield return double.NaN;
+                    continue;
+                }
+
+                double xlim;
+                if (c == actualTargetX.Count - 1)
+                {
+                    xlim = actualTargetX[c];
+                }
+                else
+                {
+                    xlim = (actualTargetX[c + 1] + actualTargetX[c]) / 2;
+                }
+
+                var pointCounter = 0;
+                while ((xCurrent < xMax) && (actualX[xCurrent] < xlim))
+                {
+                    pointCounter += 1;
+                    xCurrent += 1;
+                }
+
+                if (pointCounter < 2) // spline
+                {
+                    if (spline == null)
+                    {
+                        spline = CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
+                    }
+
+                    yield return spline[c];
+                }
+                else if (pointCounter < 3) // linear interpolation
+                {
+                    var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
+                    tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
+                    tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
+                    yield return tmp;
+                }
+                else // average
+                {
+                    double tmp = 0;
+                    for (var c2 = 1; c2 <= pointCounter; c2++)
+                    {
+                        tmp += y[xCurrent - c2];
+                    }
+
+                    tmp /= pointCounter;
+                    yield return tmp;
+                }
+            }
+        }
+
         /// <summary>
         ///     Converts a real-valued array to a zero-phase complex-valued array.
         /// </summary>
@@ -57,12 +168,11 @@ namespace Filter.Algorithms
             return frequencies.Zip(amplitudes, (f, a) => Complex.Exp(factor * f) * a);
         }
 
-        public static int Mod(int x, int m)
-        {
-            return (x % m + m) % m;
-        }
-
-        public static IReadOnlyList<Complex> ApproximateSpectrumOfInfiniteSignal(IEnumerable<double> signal, double energyRatio = 0.00001, int initialLength = 1024, int maximumLength = 524288)
+        public static IReadOnlyList<Complex> ApproximateSpectrumOfInfiniteSignal(
+            IEnumerable<double> signal,
+            double energyRatio = 0.00001,
+            int initialLength = 1024,
+            int maximumLength = 524288)
         {
             var currentLength = initialLength / 2;
 
@@ -78,7 +188,7 @@ namespace Filter.Algorithms
 
             return Fft.RealFft(signal.Take(currentLength));
             // ReSharper restore PossibleMultipleEnumeration
-        } 
+        }
 
         /// <summary>
         ///     Calculates the group delay of a system for a given phase response.
@@ -237,8 +347,18 @@ namespace Filter.Algorithms
             return Convert.ToInt32(delay * sampleRate);
         }
 
+        public static IReadOnlyList<double> Convolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
+        {
+            var l = signal1.Count + signal1.Count - 1;
+            var n = Fft.NextPowerOfTwo(l);
+            var spectrum1 = Fft.RealFft(signal1, n);
+            var spectrum2 = Fft.RealFft(signal2, n);
+            var spectrum = spectrum2.Multiply(spectrum1);
+            return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
+        }
+
         /// <summary>
-        /// Convolves the specified signals. 
+        ///     Convolves the specified signals.
         /// </summary>
         /// <param name="signal1">The first signal. Can be of infinite length.</param>
         /// <param name="signal2">The second signal.</param>
@@ -348,41 +468,34 @@ namespace Filter.Algorithms
             return 1.0.ToEnumerable().Concat(new double[length - 1]);
         }
 
-        /// <summary>
-        /// Calculates an infinite white noise sequence.
-        /// </summary>  
-        /// <returns></returns>
-        /// <remarks>http://dspguru.com/dsp/howtos/how-to-generate-white-gaussian-noise</remarks>
-        public static IEnumerable<double> WhiteNoise(int seed)
+        public static IEnumerable<double> HalfSinc(double frequency, double samplerate)
         {
-            var rnd = new Random(seed);
+            yield return 1;
 
+            double factor = 2 * Math.PI * frequency / samplerate;
+            int c = 1;
             while (true)
             {
-                double v1, v2, s;
-                do
-                {
-                    v1 = 2 * rnd.NextDouble() - 1;
-                    v2 = 2 * rnd.NextDouble() - 1;
-                    s = v1 * v1 + v2 * v2;
-                }
-                while (s >= 1);
-
-                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v1;
-                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v2;
+                var omega = c * factor;
+                yield return Math.Sin(omega) / omega;
+                c++;
             }
             // ReSharper disable once FunctionNeverReturns
+            // Output is meant to be infinte
         }
 
         /// <summary>
-        /// Applies an IIR filter to the provided input signal.
+        ///     Applies an IIR filter to the provided input signal.
         /// </summary>
         /// <param name="input">The input signal.</param>
         /// <param name="a">The denominator coefficients of the filter.</param>
         /// <param name="b">The numerator coefficients of the filter.</param>
         /// <param name="inputbuffer">The inputbuffer. If not provided, an empty buffer is created.</param>
-        /// <param name="outputbuffer">The outputbuffer. If not provided, an empty buffer is created.</param>        
-        /// <param name="clip">If set to true, the output signal is clipped to the length of the input signal. Otherwise, the output signal will be infinitely long.</param>
+        /// <param name="outputbuffer">The outputbuffer. If not provided, an empty buffer is created.</param>
+        /// <param name="clip">
+        ///     If set to true, the output signal is clipped to the length of the input signal. Otherwise, the
+        ///     output signal will be infinitely long.
+        /// </param>
         /// <returns>The filter output.</returns>
         public static IEnumerable<double> IirFilter(
             IEnumerable<double> input,
@@ -473,7 +586,11 @@ namespace Filter.Algorithms
         /// <param name="samplerate">The samplerate.</param>
         /// <returns></returns>
         /// <exception cref="NotSupportedException"></exception>
-        public static IEnumerable<Complex> IirFrequencyResponse(IReadOnlyList<double> a, IReadOnlyList<double> b, IReadOnlyList<double> frequencies, double samplerate)
+        public static IEnumerable<Complex> IirFrequencyResponse(
+            IReadOnlyList<double> a,
+            IReadOnlyList<double> b,
+            IReadOnlyList<double> frequencies,
+            double samplerate)
         {
             var len = a.Count;
             if (b.Count != len)
@@ -499,111 +616,6 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Interpolates a data series with x and y values to a new series with the specified x values.
-        ///     Depending on the local point density of the original and new x values either spline interpolation, linear
-        ///     interpolation or moving averaging is used to calculate the new y values.
-        /// </summary>
-        /// <param name="x">The original x values.</param>
-        /// <param name="y">The original y values; must be the same length as <paramref name="x" />.</param>
-        /// <param name="xtarget">The new x values.</param>
-        /// <param name="logX">Determines whether the calculation should be performed with logarithmic scaling along the x axis.</param>
-        /// <returns>The interpolated y values.</returns>
-        public static IEnumerable<double> AdaptiveInterpolation(IReadOnlyList<double> x, IReadOnlyList<double> y, IReadOnlyList<double> xtarget, bool logX = true)
-        {
-            if (x.Count != y.Count)
-            {
-                throw new ArgumentException();
-            }
-
-            IReadOnlyList<double> actualX;
-            IReadOnlyList<double> actualTargetX;
-            IReadOnlyList<double> spline = null;
-
-            if (logX)
-            {
-                actualX = x.Log(10).Select(d => Math.Max(d, -1e9)).ToReadOnlyList();
-                actualTargetX = xtarget.Log(10).Select(d => Math.Max(d, -1e9)).ToReadOnlyList();
-            }
-            else
-            {
-                actualX = x;
-                actualTargetX = xtarget;
-            }
-
-            var xCurrent = 0;
-            while (actualX[xCurrent + 1] < actualTargetX[0])
-            {
-                xCurrent += 1;
-            }
-
-            var xMax = actualX.Count - 1;
-            while (actualX[xMax - 1] > actualTargetX.Last())
-            {
-                xMax -= 1;
-            }
-
-            for (var c = 0; c < actualTargetX.Count; c++)
-            {
-                if (actualTargetX[c] < actualX.First())
-                {
-                    yield return double.NaN;
-                    continue;
-                }
-
-                if (actualTargetX[c] > actualX.Last())
-                {
-                    yield return double.NaN;
-                    continue;
-                }
-
-                double xlim;
-                if (c == actualTargetX.Count - 1)
-                {
-                    xlim = actualTargetX[c];
-                }
-                else
-                {
-                    xlim = (actualTargetX[c + 1] + actualTargetX[c]) / 2;
-                }
-
-                var pointCounter = 0;
-                while ((xCurrent < xMax) && (actualX[xCurrent] < xlim))
-                {
-                    pointCounter += 1;
-                    xCurrent += 1;
-                }
-
-                if (pointCounter < 2) // spline
-                {
-                    if (spline == null)
-                    {
-                        spline = CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
-                    }
-
-                    yield return spline[c];
-                }
-                else if (pointCounter < 3) // linear interpolation
-                {
-                    var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
-                    tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
-                    tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
-                    yield return tmp;
-                }
-                else // average
-                {
-                    double tmp = 0;
-                    for (var c2 = 1; c2 <= pointCounter; c2++)
-                    {
-                        tmp += y[xCurrent - c2];
-                    }
-
-                    tmp /= pointCounter;
-                    yield return tmp;
-                }
-            }
-        }
-
-        /// <summary>
         ///     Interpolates a complex-valued series.
         /// </summary>
         /// <param name="x">The x-values of the original series.</param>
@@ -614,7 +626,11 @@ namespace Filter.Algorithms
         ///     interpolation is done on a logarithmic scale as well.
         /// </param>
         /// <returns>A new array of the same length as <paramref name="targetX" /> containing the result.</returns>
-        public static IEnumerable<Complex> Interpolate(IReadOnlyList<double> x, IReadOnlyList<Complex> y, IReadOnlyList<double> targetX, bool logX = true)
+        public static IEnumerable<Complex> Interpolate(
+            IReadOnlyList<double> x,
+            IReadOnlyList<Complex> y,
+            IReadOnlyList<double> targetX,
+            bool logX = true)
         {
             if (x.Count != y.Count)
             {
@@ -761,6 +777,11 @@ namespace Filter.Algorithms
             return ret;
         }
 
+        public static int Mod(int x, int m)
+        {
+            return (x % m + m) % m;
+        }
+
         /// <summary>
         ///     Calculates the modified bessel function of the first kind for a single value.
         /// </summary>
@@ -852,7 +873,11 @@ namespace Filter.Algorithms
         /// <param name="targetX">The target frequencies.</param>
         /// <param name="logX">Determines whether the calculation shall be performed in a logarithmic x space.</param>
         /// <returns>The resampled spectral amplitudes.</returns>
-        public static IEnumerable<Complex> ResampleFrequencyResponse(IReadOnlyList<double> x, IReadOnlyList<Complex> y, IReadOnlyList<double> targetX, bool logX = true)
+        public static IEnumerable<Complex> ResampleFrequencyResponse(
+            IReadOnlyList<double> x,
+            IReadOnlyList<Complex> y,
+            IReadOnlyList<double> targetX,
+            bool logX = true)
         {
             if (x.Count != y.Count)
             {
@@ -898,47 +923,6 @@ namespace Filter.Algorithms
             }
 
             return Math.Sin(Math.PI * x) / (Math.PI * x);
-        }
-
-        /// <summary>
-        ///     Generates a sinc pulse, multiplied by a symmetrical rectangle window to make its length finite.
-        /// </summary>
-        /// <param name="frequency">The frequency of the sinc pulse.</param>
-        /// <param name="samplerate">The samplerate at which the sinc pulse should be generated.</param>
-        /// <param name="length">The length of the resulting sinc pulse.</param>
-        /// <param name="start">The start time (in samples).</param>
-        /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
-        public static IEnumerable<double> WindowedSinc(double frequency, double samplerate, int length, int start = 0)
-        {
-            double factor = 2 * Math.PI * frequency / samplerate;
-            return Enumerable.Range(start, length).Select(
-                i =>
-                {
-                    if (i == 0)
-                    {
-                        return 1;
-                    }
-
-                    var omega = i * factor;
-                    return Math.Sin(omega) / omega;
-                });
-        }
-
-        
-        public static IEnumerable<double> HalfSinc(double frequency, double samplerate)
-        {
-            yield return 1;
-
-            double factor = 2 * Math.PI * frequency / samplerate;
-            int c = 1;  
-            while (true)
-            {
-                var omega = c * factor;
-                yield return Math.Sin(omega) / omega;
-                c++;
-            }
-            // ReSharper disable once FunctionNeverReturns
-            // Output is meant to be infinte
         }
 
         /// <summary>
@@ -1046,7 +1030,7 @@ namespace Filter.Algorithms
             {
                 yield break;
             }
-            
+
             var previousPhase = ephase.Current;
 
             yield return previousPhase;
@@ -1063,6 +1047,58 @@ namespace Filter.Algorithms
                 previousPhase = ephase.Current + offset;
                 yield return previousPhase;
             }
+        }
+
+        /// <summary>
+        ///     Calculates an infinite white noise sequence.
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>http://dspguru.com/dsp/howtos/how-to-generate-white-gaussian-noise</remarks>
+        public static IEnumerable<double> WhiteNoise()
+        {
+            // this is to prevent multiple consecutive calls to this function getting the same seed
+            var seed = unchecked((int)(DateTime.Now.Ticks + WhiteNoiseSeedNumber++));
+            var rnd = new Random(seed);
+
+            while (true)
+            {
+                double v1, v2, s;
+                do
+                {
+                    v1 = 2 * rnd.NextDouble() - 1;
+                    v2 = 2 * rnd.NextDouble() - 1;
+                    s = v1 * v1 + v2 * v2;
+                }
+                while (s >= 1);
+
+                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v1;
+                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v2;
+            }
+            // ReSharper disable once FunctionNeverReturns
+        }
+
+        /// <summary>
+        ///     Generates a sinc pulse, multiplied by a symmetrical rectangle window to make its length finite.
+        /// </summary>
+        /// <param name="frequency">The frequency of the sinc pulse.</param>
+        /// <param name="samplerate">The samplerate at which the sinc pulse should be generated.</param>
+        /// <param name="length">The length of the resulting sinc pulse.</param>
+        /// <param name="start">The start time (in samples).</param>
+        /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
+        public static IEnumerable<double> WindowedSinc(double frequency, double samplerate, int length, int start = 0)
+        {
+            double factor = 2 * Math.PI * frequency / samplerate;
+            return Enumerable.Range(start, length).Select(
+                i =>
+                {
+                    if (i == 0)
+                    {
+                        return 1;
+                    }
+
+                    var omega = i * factor;
+                    return Math.Sin(omega) / omega;
+                });
         }
 
         /// <summary>

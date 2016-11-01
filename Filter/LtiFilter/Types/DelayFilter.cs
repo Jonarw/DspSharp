@@ -1,32 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Filter.Extensions;
-using Filter.Signal;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
     ///     Represents a filter with a constant group delay and no effects otherwise.
     /// </summary>
-    public class SampleDelayFilter : LtiFilterBase
+    public class SampleDelayFilter : FilterBase
     {
         private double _delay;
         private int _SampleDelay;
 
-        /// <summary>
-        ///     True if <see cref="Delay" /> is not 0, false otherwise.
-        /// </summary>
-        protected override bool HasEffectOverride
+        public SampleDelayFilter(double samplerate) : base(samplerate)
         {
-            get
-            {
-                if (this.SampleDelay == 0)
-                {
-                    return false;
-                }
-                return true;
-            }
         }
 
         /// <summary>
@@ -57,14 +44,18 @@ namespace Filter.LtiFilter.Types
         }
 
         /// <summary>
-        ///     Gets the default length for the impulse response.
+        ///     True if <see cref="Delay" /> is not 0, false otherwise.
         /// </summary>
-        /// <returns>
-        ///     The default impulse length.
-        /// </returns>
-        public override int GetDefaultImpulseLength()
+        protected override bool HasEffectOverride
         {
-            return this.SampleDelay + 1;
+            get
+            {
+                if (this.SampleDelay == 0)
+                {
+                    return false;
+                }
+                return true;
+            }
         }
 
         public override IEnumerable<double> Process(IEnumerable<double> signal)

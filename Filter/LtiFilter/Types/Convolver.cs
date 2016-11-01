@@ -1,39 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
-using Filter.Series;
-using Filter.Signal;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
-    /// Base class for all filters that can be described by their impulse response.
+    ///     Base class for all filters that can be described by their impulse response.
     /// </summary>
-    /// <seealso cref="LtiFilterBase" />
-    public class Convolver : LtiFilterBase
+    /// <seealso cref="FilterBase" />
+    public class Convolver : FilterBase
     {
         private IReadOnlyList<double> _impulseResponse;
+
+        public Convolver(double samplerate) : base(samplerate)
+        {
+        }
 
         public virtual IReadOnlyList<double> ImpulseResponse
         {
             get { return this._impulseResponse; }
             set
             {
-                this.SetField(ref this._impulseResponse, value); 
+                this.SetField(ref this._impulseResponse, value);
                 this.OnChange();
             }
-        }
-
-        public override int GetDefaultImpulseLength()
-        {
-            return this.ImpulseResponse.Count;
-        }
-
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
-        {
-            return Dsp.Convolve(signal, this.ImpulseResponse);
         }
 
         protected override bool HasEffectOverride
@@ -47,6 +36,11 @@ namespace Filter.LtiFilter.Types
 
                 return true;
             }
+        }
+
+        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        {
+            return Dsp.Convolve(signal, this.ImpulseResponse);
         }
     }
 }
