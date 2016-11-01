@@ -16,9 +16,9 @@ namespace Filter.LtiFilter.Types
 
     public class CorrectingFilter : Convolver
     {
-        private LtiFilterBase _targetLocal;
-        private LtiFilterBase _Target;
-        public LtiFilterBase Target
+        private FilterBase _targetLocal;
+        private FilterBase _Target;
+        public FilterBase Target
         {
             get { return this._Target; }
             set
@@ -33,9 +33,9 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        private LtiFilterBase _originalLocal;
-        private LtiFilterBase _Original;
-        public LtiFilterBase Original
+        private FilterBase _originalLocal;
+        private FilterBase _Original;
+        public FilterBase Original
         {
             get { return this._Original; }
             set
@@ -50,7 +50,7 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        private void LocalChanged(IFilter sender)
+        private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
         {
             if (this._UpdateMode == UpdateModes.Automatic) this.OnChange();
         }
@@ -171,12 +171,7 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        public override int GetDefaultImpulseLength()
-        {
-            return this.FilterLength;
-        }
-
-        protected override IEnumerable<double> GetImpulseResponseOverride()
+        protected IEnumerable<double> GetImpulseResponse()
         {
             throw new NotImplementedException();
             //FftSeries freq = new FftSeries(this.Samplerate, this.FilterLength * this.Oversampling);
@@ -224,6 +219,10 @@ namespace Filter.LtiFilter.Types
             //imp = imp.ShiftCircularToMaximum();
 
             //return imp * this._window;
+        }
+
+        public CorrectingFilter(double samplerate) : base(samplerate)
+        {
         }
     }
 }

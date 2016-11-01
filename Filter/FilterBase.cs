@@ -12,30 +12,27 @@ namespace Filter
         internal const double DefaultSamplerate = 44100;
 
         private bool _Enabled = true;
-        private double _Samplerate = DefaultSamplerate;
+
+        protected FilterBase(double samplerate)
+        {
+            this.Samplerate = samplerate;
+        }
 
         /// <summary>
         ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
         /// </summary>
-        public double Samplerate
-        {
-            get { return this._Samplerate; }
-            set
-            {
-                this.SetField(ref this._Samplerate, value); 
-                this.OnSamplerateChanged();
-            }
-        }
-
-        public bool HasInfiniteImpulseResponse { get; } = false;
-
-        protected virtual void OnSamplerateChanged()
-        {
-        }
+        public double Samplerate { get; }
 
         /// <summary>
-        ///     Indicates whether the <see cref="FilterBase" /> object has an effect. If false, its impulse response is an ideal
-        ///     dirac pulse.
+        /// Gets a value indicating whether this instance has infinite impulse response.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasInfiniteImpulseResponse { get; } = false;
+
+        /// <summary>
+        ///     Indicates whether the <see cref="FilterBase" /> object has an effect.
         /// </summary>
         public bool HasEffect
         {
@@ -43,14 +40,12 @@ namespace Filter
         }
 
         /// <summary>
-        ///     Specifies whether the <see cref="FilterBase" /> object has an effect or not. If the derived class returns
-        ///     <c>false</c>, the base class functions will not obtain the impulse or
-        ///     frequency response of the child class.
+        ///     Specifies whether the filter object has an effect or not.
         /// </summary>
         protected abstract bool HasEffectOverride { get; }
 
         /// <summary>
-        ///     Determines whether the <see cref="FilterBase" /> object is enabled. 
+        ///     Determines whether the filter object is enabled. 
         /// </summary>
         public bool Enabled
         {
@@ -59,24 +54,28 @@ namespace Filter
         }
 
         /// <summary>
-        ///     Invoked when the <see cref="FilterBase" /> object has changed.
+        ///     Invoked when the filter object has changed.
         /// </summary>
         public event ChangeEventHandler Changed;
 
+        /// <summary>
+        /// Processes the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <returns>The processed signal.</returns>
         public abstract IEnumerable<double> Process(IEnumerable<double> signal);
 
         /// <summary>
-        ///     Should be called every time the <see cref="FilterBase" /> object is changed in a way that influences its filter
-        ///     effect.
+        ///     Should be called every time the filter object is changed in a way that alters its filter effect.
         /// </summary>
         protected void OnChange()
         {
             this.OnChangeOverride();
-            this.Changed?.Invoke(this);
+            this.Changed?.Invoke(this, new FilterChangedEventArgs());
         }
 
         /// <summary>
-        ///     Can be overridden by a child class to perform a certain action every time the <see cref="FilterBase" /> is changed.
+        ///     Can be overridden by a child class to perform a certain action every time the filter is changed.
         /// </summary>
         protected virtual void OnChangeOverride()
         {

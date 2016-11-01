@@ -62,11 +62,12 @@ namespace Filter.LtiFilter.Types
         /// <summary>
         ///     Initializes a new instance of the <see cref="BiquadFilter" /> class.
         /// </summary>
+        /// <param name="sampleRate">The sample rate.</param>
         /// <param name="type">The biquad type.</param>
         /// <param name="f0">The corner frequency.</param>
         /// <param name="q">The quality factor.</param>
         /// <param name="gain">The gain factor (for peaking and shelving).</param>
-        public BiquadFilter(BiquadFilters type, double f0, double q, double gain = 0)
+        public BiquadFilter(double sampleRate, BiquadFilters type, double f0, double q, double gain = 0) : base(sampleRate)
         {
             this._Type = type;
             this._Fc = f0;
@@ -78,7 +79,7 @@ namespace Filter.LtiFilter.Types
         /// <summary>
         ///     Initializes a new instance of the <see cref="BiquadFilter" /> class.
         /// </summary>
-        public BiquadFilter()
+        public BiquadFilter(double sampleRate) : base(sampleRate)
         {
             this.Fc = double.NaN;
             this.Gain = double.NaN;
@@ -265,12 +266,6 @@ namespace Filter.LtiFilter.Types
             this.RaisePropertyChanged(nameof(this.b2));
             this.RaisePropertyChanged(nameof(this.A));
             this.RaisePropertyChanged(nameof(this.B));
-        }
-
-        protected override void OnSamplerateChanged()
-        {
-            this.CalculateCoefficients();
-            this.OnChange();
         }
     }
 }

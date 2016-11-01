@@ -8,11 +8,15 @@ namespace Filter.LtiFilter.Types
     /// <summary>
     ///     Represents a filter with a_n and b_n coefficients with an infinite impulse response.
     /// </summary>
-    public class IirFilter : LtiFilterBase
+    public class IirFilter : FilterBase
     {
         private IReadOnlyList<double> _a;
         private IReadOnlyList<double> _b;
         private int _order;
+
+        public IirFilter(double samplerate) : base(samplerate)
+        {
+        }
 
         /// <summary>
         ///     Gets or sets the denominator coefficients.
@@ -58,11 +62,6 @@ namespace Filter.LtiFilter.Types
                 }
                 return true;
             }
-        }
-
-        protected override void OnSamplerateChanged()
-        {
-            this.OnChange();
         }
 
         public override IEnumerable<double> Process(IEnumerable<double> signal)

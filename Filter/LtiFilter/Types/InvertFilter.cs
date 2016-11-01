@@ -1,17 +1,19 @@
 using System.Collections.Generic;
 using Filter.Extensions;
-using Filter.Series;
-using Filter.Signal;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
-    /// A filter with a transfer function of -1.
+    ///     A filter with a transfer function of -1.
     /// </summary>
-    public class InvertFilter : LtiFilterBase
+    public class InvertFilter : FilterBase
     {
+        public InvertFilter(double samplerate) : base(samplerate)
+        {
+        }
+
         /// <summary>
-        /// Returns true.
+        ///     Returns true.
         /// </summary>
         protected override bool HasEffectOverride => true;
 
@@ -19,11 +21,5 @@ namespace Filter.LtiFilter.Types
         {
             return signal.Negate();
         }
-
-        /// <summary>
-        /// Gets the default impulse length.
-        /// </summary>
-        /// <returns>1</returns>
-        public override int GetDefaultImpulseLength() => 1;
     }
 }

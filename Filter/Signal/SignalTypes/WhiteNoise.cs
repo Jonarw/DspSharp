@@ -16,7 +16,7 @@ namespace Filter.Signal
             this.Mean = mean;
             this.Sigma = Math.Sqrt(variance);
             this.Variance = variance;
-            this.NoiseSource = Dsp.WhiteNoise(unchecked((int)DateTime.Now.Ticks)).GetEnumerator();
+            this.NoiseSource = Dsp.WhiteNoise().GetEnumerator();
             this.Name = "white noise, µ = " + mean + ",σ² = " + variance;
         }
 

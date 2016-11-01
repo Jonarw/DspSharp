@@ -1,29 +1,26 @@
 using System;
 using System.Collections.Generic;
-using Filter.Algorithms;
-using Filter.Extensions;
-using Filter.Signal;
 using Filter.Signal.Windows;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
-    /// A standard FIR filter, e.g. lowpass, highpass etc.
+    ///     A standard FIR filter, e.g. lowpass, highpass etc.
     /// </summary>
     public class FirFilter : Convolver
     {
         /// <summary>
-        /// Enumeration of the supported filter types.
+        ///     Enumeration of the supported filter types.
         /// </summary>
         public enum Types
         {
             /// <summary>
-            /// FIR lowpass filter.
+            ///     FIR lowpass filter.
             /// </summary>
             Lowpass,
 
             /// <summary>
-            /// FIR highpass filter.
+            ///     FIR highpass filter.
             /// </summary>
             Highpass
         }
@@ -33,19 +30,13 @@ namespace Filter.LtiFilter.Types
         private int _FilterLength = Defaultfilterlength;
         private Types _FilterType;
         private WindowTypes _WindowType = WindowTypes.Hann;
-        private Window Win { get; set; }
 
-        /// <summary>
-        /// The length of the FIR-Filter.
-        /// </summary>
-        public int FilterLength
+        public FirFilter(double samplerate) : base(samplerate)
         {
-            get { return this._FilterLength; }
-            set { this.SetField(ref this._FilterLength, value); }
         }
 
         /// <summary>
-        /// The cut-off frequency.
+        ///     The cut-off frequency.
         /// </summary>
         public double Fc
         {
@@ -54,18 +45,21 @@ namespace Filter.LtiFilter.Types
         }
 
         /// <summary>
-        /// The type of the window used for fading out the infinite-length sinc pulse.
+        ///     The length of the FIR-Filter.
         /// </summary>
-        public WindowTypes WindowType
+        public int FilterLength
         {
-            get { return this._WindowType; }
-            set
-            {
-                if (this.SetField(ref this._WindowType, value))
-                {
-                    this.Win = null;
-                }
-            }
+            get { return this._FilterLength; }
+            set { this.SetField(ref this._FilterLength, value); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the type of the filter.
+        /// </summary>
+        public Types FilterType
+        {
+            get { return this._FilterType; }
+            set { this.SetField(ref this._FilterType, value); }
         }
 
         public override IReadOnlyList<double> ImpulseResponse
@@ -95,16 +89,22 @@ namespace Filter.LtiFilter.Types
         }
 
         /// <summary>
-        /// Gets or sets the type of the filter.
+        ///     The type of the window used for fading out the infinite-length sinc pulse.
         /// </summary>
-        public Types FilterType
+        public WindowTypes WindowType
         {
-            get { return this._FilterType; }
-            set { this.SetField(ref this._FilterType, value); }
+            get { return this._WindowType; }
+            set
+            {
+                if (this.SetField(ref this._WindowType, value))
+                {
+                    this.Win = null;
+                }
+            }
         }
 
         /// <summary>
-        /// Returns true if all parameters are valid, false otherwise.
+        ///     Returns true if all parameters are valid, false otherwise.
         /// </summary>
         protected override bool HasEffectOverride
         {
@@ -118,15 +118,6 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        /// <summary>
-        /// Gets the default length for the impulse response.
-        /// </summary>
-        /// <returns>
-        /// The default impulse length.
-        /// </returns>
-        public override int GetDefaultImpulseLength()
-        {
-            return this.FilterLength;
-        }
+        private Window Win { get; set; }
     }
 }

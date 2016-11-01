@@ -1,4 +1,5 @@
 using System.Linq;
+using Filter.Extensions;
 using Filter.Signal;
 using Filter.Signal.Windows;
 using FilterPlot.Axes;

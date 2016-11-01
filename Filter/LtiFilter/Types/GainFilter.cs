@@ -1,20 +1,21 @@
 using System.Collections.Generic;
-using System.Numerics;
 using Filter.Extensions;
-using Filter.Series;
-using Filter.Signal;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
-    /// Represents a filter with a constant gain and no effects otherwise.
+    ///     Represents a filter with a constant gain and no effects otherwise.
     /// </summary>
-    public class GainFilter : LtiFilterBase
+    public class GainFilter : FilterBase
     {
         private double _Gain = 1;
 
+        public GainFilter(double samplerate) : base(samplerate)
+        {
+        }
+
         /// <summary>
-        /// Gets or sets the linear gain factor of the <see cref="GainFilter"/>.
+        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
         /// </summary>
         public double Gain
         {
@@ -23,7 +24,7 @@ namespace Filter.LtiFilter.Types
         }
 
         /// <summary>
-        /// True if <see cref="Gain"/> is not 1, false otherwise.
+        ///     True if <see cref="Gain" /> is not 1, false otherwise.
         /// </summary>
         protected override bool HasEffectOverride
         {
@@ -42,12 +43,5 @@ namespace Filter.LtiFilter.Types
         {
             return signal.Multiply(this.Gain);
         }
-
-        /// <summary>
-        /// Gets the default length for the impulse response of the <see cref="LtiFilterBase" />.
-        /// </summary>
-        /// <returns>1</returns>
-        public override int GetDefaultImpulseLength() => 1;
-
     }
 }

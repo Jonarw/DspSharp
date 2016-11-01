@@ -1,16 +1,18 @@
 using System.Collections.Generic;
-using Filter.Series;
-using Filter.Signal;
 
 namespace Filter.LtiFilter.Types
 {
     /// <summary>
-    /// A filter with a transfer function of 1.
+    ///     A filter with a transfer function of 1.
     /// </summary>
-    public class UnityFilter : LtiFilterBase
+    public class DiracFilter : FilterBase
     {
+        public DiracFilter(double samplerate) : base(samplerate)
+        {
+        }
+
         /// <summary>
-        /// Returns false.
+        ///     Returns false.
         /// </summary>
         protected override bool HasEffectOverride => false;
 
@@ -18,11 +20,5 @@ namespace Filter.LtiFilter.Types
         {
             return signal;
         }
-
-        /// <summary>
-        /// Gets the default impulse length.
-        /// </summary>
-        /// <returns>1</returns>
-        public override int GetDefaultImpulseLength() => 1;
     }
 }
