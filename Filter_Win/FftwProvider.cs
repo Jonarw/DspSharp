@@ -75,7 +75,7 @@ namespace Filter_Win
 
             var plan = this.InversePlans[n];
             plan.Input = input;
-            return plan.Output.ToList();
+            return plan.Output.Multiply(1.0 / n).ToReadOnlyList();
         }
 
         /// <summary>

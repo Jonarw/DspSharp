@@ -1,29 +1,20 @@
 ﻿using System.Collections.Generic;
 using Filter.Algorithms;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Base class for all filters that can be described by their impulse response.
     /// </summary>
     /// <seealso cref="FilterBase" />
-    public class Convolver : FilterBase
+    public abstract class Convolver : FilterBase
     {
-        private IReadOnlyList<double> _impulseResponse;
-
-        public Convolver(double samplerate) : base(samplerate)
+        protected Convolver(double samplerate) : base(samplerate)
         {
+            this.Name = "convolver";
         }
 
-        public virtual IReadOnlyList<double> ImpulseResponse
-        {
-            get { return this._impulseResponse; }
-            set
-            {
-                this.SetField(ref this._impulseResponse, value);
-                this.OnChange();
-            }
-        }
+        public abstract IReadOnlyList<double> ImpulseResponse { get; }
 
         protected override bool HasEffectOverride
         {
@@ -38,7 +29,7 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return Dsp.Convolve(signal, this.ImpulseResponse);
         }

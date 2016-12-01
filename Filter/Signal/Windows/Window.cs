@@ -3,16 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Filter.Algorithms;
 using Filter.Extensions;
+using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal.Windows
 {
-    public enum WindowModes
-    {
-        Symmetric,
-        Causal,
-        AntiCausal
-    }
-
     /// <summary>
     ///     Represents a Window function, usually applied to another impulse response.
     /// </summary>
@@ -31,51 +25,11 @@ namespace Filter.Signal.Windows
         {
             this.Type = type;
             this.Mode = mode;
-            this.Name = type.ToString() + " " + mode.ToString() + " window, length = " + length;
-        }
-
-        private static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length)
-        {
-            if (mode == WindowModes.Symmetric)
-            {
-                return GetWindow(type, length).ToReadOnlyList();
-            }
-
-            if (mode == WindowModes.Causal)
-            {
-                return GetHalfWindow(type, length).ToReadOnlyList();
-            }
-
-            if (mode == WindowModes.AntiCausal)
-            {
-                return GetHalfWindow(type, length).Reverse().ToReadOnlyList();
-            }
-
-            throw new Exception();
-        }
-
-        private static int GetDefaultStart(WindowModes mode, int length)
-        {
-            if (mode == WindowModes.Symmetric)
-            {
-                return -(length >> 1);
-            }
-
-            if (mode == WindowModes.Causal)
-            {
-                return 0;
-            }
-
-            if (mode == WindowModes.AntiCausal)
-            {
-                return -length;
-            }
-
-            throw new Exception();
+            this.DisplayName = type + " " + mode + " window, length = " + length;
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Window" /> Class. The window will have its maximum centered on time 0.
+        ///     Initializes a new instance of the <see cref="Window" /> Class. The window will have its maximum at time 0.
         /// </summary>
         /// <param name="type">The window type.</param>
         /// <param name="length">The window length.</param>
@@ -85,9 +39,6 @@ namespace Filter.Signal.Windows
             : this(type, GetDefaultStart(mode, length), length, samplerate, mode)
         {
         }
-
-        public WindowTypes Type { get; set; }
-        public WindowModes Mode { get; set; }
 
         /// <summary>
         ///     Gets the positive half of a window function.
@@ -167,10 +118,63 @@ namespace Filter.Signal.Windows
             }
         }
 
+        /// <summary>
+        ///     Gets the time samples for the specified window.
+        /// </summary>
+        /// <param name="type">The window type.</param>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
         public static IEnumerable<double> GetWindow(WindowTypes type, int length)
         {
             var hw = GetHalfWindow(type, (length >> 1) + 1).ToReadOnlyList();
             return hw.Reverse().Concat(hw.GetPaddedRange(1, ((length + 1) >> 1) - 1));
         }
+
+        private static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length)
+        {
+            if (mode == WindowModes.Symmetric)
+            {
+                return GetWindow(type, length).ToReadOnlyList();
+            }
+
+            if (mode == WindowModes.Causal)
+            {
+                return GetHalfWindow(type, length).ToReadOnlyList();
+            }
+
+            if (mode == WindowModes.AntiCausal)
+            {
+                return GetHalfWindow(type, length).Reverse().ToReadOnlyList();
+            }
+
+            throw new Exception();
+        }
+
+        private static int GetDefaultStart(WindowModes mode, int length)
+        {
+            if (mode == WindowModes.Symmetric)
+            {
+                return -(length >> 1);
+            }
+
+            if (mode == WindowModes.Causal)
+            {
+                return 0;
+            }
+
+            if (mode == WindowModes.AntiCausal)
+            {
+                return -length;
+            }
+
+            throw new Exception();
+        }
+
+        [Category("window")]
+        [DisplayName("type")]
+        public WindowTypes Type { get; }
+
+        [DisplayName("mode")]
+        public WindowModes Mode { get; }
     }
 }

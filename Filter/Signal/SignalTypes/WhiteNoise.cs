@@ -2,44 +2,46 @@
 using System.Collections.Generic;
 using Filter.Algorithms;
 using Filter.Extensions;
+using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal
 {
-    public class WhiteNoise : ISignal
+    /// <summary>
+    ///     Represents a white noise signal with (ideally) completely uncorrelated samples.
+    /// </summary>
+    /// <seealso cref="Filter.Signal.SignalBase" />
+    public class WhiteNoise : SignalBase
     {
-        public double Mean { get; }
-        public double Variance { get; }
-
-        public WhiteNoise(double sampleRate, double mean = 0, double variance = 1)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="WhiteNoise" /> class.
+        /// </summary>
+        /// <param name="sampleRate">The sample rate.</param>
+        /// <param name="mean">The mean.</param>
+        /// <param name="variance">The variance.</param>
+        public WhiteNoise(double sampleRate, double mean = 0, double variance = 1) : base(sampleRate)
         {
-            this.SampleRate = sampleRate;
             this.Mean = mean;
             this.Sigma = Math.Sqrt(variance);
             this.Variance = variance;
             this.NoiseSource = Dsp.WhiteNoise().GetEnumerator();
-            this.Name = "white noise, µ = " + mean + ",σ² = " + variance;
+            this.DisplayName = "white noise, µ = " + mean + ",σ² = " + variance;
         }
 
+        private List<double> Cache { get; set; }
+        private int CacheEnd { get; set; }
+        private int CacheStart { get; set; }
+        private IEnumerator<double> NoiseSource { get; }
         private double Sigma { get; }
 
-        private List<double> Cache { get; set; }
-        private int CacheStart { get; set; }
-        private int CacheEnd { get; set; }
-        private IEnumerator<double> NoiseSource { get; }
-
-        private List<double> GenerateNoise(int length)
-        {
-            var ret = new List<double>(length);
-            for (int i = 0; i < length; i++)
-            {
-                this.NoiseSource.MoveNext();
-                ret.Add(this.NoiseSource.Current * this.Sigma + this.Mean);
-            }
-
-            return ret;
-        } 
-
-        public IEnumerable<double> GetWindowedSignal(int start, int length)
+        /// <summary>
+        ///     Gets a section of the signal in time domain.
+        /// </summary>
+        /// <param name="start">The start of the section.</param>
+        /// <param name="length">The length of the section.</param>
+        /// <returns>
+        ///     The specified section.
+        /// </returns>
+        public override IEnumerable<double> GetWindowedSignal(int start, int length)
         {
             if (this.CacheStart == this.CacheEnd)
             {
@@ -65,7 +67,23 @@ namespace Filter.Signal
             return this.Cache.GetRangeOptimized(start - this.CacheStart, length);
         }
 
-        public double SampleRate { get; }
-        public string Name { get; set; }
+        private List<double> GenerateNoise(int length)
+        {
+            var ret = new List<double>(length);
+            for (int i = 0; i < length; i++)
+            {
+                this.NoiseSource.MoveNext();
+                ret.Add(this.NoiseSource.Current * this.Sigma + this.Mean);
+            }
+
+            return ret;
+        }
+
+        [Category("white noise")]
+        [DisplayName("mean")]
+        public double Mean { get; }
+
+        [DisplayName("variance")]
+        public double Variance { get; }
     }
 }

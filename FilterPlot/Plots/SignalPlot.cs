@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using Filter;
 using Filter.Signal;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -7,7 +9,7 @@ using Filter.Signal.Windows;
 
 namespace FilterPlot
 {
-    public abstract class SignalPlot
+    public abstract class SignalPlot : Observable
     {
         protected SignalPlot()
         {
@@ -16,22 +18,18 @@ namespace FilterPlot
             this.Model.LegendOrientation = LegendOrientation.Horizontal;
             this.Model.LegendPosition = LegendPosition.TopLeft;
             this.Model.IsLegendVisible = true;
-            var xaxis = this.GetXAxis();
-            xaxis.Position = AxisPosition.Bottom;
-            this.Model.Axes.Add(xaxis);
 
-            var yaxis = this.GetYAxis();
-            yaxis.Position = AxisPosition.Left;
-            this.Model.Axes.Add(yaxis);
+            this.PropertyChanged += this.ConfigChanged;
         }
 
-
-
-        public Window CausalWindow { get; set; } = new Window(WindowTypes.Rectangular, 8192, 44100, WindowModes.Causal);
-        public Window SymmetricWindow { get; set; } = new Window(WindowTypes.Rectangular, 8192, 44100, WindowModes.Symmetric);
+        private void ConfigChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.Update(true);
+        }
 
         public PlotModel Model { get; } = new PlotModel();
-        public IEnumerable<ISignal> Signals { get; set; } = new List<ISignal>();
+        public IList<ISignal> Signals { get; } = new List<ISignal>();
+        public string DisplayName { get; set; }
 
         public void Update(bool updateData)
         {
@@ -42,34 +40,27 @@ namespace FilterPlot
             }
 
             this.Model.Series.Clear();
+            this.Model.Axes.Clear();
 
-            var newGraphs = new Dictionary<ISignal, Series>();
+            var xaxis = this.CreateXAxis();
+            xaxis.Position = AxisPosition.Bottom;
+            this.Model.Axes.Add(xaxis);
+
+            var yaxis = this.CreateYAxis();
+            yaxis.Position = AxisPosition.Left;
+            this.Model.Axes.Add(yaxis);
 
             foreach (var signal in this.Signals)
             {
-                Series newGraph;
-
-                if (this.Graphs.ContainsKey(signal))
-                {
-                    newGraph = this.Graphs[signal];
-                }
-                else
-                {
-                    newGraph = this.CreateGraph(signal);
-                }
-
-                newGraphs.Add(signal, newGraph);
-                this.Model.Series.Add(newGraph);
+                this.Model.Series.Add(this.CreateGraph(signal));
             }
 
-            this.Graphs = newGraphs;
             this.Model.InvalidatePlot(true);
         }
 
         protected abstract Series CreateGraph(ISignal signal);
-        protected abstract Axis GetXAxis();
-        protected abstract Axis GetYAxis();
+        protected abstract Axis CreateXAxis();
+        protected abstract Axis CreateYAxis();
 
-        private Dictionary<ISignal, Series> Graphs { get; set; } = new Dictionary<ISignal, Series>(); 
     }
 }

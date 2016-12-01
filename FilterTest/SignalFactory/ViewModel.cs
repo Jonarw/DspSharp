@@ -13,8 +13,9 @@ namespace FilterTest.SignalFactory
         private ICommand _OkCommand;
         private SignalFactory _SpecificConfig;
 
-        public ViewModel()
+        public ViewModel(double samplerate)
         {
+            this.Samplerate = samplerate;
             this.CommonConfig.PropertyChanged += this.CommonConfigChanged;
             this.SignalTypeChanged();
         }
@@ -70,7 +71,9 @@ namespace FilterTest.SignalFactory
 
         private void SignalTypeChanged()
         {
-            this.SpecificConfig = SignalFactoryFactory.CreateSignalFactory(this.CommonConfig.SignalType);
+            this.SpecificConfig = SignalFactoryFactory.CreateSignalFactory(this.CommonConfig.SignalType, this.Samplerate);
         }
+
+        public double Samplerate { get; }
     }
 }

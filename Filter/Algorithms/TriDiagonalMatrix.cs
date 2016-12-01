@@ -26,7 +26,6 @@
 //
 
 using System;
-using System.Text;
 
 namespace Filter.Algorithms
 {

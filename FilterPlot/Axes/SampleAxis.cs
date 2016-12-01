@@ -14,8 +14,6 @@ namespace FilterPlot.Axes
             this.Title = "time [samples]";
             this.MinimumMajorStep = 1;
             this.MinimumMinorStep = 1;
-            this.Minimum = 0;
-            this.Maximum = 1024;
         }
     }
 }

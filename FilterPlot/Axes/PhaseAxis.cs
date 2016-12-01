@@ -18,7 +18,7 @@
             this.FormatAsFractions = true;
             this.FractionUnit = Math.PI;
             this.FractionUnitSymbol = "π";
-            this.Title = "Phase in degree";
+            this.Title = "Phase in radians";
             this.IsPanEnabled = false;
             this.IsZoomEnabled = false;
             this.MajorStep = Math.PI / 2;

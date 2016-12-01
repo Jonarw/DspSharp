@@ -1,6 +1,7 @@
 using System;
+using PropertyTools.DataAnnotations;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Represents a second-order <see cref="IirFilter" />.
@@ -67,8 +68,9 @@ namespace Filter.LtiFilter.Types
         /// <param name="f0">The corner frequency.</param>
         /// <param name="q">The quality factor.</param>
         /// <param name="gain">The gain factor (for peaking and shelving).</param>
-        public BiquadFilter(double sampleRate, BiquadFilters type, double f0, double q, double gain = 0) : base(sampleRate)
+        public BiquadFilter(double sampleRate, BiquadFilters type, double f0, double q, double gain = 1) : base(sampleRate)
         {
+            this.Name = "biquad filter";
             this._Type = type;
             this._Fc = f0;
             this._Gain = gain;
@@ -79,79 +81,12 @@ namespace Filter.LtiFilter.Types
         /// <summary>
         ///     Initializes a new instance of the <see cref="BiquadFilter" /> class.
         /// </summary>
-        public BiquadFilter(double sampleRate) : base(sampleRate)
+        public BiquadFilter(double sampleRate) : this(sampleRate, BiquadFilters.Highpass, 1000, 0.71)
         {
-            this.Fc = double.NaN;
-            this.Gain = double.NaN;
-            this.Q = double.NaN;
-        }
-
-        public double a0 => this.A[0];
-        public double a1 => this.A[1];
-        public double a2 => this.A[2];
-        public double b0 => this.B[0];
-        public double b1 => this.B[1];
-        public double b2 => this.B[2];
-
-        /// <summary>
-        ///     The corner frequenciy Fc.
-        /// </summary>
-        public double Fc
-        {
-            get { return this._Fc; }
-            set
-            {
-                this.SetField(ref this._Fc, value);
-                this.CalculateCoefficients();
-                this.OnChange();
-            }
-        }
-
-        /// <summary>
-        ///     The gain factor (for peaking and shelving filters).
-        /// </summary>
-        public double Gain
-        {
-            get { return this._Gain; }
-            set
-            {
-                this.SetField(ref this._Gain, value);
-                this.CalculateCoefficients();
-                this.OnChange();
-            }
         }
 
         public bool IsGainUsed
             => (this.Type == BiquadFilters.Peaking) || (this.Type == BiquadFilters.Highshelf) || (this.Type == BiquadFilters.Lowshelf);
-
-        /// <summary>
-        ///     The quality factor Q.
-        /// </summary>
-        public double Q
-        {
-            get { return this._Q; }
-            set
-            {
-                this.SetField(ref this._Q, value);
-                this.CalculateCoefficients();
-                this.OnChange();
-            }
-        }
-
-        /// <summary>
-        ///     The type of the <see cref="BiquadFilter" />.
-        /// </summary>
-        public BiquadFilters Type
-        {
-            get { return this._Type; }
-            set
-            {
-                this.SetField(ref this._Type, value);
-                this.RaisePropertyChanged(nameof(this.IsGainUsed));
-                this.CalculateCoefficients();
-                this.OnChange();
-            }
-        }
 
         /// <summary>
         ///     True for valid parameters, otherwise false.
@@ -164,15 +99,18 @@ namespace Filter.LtiFilter.Types
                 {
                     return false;
                 }
+
                 if (double.IsNaN(this.Fc) || !((this.Fc > 0) && (this.Fc < this.Samplerate / 2.0)))
                 {
                     return false;
                 }
+
                 if (((this.Type == BiquadFilters.Peaking) || (this.Type == BiquadFilters.Lowshelf) || (this.Type == BiquadFilters.Highshelf)) &&
                     double.IsNaN(this.Gain))
                 {
                     return false;
                 }
+
                 return true;
             }
         }
@@ -267,5 +205,87 @@ namespace Filter.LtiFilter.Types
             this.RaisePropertyChanged(nameof(this.A));
             this.RaisePropertyChanged(nameof(this.B));
         }
+
+        /// <summary>
+        ///     The type of the <see cref="BiquadFilter" />.
+        /// </summary>
+        [Category("biquad")]
+        [DisplayName("filter type")]
+        public BiquadFilters Type
+        {
+            get { return this._Type; }
+            set
+            {
+                this.SetField(ref this._Type, value);
+                this.RaisePropertyChanged(nameof(this.IsGainUsed));
+                this.CalculateCoefficients();
+                this.OnChange();
+            }
+        }
+
+        /// <summary>
+        ///     The corner frequenciy Fc.
+        /// </summary>
+        [DisplayName("corner frequency")]
+        public double Fc
+        {
+            get { return this._Fc; }
+            set
+            {
+                this.SetField(ref this._Fc, value);
+                this.CalculateCoefficients();
+                this.OnChange();
+            }
+        }
+
+        /// <summary>
+        ///     The gain factor (for peaking and shelving filters).
+        /// </summary>
+        [DisplayName("gain")]
+        public double Gain
+        {
+            get { return this._Gain; }
+            set
+            {
+                this.SetField(ref this._Gain, value);
+                this.CalculateCoefficients();
+                this.OnChange();
+            }
+        }
+
+        /// <summary>
+        ///     The quality factor Q.
+        /// </summary>
+        [DisplayName("quality factor")]
+        public double Q
+        {
+            get { return this._Q; }
+            set
+            {
+                this.SetField(ref this._Q, value);
+                this.CalculateCoefficients();
+                this.OnChange();
+            }
+        }
+
+        [Category("coefficients")]
+        [DisplayName("a0")]
+        public double a0 => this.A[0];
+
+        [DisplayName("a1")]
+        public double a1 => this.A[1];
+
+        [DisplayName("a2")]
+        public double a2 => this.A[2];
+
+        [DisplayName("b0")]
+        public double b0 => this.B[0];
+
+        [DisplayName("b1")]
+        public double b1 => this.B[1];
+
+        [DisplayName("b2")]
+        public double b2 => this.B[2];
+
     }
 }

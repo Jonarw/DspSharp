@@ -81,13 +81,13 @@ namespace Filter.Algorithms
             {
                 if (actualTargetX[c] < actualX.First())
                 {
-                    yield return double.NaN;
+                    yield return y[0];
                     continue;
                 }
 
                 if (actualTargetX[c] > actualX.Last())
                 {
-                    yield return double.NaN;
+                    yield return y[y.Count - 1];
                     continue;
                 }
 
@@ -108,16 +108,17 @@ namespace Filter.Algorithms
                     xCurrent += 1;
                 }
 
-                if (pointCounter < 2) // spline
-                {
-                    if (spline == null)
-                    {
-                        spline = CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
-                    }
+                //if (pointCounter < 2) // spline
+                //{
+                //    if (spline == null)
+                //    {
+                //        spline = CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
+                //    }
 
-                    yield return spline[c];
-                }
-                else if (pointCounter < 3) // linear interpolation
+                //    yield return spline[c];
+                //}
+                //else 
+                if (pointCounter < 3) // linear interpolation
                 {
                     var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
                     tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
@@ -779,6 +780,11 @@ namespace Filter.Algorithms
 
         public static int Mod(int x, int m)
         {
+            if (x == 0)
+            {
+                return 0;
+            }
+
             return (x % m + m) % m;
         }
 

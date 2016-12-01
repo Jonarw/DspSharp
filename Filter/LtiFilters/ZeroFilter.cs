@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Represents a filter with a constant gain and no effects otherwise.
@@ -10,6 +9,7 @@ namespace Filter.LtiFilter.Types
     {
         public ZeroFilter(double samplerate) : base(samplerate)
         {
+            this.Name = "zero filter";
         }
 
         /// <summary>
@@ -17,9 +17,13 @@ namespace Filter.LtiFilter.Types
         /// </summary>
         protected override bool HasEffectOverride => true;
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return Enumerable.Repeat(0.0, signal.Count());
+            var e = signal.GetEnumerator();
+            while (e.MoveNext())
+            {
+                yield return 0.0;
+            }
         }
     }
 }

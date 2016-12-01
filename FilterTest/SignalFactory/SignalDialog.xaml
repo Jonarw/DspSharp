@@ -8,9 +8,6 @@
         local:DialogCloser.DialogResult="{Binding DialogResult}"
         xmlns:pt="http://propertytools.org/wpf"
         Title="SignalDialog" Height="387" Width="321">
-    <Window.DataContext>
-        <local:ViewModel />
-    </Window.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>

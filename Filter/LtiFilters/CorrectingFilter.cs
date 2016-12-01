@@ -1,20 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using Filter.Algorithms;
-using Filter.Extensions;
-using Filter.Series;
+using System.Collections.ObjectModel;
 using Filter.Signal;
 using Filter.Signal.Windows;
 
 #pragma warning disable 1591
 // work in progress!
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
 
-    public class CorrectingFilter : Convolver
+    public class CorrectingFilter : Convolver, ISignalBasedFilter
     {
         private FilterBase _targetLocal;
         private FilterBase _Target;
@@ -161,6 +157,8 @@ namespace Filter.LtiFilter.Types
             set { this.SetField(ref this._NegativeThreshold, value); }
         }
 
+        public override IReadOnlyList<double> ImpulseResponse { get; }
+
         protected override bool HasEffectOverride
         {
             get
@@ -223,6 +221,9 @@ namespace Filter.LtiFilter.Types
 
         public CorrectingFilter(double samplerate) : base(samplerate)
         {
+            this.Name = "correcting filter";
         }
+
+        public ObservableCollection<ISignal> AvailableSignals { get; set; }
     }
 }

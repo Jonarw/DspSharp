@@ -4,15 +4,26 @@ using System.Linq;
 
 namespace Filter
 {
+    /// <summary>
+    ///     Represents a circular buffer.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class CircularBuffer<T>
     {
         private T[] storage;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="CircularBuffer{T}" /> class.
+        /// </summary>
+        /// <param name="length">The length of the buffer.</param>
         public CircularBuffer(int length)
         {
             this.storage = new T[length];
         }
 
+        /// <summary>
+        ///     Gets or sets the length.
+        /// </summary>
         public int Length
         {
             get { return this.storage.Length; }
@@ -28,20 +39,64 @@ namespace Filter
 
         private int Position { get; set; }
 
-        public T StoreAndRetrieve(T item)
+        /// <summary>
+        ///     Retrieves an item without changing the current position.
+        /// </summary>
+        /// <param name="position">The position of the item where 0 is the current item, 1 the item before that and so on.</param>
+        /// <returns></returns>
+        public T Peek(int position)
         {
-            T ret = this.storage[this.Position];
-            this.storage[this.Position] = item;
-            this.Position = (this.Position + 1) % this.Length;
+            return this.storage[(this.Position - position + this.Length * 1000) % this.Length];
+        }
+
+        /// <summary>
+        ///     Retrieves a range of the last items, stopping at the item before the current item, without changing the current
+        ///     position.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        public T[] PeekRange(int length)
+        {
+            var ret = new T[length];
+
+            int actualLength = length % this.Length;
+
+            if (this.Position < actualLength - 1)
+            {
+                int remaining = actualLength - this.Position - 1;
+                Array.Copy(this.storage, 0, ret, remaining, this.Position + 1);
+                Array.Copy(this.storage, this.Length - remaining - 1, ret, 0, remaining);
+            }
+            else
+            {
+                if (actualLength == 0)
+                {
+                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, this.Length);
+                }
+                else
+                {
+                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, actualLength);
+                }
+            }
+
             return ret;
         }
 
+        /// <summary>
+        ///     Stores a new value at the current position and increments the current position.
+        /// </summary>
+        /// <param name="item">The item.</param>
         public void Store(T item)
         {
             this.storage[this.Position] = item;
             this.Position = (this.Position + 1) % this.Length;
         }
 
+        /// <summary>
+        ///     Stores the specified items starting at the current position and increments the current position be the number of
+        ///     items.
+        /// </summary>
+        /// <param name="items">The items.</param>
         public void Store(IEnumerable<T> items)
         {
             var itemarray = items.ToArray();
@@ -74,6 +129,25 @@ namespace Filter
             this.Position = (this.Position + itemarray.Length) % this.Length;
         }
 
+        /// <summary>
+        ///     Retrieves the current value, stores a new value at this position and increments the current position.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        public T StoreAndRetrieve(T item)
+        {
+            T ret = this.storage[this.Position];
+            this.storage[this.Position] = item;
+            this.Position = (this.Position + 1) % this.Length;
+            return ret;
+        }
+
+        /// <summary>
+        ///     Retrieves the number of provided items starting from the current position, stores the provided items to that range
+        ///     and increments the current position by the number of provided items.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        /// <returns></returns>
         public T[] StoreAndRetrieve(IEnumerable<T> items)
         {
             var itemarray = items.ToArray();
@@ -113,38 +187,6 @@ namespace Filter
             }
 
             this.Position = (this.Position + itemarray.Length) % this.Length;
-
-            return ret;
-        }
-
-        public T Peek(int position)
-        {
-            return this.storage[(this.Position - position + this.Length * 1000) % this.Length];
-        }
-
-        public T[] PeekRange(int length)
-        {
-            var ret = new T[length];
-
-            int actualLength = length % this.Length;
-
-            if (this.Position < actualLength - 1)
-            {
-                int remaining = actualLength - this.Position - 1;
-                Array.Copy(this.storage, 0, ret, remaining, this.Position + 1);
-                Array.Copy(this.storage, this.Length - remaining - 1, ret, 0, remaining);
-            }
-            else
-            {
-                if (actualLength == 0)
-                {
-                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, this.Length);
-                }
-                else
-                {
-                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, actualLength);
-                }
-            }
 
             return ret;
         }

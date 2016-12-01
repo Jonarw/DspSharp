@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Filter.Extensions;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     A filter with a transfer function of -1.
@@ -10,6 +10,7 @@ namespace Filter.LtiFilter.Types
     {
         public InvertFilter(double samplerate) : base(samplerate)
         {
+            this.Name = "invert filter";
         }
 
         /// <summary>
@@ -17,7 +18,7 @@ namespace Filter.LtiFilter.Types
         /// </summary>
         protected override bool HasEffectOverride => true;
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal.Negate();
         }
