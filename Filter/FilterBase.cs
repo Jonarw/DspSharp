@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Filter.Signal;
+﻿using System.Collections.Generic;
+using PropertyTools.DataAnnotations;
 
 namespace Filter
 {
@@ -13,23 +12,23 @@ namespace Filter
 
         private bool _Enabled = true;
 
+        private string _Name;
+
         protected FilterBase(double samplerate)
         {
             this.Samplerate = samplerate;
         }
 
-        /// <summary>
-        ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
-        /// </summary>
-        public double Samplerate { get; }
+        public static IList<double> AvailableSampleRates { get; } = new List<double> {44100, 48000, 88200, 96000, 192000};
 
         /// <summary>
-        /// Gets a value indicating whether this instance has infinite impulse response.
+        ///     Determines whether the filter object is enabled.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
-        /// </value>
-        public bool HasInfiniteImpulseResponse { get; } = false;
+        public bool Enabled
+        {
+            get { return this._Enabled; }
+            set { this.SetField(ref this._Enabled, value); }
+        }
 
         /// <summary>
         ///     Indicates whether the <see cref="FilterBase" /> object has an effect.
@@ -44,26 +43,40 @@ namespace Filter
         /// </summary>
         protected abstract bool HasEffectOverride { get; }
 
-        /// <summary>
-        ///     Determines whether the filter object is enabled. 
-        /// </summary>
-        public bool Enabled
+        public IEnumerable<double> Process(IEnumerable<double> input)
         {
-            get { return this._Enabled; }
-            set { this.SetField(ref this._Enabled, value); }
+            if (this.HasEffect)
+            {
+                return this.ProcessOverride(input);
+            }
+
+            return input;
         }
+
+        /// <summary>
+        ///     Gets a value indicating whether this instance has infinite impulse response.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasInfiniteImpulseResponse { get; protected set; } = false;
+
+        /// <summary>
+        ///     Processes the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <returns>The processed signal.</returns>
+        public abstract IEnumerable<double> ProcessOverride(IEnumerable<double> signal);
+
+        /// <summary>
+        ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
+        /// </summary>
+        public double Samplerate { get; }
 
         /// <summary>
         ///     Invoked when the filter object has changed.
         /// </summary>
         public event ChangeEventHandler Changed;
-
-        /// <summary>
-        /// Processes the specified signal.
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        /// <returns>The processed signal.</returns>
-        public abstract IEnumerable<double> Process(IEnumerable<double> signal);
 
         /// <summary>
         ///     Should be called every time the filter object is changed in a way that alters its filter effect.
@@ -79,6 +92,13 @@ namespace Filter
         /// </summary>
         protected virtual void OnChangeOverride()
         {
+        }
+
+        [DisplayName("display name")]
+        public string Name
+        {
+            get { return this._Name; }
+            set { this.SetField(ref this._Name, value); }
         }
     }
 }

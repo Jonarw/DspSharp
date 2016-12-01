@@ -1,40 +1,74 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Filter.Signal
 {
-    public class InfiniteSignal : ISignal
+    /// <summary>
+    ///     Represents a digital signal that is infinitely long in time domain.
+    /// </summary>
+    /// <seealso cref="Filter.Signal.SignalBase" />
+    public class InfiniteSignal : SignalBase
     {
-        public InfiniteSignal(Func<int, double> sampleFunction, double sampleRate)
+        /// <summary>
+        ///     Describes a function that returns a sample value for any given sample number.
+        /// </summary>
+        /// <param name="time">The sample number.</param>
+        /// <returns></returns>
+        public delegate double TimeDomainFunc(int time);
+
+        /// <summary>
+        ///     Describes a function that returns a range of samples values for any given sample range.
+        /// </summary>
+        /// <param name="start">The start of the sample range.</param>
+        /// <param name="length">The length of the sample range.</param>
+        /// <returns></returns>
+        public delegate IEnumerable<double> TimeDomainRangeFunc(int start, int length);
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InfiniteSignal" /> class.
+        /// </summary>
+        /// <param name="sampleFunction">The sample function.</param>
+        /// <param name="sampleRate">The sample rate.</param>
+        public InfiniteSignal(TimeDomainFunc sampleFunction, double sampleRate) : base(sampleRate)
         {
             this.SampleFunction = sampleFunction;
-            this.SampleRate = sampleRate;
             this.TimeDomainFunction = this.GetTimeDomainFunction;
+            this.DisplayName = "infinite signal";
         }
 
-        public InfiniteSignal(Func<int, int, IEnumerable<double>> timeDomainFunction, double sampleRate)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InfiniteSignal" /> class.
+        /// </summary>
+        /// <param name="timeDomainFunction">The time domain range function.</param>
+        /// <param name="sampleRate">The sample rate.</param>
+        public InfiniteSignal(TimeDomainRangeFunc timeDomainFunction, double sampleRate) : base(sampleRate)
         {
             this.TimeDomainFunction = timeDomainFunction;
-            this.SampleRate = sampleRate;
+            this.DisplayName = "infinite signal";
         }
 
-        private IEnumerable<double> GetTimeDomainFunction(int start, int length)
-        {
-            for (int i = start; i < length; i++)
-            {
-                yield return this.SampleFunction.Invoke(i);
-            }
-        }
+        private TimeDomainFunc SampleFunction { get; }
 
-        public Func<int, int, IEnumerable<double>> TimeDomainFunction { get; set; }
+        private TimeDomainRangeFunc TimeDomainFunction { get; }
 
-        public IEnumerable<double> GetWindowedSignal(int start, int length)
+        /// <summary>
+        ///     Gets a section of the signal in time domain.
+        /// </summary>
+        /// <param name="start">The start of the section.</param>
+        /// <param name="length">The length of the section.</param>
+        /// <returns>
+        ///     The specified section.
+        /// </returns>
+        public override IEnumerable<double> GetWindowedSignal(int start, int length)
         {
             return this.TimeDomainFunction.Invoke(start, length);
         }
 
-        public Func<int, double> SampleFunction { get; set; }
-        public double SampleRate { get; }
-        public string Name { get; set; } = "infinite signal";
+        private IEnumerable<double> GetTimeDomainFunction(int start, int length)
+        {
+            for (int i = start; i < start + length; i++)
+            {
+                yield return this.SampleFunction.Invoke(i);
+            }
+        }
     }
 }

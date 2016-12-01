@@ -1,74 +1,20 @@
-﻿using System;
-using System.Linq;
-using Filter.Extensions;
-using Filter.Signal;
-using Filter.Signal.Windows;
+﻿using System.Collections.Generic;
+using Filter.Spectrum;
 using FilterPlot.Axes;
-using OxyPlot;
 using OxyPlot.Axes;
-using OxyPlot.Series;
 
 namespace FilterPlot
 {
-    public class PhasePlot : SignalPlot
+    public class PhasePlot : SpectrumPlot
     {
-        private bool _xLogarithmic;
-        private Axis XAxis { get; set; }
+        public PhasePlot()
+        {
+            this.DisplayName = "Phase";
+        }
+
         private LinearAxis YAxis { get; set; }
 
-        public bool XLogarithmic
-        {
-            get { return this._xLogarithmic; }
-            set
-            {
-                this._xLogarithmic = value;
-                this.XAxis = null;
-            }
-        }
-
-        public Window CausalWindow { get; set; } = new Window(WindowTypes.Hann, 8192, 44100, WindowModes.Causal);
-        public Window SymmetricWindow { get; set; } = new Window(WindowTypes.Hann, 8192, 44100, WindowModes.Symmetric);
-
-
-        protected override Series CreateGraph(ISignal signal)
-        {
-            var ret = new LineSeries();
-            var fsignal = signal as IFiniteSignal;
-            if (fsignal != null)
-            {
-                ret.Points.AddRange(fsignal.Spectrum.Phase.Zip(fsignal.Spectrum.Frequencies.Values, (p, f) => new DataPoint(f, p)));
-                return ret;
-            }
-
-            var esignal = signal as IEnumerableSignal;
-            if (esignal != null)
-            {
-                var wsignal = esignal.Multiply(this.CausalWindow);
-                return this.CreateGraph(wsignal);
-            }
-
-            var ssignal = signal as ISyntheticSignal;
-            if (ssignal != null)
-            {
-                ret.Points.AddRange(ssignal.Spectrum.Phase.Zip(ssignal.Spectrum.Frequencies.Values, (p, f) => new DataPoint(f, p)));
-                return ret;
-            }
-
-            var iwsignal = signal.Multiply(this.SymmetricWindow);
-            return this.CreateGraph(iwsignal);
-        }
-
-        protected override Axis GetXAxis()
-        {
-            if (this.XAxis == null)
-            {
-                this.XAxis = new FrequencyAxis();
-            }
-
-            return this.XAxis;
-        }
-
-        protected override Axis GetYAxis()
+        protected override Axis CreateYAxis()
         {
             if (this.YAxis == null)
             {
@@ -76,6 +22,11 @@ namespace FilterPlot
             }
 
             return this.YAxis;
+        }
+
+        protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
+        {
+            return spectrum.Phase;
         }
     }
 }

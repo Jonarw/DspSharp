@@ -15,11 +15,13 @@ namespace FilterTest.SignalFactory
             typeof (SignalDialog),
             new PropertyMetadata());
 
-        public SignalDialog()
+        public SignalDialog(double samplerate)
         {
             this.InitializeComponent();
+            this.DataContext = new ViewModel(samplerate);
             var binding = new Binding(nameof(ViewModel.CreatedSignal)) {Source = this.DataContext};
             this.SetBinding(CreatedSignalProperty, binding);
+
         }
 
         public ISignal CreatedSignal

@@ -1,21 +1,37 @@
-using System;
-using System.Collections.Generic;
 using Filter.Spectrum;
 
 namespace Filter.Signal
 {
+    /// <summary>
+    ///     Represents a digital signal representable in time domain with a known and analytically calculable spectrum.
+    /// </summary>
+    /// <seealso cref="Filter.Signal.InfiniteSignal" />
+    /// <seealso cref="Filter.Signal.ISyntheticSignal" />
     public abstract class SyntheticSignal : InfiniteSignal, ISyntheticSignal
     {
-        protected SyntheticSignal(Func<int, double> sampleFunction, double sampleRate) : base(sampleFunction, sampleRate)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SyntheticSignal" /> class.
+        /// </summary>
+        /// <param name="sampleFunction">The sample function.</param>
+        /// <param name="sampleRate">The sample rate.</param>
+        protected SyntheticSignal(TimeDomainFunc sampleFunction, double sampleRate) : base(sampleFunction, sampleRate)
         {
-            this.Name = "synthetic signal";
+            this.DisplayName = "synthetic signal";
         }
 
-        protected SyntheticSignal(Func<int, int, IEnumerable<double>> timeDomainFunction, double sampleRate) : base(timeDomainFunction, sampleRate)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SyntheticSignal" /> class.
+        /// </summary>
+        /// <param name="timeDomainFunction">The time domain range function.</param>
+        /// <param name="sampleRate">The sample rate.</param>
+        protected SyntheticSignal(TimeDomainRangeFunc timeDomainFunction, double sampleRate) : base(timeDomainFunction, sampleRate)
         {
-            this.Name = "synthetic signal";
+            this.DisplayName = "synthetic signal";
         }
 
+        /// <summary>
+        ///     Gets the spectrum.
+        /// </summary>
         public abstract ISpectrum Spectrum { get; }
     }
 }

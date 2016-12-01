@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Filter.Extensions;
+using PropertyTools.DataAnnotations;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Represents a filter with a constant gain and no effects otherwise.
@@ -12,15 +13,7 @@ namespace Filter.LtiFilter.Types
 
         public GainFilter(double samplerate) : base(samplerate)
         {
-        }
-
-        /// <summary>
-        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
-        /// </summary>
-        public double Gain
-        {
-            get { return this._Gain; }
-            set { this.SetField(ref this._Gain, value); }
+            this.Name = "gain filter";
         }
 
         /// <summary>
@@ -39,9 +32,20 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal.Multiply(this.Gain);
+        }
+
+        /// <summary>
+        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
+        /// </summary>
+        [Category("gain filter")]
+        [DisplayName("gain")]
+        public double Gain
+        {
+            get { return this._Gain; }
+            set { this.SetField(ref this._Gain, value); }
         }
     }
 }

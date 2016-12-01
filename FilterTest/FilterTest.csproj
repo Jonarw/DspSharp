@@ -64,15 +64,16 @@
       <HintPath>..\packages\OxyPlot.Wpf.1.0.0\lib\net45\OxyPlot.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PropertyTools, Version=2.0.1.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyTools.Wpf.2.0.1\lib\net45\PropertyTools.dll</HintPath>
+    <Reference Include="PropertyTools, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PropertyTools.Wpf, Version=2.0.1.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyTools.Wpf.2.0.1\lib\net45\PropertyTools.Wpf.dll</HintPath>
+    <Reference Include="PropertyTools.Wpf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
@@ -87,6 +88,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="EnumCombo.cs" />
+    <Compile Include="EnumToStringConverter.cs" />
     <Compile Include="IListItemConverter.cs" />
     <Compile Include="MultiSelectBehaviours.cs" />
     <Compile Include="PerformanceHelper.cs" />
@@ -94,6 +97,8 @@
     <Compile Include="SignalFactory\AvailableSignals.cs" />
     <Compile Include="SignalFactory\CommonSignalConfig.cs" />
     <Compile Include="SignalFactory\DialogClose.cs" />
+    <Compile Include="SignalFactory\FileFrequencyResponseFactory.cs" />
+    <Compile Include="SignalFactory\FileImpulseResponseFactory.cs" />
     <Compile Include="SignalFactory\WindowFactory.cs" />
     <Compile Include="SignalFactory\DiracFactory.cs" />
     <Compile Include="SignalFactory\LogSweepFactory.cs" />

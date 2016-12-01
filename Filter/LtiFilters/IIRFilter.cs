@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Filter.Algorithms;
 using Filter.Extensions;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Represents a filter with a_n and b_n coefficients with an infinite impulse response.
@@ -16,6 +16,8 @@ namespace Filter.LtiFilter.Types
 
         public IirFilter(double samplerate) : base(samplerate)
         {
+            this.Name = "IIR filter";
+            this.HasInfiniteImpulseResponse = true;
         }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return Dsp.IirFilter(signal, this.A, this.B);
         }

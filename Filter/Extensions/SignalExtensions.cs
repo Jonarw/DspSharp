@@ -7,8 +7,18 @@ using Filter.Signal;
 
 namespace Filter.Extensions
 {
+    /// <summary>
+    ///     Provides static extension methods for the Signal interfaces.
+    /// </summary>
     public static class SignalExtensions
     {
+        /// <summary>
+        ///     Adds the specified signals.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static ISignal Add(this ISignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -18,10 +28,17 @@ namespace Filter.Extensions
 
             return new InfiniteSignal((start, length) => s1.GetWindowedSignal(start, length).Add(s2.GetWindowedSignal(start, length)), s1.SampleRate)
             {
-                Name = "addition result"
+                DisplayName = "addition result"
             };
         }
 
+        /// <summary>
+        ///     Adds the specified finite signals.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static IFiniteSignal Add(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -32,24 +49,16 @@ namespace Filter.Extensions
             return new FiniteSignal(
                 s1.Signal.AddFullWithOffset(s2.Signal, s2.Start - s1.Start).ToReadOnlyList(),
                 s1.SampleRate,
-                Math.Min(s1.Start, s2.Start)) {Name = "addition result"};
+                Math.Min(s1.Start, s2.Start)) {DisplayName = "addition result"};
         }
 
-        public static IEnumerableSignal ApplyFilter(this IEnumerableSignal input, IFilter filter)
-        {
-            if (input.SampleRate != filter.Samplerate)
-            {
-                throw new SamplerateMismatchException();
-            }
-
-            if (input is FiniteSignal && !filter.HasInfiniteImpulseResponse)
-            {
-                return new FiniteSignal(filter.Process(input.Signal).ToReadOnlyList(), input.SampleRate, input.Start) {Name = "filter result"};
-            }
-
-            return new EnumerableSignal(filter.Process(input.Signal), input.SampleRate, input.Start) {Name = "filter result"};
-        }
-
+        /// <summary>
+        ///     Convolves the specified finite signals.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static IFiniteSignal Convolve(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -57,9 +66,16 @@ namespace Filter.Extensions
                 throw new SamplerateMismatchException();
             }
 
-            return new FiniteSignal(Dsp.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start) {Name = "convolution result"};
+            return new FiniteSignal(Dsp.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start) {DisplayName = "convolution result"};
         }
 
+        /// <summary>
+        ///     Convolves the specified finite signal with an infinite signal.
+        /// </summary>
+        /// <param name="s1">The finite signal.</param>
+        /// <param name="s2">The infinite signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static ISignal Convolve(this IFiniteSignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -90,9 +106,16 @@ namespace Filter.Extensions
 
                     return signal;
                 },
-                s1.SampleRate) {Name = "convolution result"};
+                s1.SampleRate) {DisplayName = "convolution result"};
         }
 
+        /// <summary>
+        ///     Multiplies the specified finite signal with a signal.
+        /// </summary>
+        /// <param name="s1">The finite signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static IFiniteSignal Multiply(this IFiniteSignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -102,15 +125,29 @@ namespace Filter.Extensions
 
             return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSignal(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
             {
-                Name = "multiplication result"
+                DisplayName = "multiplication result"
             };
         }
 
+        /// <summary>
+        ///     Multiplies the specified signal with a finite signal.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The finite signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static IFiniteSignal Multiply(this ISignal s1, IFiniteSignal s2)
         {
             return s2.Multiply(s1);
         }
 
+        /// <summary>
+        ///     Multiplies the specified finite signals.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static IFiniteSignal Multiply(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -131,9 +168,16 @@ namespace Filter.Extensions
                 signal = s2.Signal.Skip(s1.Start - s2.Start).Multiply(s1.Signal).ToReadOnlyList();
             }
 
-            return new FiniteSignal(signal, s1.SampleRate, start) {Name = "multiplication result"};
+            return new FiniteSignal(signal, s1.SampleRate, start) {DisplayName = "multiplication result"};
         }
 
+        /// <summary>
+        ///     Multiplies the specified signals.
+        /// </summary>
+        /// <param name="s1">The first signal.</param>
+        /// <param name="s2">The second signal.</param>
+        /// <returns></returns>
+        /// <exception cref="SamplerateMismatchException"></exception>
         public static ISignal Multiply(this ISignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
@@ -143,17 +187,27 @@ namespace Filter.Extensions
 
             return new InfiniteSignal(
                 (start, length) => s1.GetWindowedSignal(start, length).Multiply(s2.GetWindowedSignal(start, length)),
-                s1.SampleRate) {Name = "multiplication result"};
+                s1.SampleRate) {DisplayName = "multiplication result"};
         }
 
+        /// <summary>
+        ///     Negates the specified finite signal.
+        /// </summary>
+        /// <param name="s">The signal.</param>
+        /// <returns></returns>
         public static IFiniteSignal Negate(this IFiniteSignal s)
         {
-            return new FiniteSignal(s.Signal.Negate().ToReadOnlyList(), s.SampleRate) {Name = "negation result"};
+            return new FiniteSignal(s.Signal.Negate().ToReadOnlyList(), s.SampleRate) {DisplayName = "negation result"};
         }
 
+        /// <summary>
+        ///     Negates the specified signal.
+        /// </summary>
+        /// <param name="s">The signal.</param>
+        /// <returns></returns>
         public static ISignal Negate(this ISignal s)
         {
-            return new InfiniteSignal((start, length) => s.GetWindowedSignal(start, length).Negate(), s.SampleRate) {Name = "negation result"};
+            return new InfiniteSignal((start, length) => s.GetWindowedSignal(start, length).Negate(), s.SampleRate) {DisplayName = "negation result"};
         }
     }
 }

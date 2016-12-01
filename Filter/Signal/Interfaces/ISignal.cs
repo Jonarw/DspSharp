@@ -2,12 +2,15 @@ using System.Collections.Generic;
 
 namespace Filter.Signal
 {
+    /// <summary>
+    ///     Describes an arbitrary digital signal representable in time domain.
+    /// </summary>
     public interface ISignal
     {
         /// <summary>
         ///     Gets or sets the name.
         /// </summary>
-        string Name { get; set; }
+        string DisplayName { get; set; }
 
         /// <summary>
         ///     Gets the sample rate.

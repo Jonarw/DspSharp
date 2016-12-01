@@ -3,6 +3,11 @@ using Filter.Spectrum;
 
 namespace Filter.Signal
 {
+    /// <summary>
+    ///     Describes a digital signal that is representable in time domain with a fixed starting time. The signal can still be
+    ///     infinitely long in the positive direction, but not in the negative direction.
+    /// </summary>
+    /// <seealso cref="Filter.Signal.ISignal" />
     public interface IEnumerableSignal : ISignal
     {
         /// <summary>

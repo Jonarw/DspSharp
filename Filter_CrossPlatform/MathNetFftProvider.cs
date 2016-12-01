@@ -33,7 +33,7 @@ namespace Filter_CrossPlatform
         {
             var inputlist = input.ToReadOnlyList();
             var values = inputlist.Concat(inputlist.Skip(1).Reverse().Skip(1)).ToArray();
-            Fourier.Inverse(values);
+            Fourier.Inverse(values, FourierOptions.AsymmetricScaling);
             return values.Select(c => c.Real).ToReadOnlyList();
         }
     }

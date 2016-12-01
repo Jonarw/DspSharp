@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PropertyTools.DataAnnotations;
 
-namespace Filter.LtiFilter.Types
+namespace Filter.LtiFilters
 {
     /// <summary>
     ///     Represents a filter with a constant group delay and no effects otherwise.
@@ -14,33 +15,7 @@ namespace Filter.LtiFilter.Types
 
         public SampleDelayFilter(double samplerate) : base(samplerate)
         {
-        }
-
-        /// <summary>
-        ///     Gets the delay of the <see cref="SampleDelayFilter" /> in seconds.
-        /// </summary>
-        public double Delay
-        {
-            get { return this._delay; }
-            private set { this.SetField(ref this._delay, value); }
-        }
-
-        /// <summary>
-        ///     Gets or sets the delay of the <see cref="SampleDelayFilter" /> in integer samples.
-        /// </summary>
-        public int SampleDelay
-        {
-            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
-            set
-            {
-                if (!this.SetField(ref this._SampleDelay, value))
-                {
-                    return;
-                }
-
-                this.Delay = value / this.Samplerate;
-                this.OnChange();
-            }
+            this.Name = "delay filter";
         }
 
         /// <summary>
@@ -58,9 +33,39 @@ namespace Filter.LtiFilter.Types
             }
         }
 
-        public override IEnumerable<double> Process(IEnumerable<double> signal)
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return Enumerable.Repeat(0.0, this.SampleDelay).Concat(signal);
+        }
+
+        /// <summary>
+        ///     Gets or sets the delay of the <see cref="SampleDelayFilter" /> in integer samples.
+        /// </summary>
+        [Category("delay")]
+        [DisplayName("delay in samples")]
+        public int SampleDelay
+        {
+            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
+            set
+            {
+                if (!this.SetField(ref this._SampleDelay, value))
+                {
+                    return;
+                }
+
+                this.Delay = value / this.Samplerate;
+                this.OnChange();
+            }
+        }
+
+        /// <summary>
+        ///     Gets the delay of the <see cref="SampleDelayFilter" /> in seconds.
+        /// </summary>
+        [DisplayName("delay in seconds")]
+        public double Delay
+        {
+            get { return this._delay; }
+            private set { this.SetField(ref this._delay, value); }
         }
     }
 }

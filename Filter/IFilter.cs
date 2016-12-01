@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Filter
 {
-    public interface IFilter
+    public interface IFilter : INotifyPropertyChanged
     {
         double Samplerate { get; }
         IEnumerable<double> Process(IEnumerable<double> input);

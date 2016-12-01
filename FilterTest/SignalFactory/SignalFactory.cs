@@ -10,11 +10,12 @@ namespace FilterTest.SignalFactory
         private double _SampleRate = 44100;
 
         [Browsable(false)]
-        public IList<double> AvailableSampleRates { get; } = new List<double> {44100, 48000, 88200, 96000, 192000};
+        public IList<double> AvailableSampleRates { get; } = FilterBase.AvailableSampleRates;
 
         [ItemsSourceProperty(nameof(AvailableSampleRates))]
         [DisplayName("sample rate")]
         [Category("basic settings")]
+        [ReadOnly(true)]
         [SortIndex(0)]
         public double SampleRate
         {

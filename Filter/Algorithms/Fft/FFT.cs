@@ -7,9 +7,7 @@ using Filter.Extensions;
 namespace Filter.Algorithms
 {
     /// <summary>
-    ///     Provides an easy-to-use static abstraction for the real-valued 1d transformation functions of the FFTW library. FFT
-    ///     plans are automatically created and
-    ///     destroyed. The accumulated wisdom is automatically saved and loaded.
+    ///     Provides a static abstraction for FFT calculation.
     /// </summary>
     public sealed class Fft
     {
@@ -47,10 +45,15 @@ namespace Filter.Algorithms
         /// <returns>The positive half of the hermitian-symmetric spectrum, including DC and Nyquist/2.</returns>
         public static IReadOnlyList<Complex> RealFft(IEnumerable<double> input, int n = -1)
         {
-            if (n == -1)
+            if (n < 0)
             {
                 input = input.ToReadOnlyList();
                 n = input.Count();
+            }
+
+            if (n == 0)
+            {
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
             }
 
             return FftProvider.RealFft(input.ToReadOnlyList(n), n);
@@ -68,8 +71,7 @@ namespace Filter.Algorithms
 
         /// <summary>
         ///     Computes an oversampled FFT over real-valued input data. Only the positive half of the hermitian symmetric fourier
-        ///     spectrum is
-        ///     returned.
+        ///     spectrum is returned.
         /// </summary>
         /// <param name="input">The real-valued input data.</param>
         /// <param name="oversampling">The oversampling factor</param>

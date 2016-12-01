@@ -63,6 +63,10 @@
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
     <Compile Include="Exceptions\SamplerateMismatchException.cs" />
     <Compile Include="Extensions\FilterExtensions.cs" />
+    <Compile Include="FilterFactory\FilterTypes.cs" />
+    <Compile Include="ISignalBasedFilter.cs" />
+    <Compile Include="LtiFilters\CustomConvolver.cs" />
+    <Compile Include="Signal\BaseImplementations\SignalBase.cs" />
     <Compile Include="Signal\Interfaces\IEnumerableSignal.cs" />
     <Compile Include="Signal\Interfaces\IFiniteSignal.cs" />
     <Compile Include="Signal\Interfaces\ISignal.cs" />
@@ -79,17 +83,16 @@
     <Compile Include="Signal\SignalTypes\IdealLowpass.cs" />
     <Compile Include="Signal\SignalTypes\IdealHighpass.cs" />
     <Compile Include="Signal\BaseImplementations\InfiniteSignal.cs" />
-    <Compile Include="LtiFilter\Types\Biquad.cs" />
-    <Compile Include="LtiFilter\Types\Convolver.cs" />
-    <Compile Include="LtiFilter\Types\CorrectingFilter.cs" />
-    <Compile Include="LtiFilter\Types\DelayFilter.cs" />
-    <Compile Include="LtiFilter\Types\FirFilter.cs" />
-    <Compile Include="LtiFilter\Types\GainFilter.cs" />
-    <Compile Include="LtiFilter\Types\IIRFilter.cs" />
-    <Compile Include="LtiFilter\Types\ImpulseFilter.cs" />
-    <Compile Include="LtiFilter\Types\InvertFilter.cs" />
-    <Compile Include="LtiFilter\Types\DiracFilter.cs" />
-    <Compile Include="LtiFilter\Types\ZeroFilter.cs" />
+    <Compile Include="LtiFilters\Biquad.cs" />
+    <Compile Include="LtiFilters\Convolver.cs" />
+    <Compile Include="LtiFilters\CorrectingFilter.cs" />
+    <Compile Include="LtiFilters\DelayFilter.cs" />
+    <Compile Include="LtiFilters\FirFilter.cs" />
+    <Compile Include="LtiFilters\GainFilter.cs" />
+    <Compile Include="LtiFilters\IIRFilter.cs" />
+    <Compile Include="LtiFilters\InvertFilter.cs" />
+    <Compile Include="LtiFilters\DiracFilter.cs" />
+    <Compile Include="LtiFilters\ZeroFilter.cs" />
     <Compile Include="Observable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Series\ConstantSeries.cs" />
@@ -106,7 +109,9 @@
     <Compile Include="Signal\SignalTypes\Sinus.cs" />
     <Compile Include="Signal\BaseImplementations\SyntheticSignal.cs" />
     <Compile Include="Signal\SignalTypes\WhiteNoise.cs" />
+    <Compile Include="Signal\Windows\WindowModes.cs" />
     <Compile Include="Signal\Windows\WindowTypes.cs" />
+    <Compile Include="SmartCollection.cs" />
     <Compile Include="Spectrum\FftSpectrum.cs" />
     <Compile Include="Spectrum\IFftSpectrum.cs" />
     <Compile Include="Spectrum\ISpectrum.cs" />
@@ -114,6 +119,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PropertyTools">
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

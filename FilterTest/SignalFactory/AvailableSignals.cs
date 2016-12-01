@@ -9,6 +9,8 @@
         IdealLowpass,
         Dirac,
         LogSweep,
-        Window
+        Window,
+        FileImpulseResponse,
+        FileFrequencyResponse
     }
 }
