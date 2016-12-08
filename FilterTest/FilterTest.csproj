@@ -91,6 +91,7 @@
     <Compile Include="EnumCombo.cs" />
     <Compile Include="EnumToStringConverter.cs" />
     <Compile Include="IListItemConverter.cs" />
+    <Compile Include="LocalPropertyGridControlFactory.cs" />
     <Compile Include="MultiSelectBehaviours.cs" />
     <Compile Include="PerformanceHelper.cs" />
     <Compile Include="RelayCommand.cs" />

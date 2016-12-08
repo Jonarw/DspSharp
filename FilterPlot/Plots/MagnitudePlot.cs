@@ -10,7 +10,7 @@ namespace FilterPlot
     {
         public MagnitudePlot()
         {
-            this.DisplayName = "Magnitude";
+            this.DisplayName = "magnitude";
         }
 
         private Axis YAxis { get; set; }

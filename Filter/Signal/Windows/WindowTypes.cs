@@ -1,3 +1,5 @@
+using PropertyTools.DataAnnotations;
+
 namespace Filter.Signal.Windows
 {
     /// <summary>
@@ -8,46 +10,46 @@ namespace Filter.Signal.Windows
         /// <summary>
         ///     The rectangular window.
         /// </summary>
-        Rectangular,
+        [Description("rectangular")] Rectangular,
 
         /// <summary>
         ///     The Hann window.
         /// </summary>
-        Hann,
+        [Description("Hann")] Hann,
 
         /// <summary>
         ///     The Hamming window.
         /// </summary>
-        Hamming,
+        [Description("Hamming")] Hamming,
 
         /// <summary>
         ///     The triangular window.
         /// </summary>
-        Triangular,
+        [Description("triangular")] Triangular,
 
         /// <summary>
         ///     The Welch window.
         /// </summary>
-        Welch,
+        [Description("Welch")] Welch,
 
         /// <summary>
         ///     The Blackman window.
         /// </summary>
-        Blackman,
+        [Description("Blackman")] Blackman,
 
         /// <summary>
         ///     The Blackman-Harris window.
         /// </summary>
-        BlackmanHarris,
+        [Description("Blackman-Harris")] BlackmanHarris,
 
         /// <summary>
         ///     The Kaiser window with alpha=2.
         /// </summary>
-        KaiserAlpha2,
+        [Description("Kaiser, alpha = 2")] KaiserAlpha2,
 
         /// <summary>
         ///     The Kaiser window with alpha=3.
         /// </summary>
-        KaiserAlpha3
+        [Description("Kaiser, alpha = 3")] KaiserAlpha3
     }
 }

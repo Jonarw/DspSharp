@@ -9,11 +9,13 @@ namespace FilterTest.SignalFactory
     {
         private double _SampleRate = 44100;
 
+        private int _TimeOffset;
+
         [Browsable(false)]
         public IList<double> AvailableSampleRates { get; } = FilterBase.AvailableSampleRates;
 
         [ItemsSourceProperty(nameof(AvailableSampleRates))]
-        [DisplayName("sample rate")]
+        //[DisplayName("sample rate")]
         [Category("basic settings")]
         [ReadOnly(true)]
         [SortIndex(0)]
@@ -23,6 +25,8 @@ namespace FilterTest.SignalFactory
             set { this.SetField(ref this._SampleRate, value); }
         }
 
+        public abstract ISignal CreateSignal();
+
         [DisplayName("sample offset")]
         [Category("basic settings")]
         [SortIndex(1)]
@@ -31,9 +35,5 @@ namespace FilterTest.SignalFactory
             get { return this._TimeOffset; }
             set { this.SetField(ref this._TimeOffset, value); }
         }
-
-        private int _TimeOffset;
-
-        public abstract ISignal CreateSignal();
     }
 }

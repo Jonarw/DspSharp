@@ -1,7 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
+using System.Windows.Controls;
+using Filter.Extensions;
 
 namespace FilterTest
 {
@@ -36,13 +39,19 @@ namespace FilterTest
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
 
-            DescriptionAttribute[] attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            var attributes = fi.GetCustomAttributes(false);
+            var d1 = attributes.OfType<DescriptionAttribute>().ToReadOnlyList();
 
-
-
-            if (attributes.Length > 0)
+            if (d1.Count > 0)
             {
-                return attributes[0].Description;
+                return d1[0].Description;
+            }
+
+            var d2 = attributes.OfType<PropertyTools.DataAnnotations.DescriptionAttribute>().ToReadOnlyList();
+
+            if (d2.Count > 0)
+            {
+                return d2[0].Description;
             }
 
             return value.ToString();

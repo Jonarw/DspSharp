@@ -9,7 +9,7 @@ namespace FilterPlot
     {
         public PhasePlot()
         {
-            this.DisplayName = "Phase";
+            this.DisplayName = "phase";
         }
 
         private LinearAxis YAxis { get; set; }

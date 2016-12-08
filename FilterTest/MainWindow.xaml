@@ -9,7 +9,12 @@
         xmlns:filter="clr-namespace:Filter;assembly=Filter"
         xmlns:ptd="clr-namespace:PropertyTools.DataAnnotations;assembly=PropertyTools"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1200">
+        Title="Filter test tool" Height="800" Width="1200">
+
+    <Window.Resources>
+        <local:LocalPropertyGridControlFactory x:Key="PropertyControlFactory" />
+    </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
@@ -62,7 +67,7 @@
                             <pt:PropertyGrid Grid.Row="2" SelectedObject="{Binding SelectedSignal}" Margin="5"
                                              TabVisibility="VisibleIfMoreThanOne"
                                              RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"
-                                             EnumAsRadioButtonsLimit="0" />
+                                             EnumAsRadioButtonsLimit="0" ControlFactory="{StaticResource PropertyControlFactory}" />
 
                         </Grid>
                     </Grid>
@@ -99,7 +104,7 @@
                                  local:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedFilters}" />
                         <pt:PropertyGrid Grid.Row="3" SelectedObject="{Binding SelectedFilter}" Margin="5"
                                          TabVisibility="VisibleIfMoreThanOne" EnumAsRadioButtonsLimit="0"
-                                         RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" />
+                                         RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" ControlFactory="{StaticResource PropertyControlFactory}"/>
 
                     </Grid>
 
@@ -107,7 +112,7 @@
                 <TabItem Header="Plot settings">
                     <pt:PropertyGrid SelectedObject="{Binding SelectedPlot}" Margin="5"
                                      TabVisibility="VisibleIfMoreThanOne"
-                                     RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" EnumAsRadioButtonsLimit="0" />
+                                     RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" EnumAsRadioButtonsLimit="0" ControlFactory="{StaticResource PropertyControlFactory}"/>
 
                 </TabItem>
             </TabControl>
