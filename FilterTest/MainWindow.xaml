@@ -9,7 +9,7 @@
         xmlns:filter="clr-namespace:Filter;assembly=Filter"
         xmlns:ptd="clr-namespace:PropertyTools.DataAnnotations;assembly=PropertyTools"
         mc:Ignorable="d"
-        Title="Filter test tool" Height="800" Width="1200">
+        Title="Filter test and demo tool" Height="800" Width="1200">
 
     <Window.Resources>
         <local:LocalPropertyGridControlFactory x:Key="PropertyControlFactory" />
