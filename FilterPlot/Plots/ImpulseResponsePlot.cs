@@ -19,7 +19,7 @@ namespace FilterPlot
 
         public ImpulseResponsePlot()
         {
-            this.DisplayName = "Impulse Response";
+            this.DisplayName = "time domain";
         }
 
         protected override Series CreateGraph(ISignal signal)

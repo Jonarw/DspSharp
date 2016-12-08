@@ -6,7 +6,7 @@ namespace FilterTest.SignalFactory
     {
         public static SignalFactory CreateSignalFactory(AvailableSignals type, double samplerate)
         {
-            if (type == AvailableSignals.Sinus)
+            if (type == AvailableSignals.Sine)
             {
                 return new SinusFactory {SampleRate = samplerate};
             }

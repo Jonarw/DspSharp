@@ -19,31 +19,31 @@ namespace FilterPlot
     {
         public enum EnumerableModes
         {
-            Fixed,
-            View
+            [Description("fixed FFT length")] Fixed,
+            [Description("same as view")] View
         }
 
         public enum FiniteModes
         {
-            Regular,
-            Oversampled,
-            Fixed,
-            View
+            [Description("regular (FFT length = signal length)")] Regular,
+            [Description("oversampled")] Oversampled,
+            [Description("fixed FFT length")] Fixed,
+            [Description("same as view")] View
         }
 
         public enum InfiniteModes
         {
-            Fixed,
-            View,
-            FixedSymmetric
+            [Description("fixed FFT length")] Fixed,
+            [Description("same as view")] View,
+            [Description("fixed, symmetric")] FixedSymmetric
         }
 
         public enum SyntheticModes
         {
-            Ideal,
-            Fixed,
-            View,
-            FixedSymmetric
+            [Description("ideal synthetic")] Ideal,
+            [Description("FFT-based, fixed length")] Fixed,
+            [Description("same as view")] View,
+            [Description("fixed, symmetric")] FixedSymmetric
         }
 
         private bool _CustomResulutionEnabled = true;

@@ -7,7 +7,13 @@
         mc:Ignorable="d"
         local:DialogCloser.DialogResult="{Binding DialogResult}"
         xmlns:pt="http://propertytools.org/wpf"
-        Title="SignalDialog" Height="387" Width="321">
+        xmlns:filterTest="clr-namespace:FilterTest"
+        xmlns:ptd="clr-namespace:PropertyTools.DataAnnotations;assembly=PropertyTools"
+        Title="Add Signal" Height="387" Width="321">
+
+    <Window.Resources>
+        <filterTest:LocalPropertyGridControlFactory x:Key="PropertyControlFactory" />
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -15,8 +21,8 @@
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
         <StackPanel>
-            <pt:PropertyGrid SelectedObject="{Binding CommonConfig}" TabVisibility="VisibleIfMoreThanOne" />
-            <pt:PropertyGrid SelectedObject="{Binding SpecificConfig}" TabVisibility="VisibleIfMoreThanOne" />
+            <pt:PropertyGrid SelectedObject="{Binding CommonConfig}" TabVisibility="VisibleIfMoreThanOne" ControlFactory="{StaticResource PropertyControlFactory}" RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"/>
+            <pt:PropertyGrid SelectedObject="{Binding SpecificConfig}" TabVisibility="VisibleIfMoreThanOne" ControlFactory="{StaticResource PropertyControlFactory}" RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"/>
         </StackPanel>
 
         <Grid Grid.Row="1">

@@ -11,7 +11,7 @@ namespace FilterPlot.Axes
         /// </summary>
         public ImpulseResponseAxis()
         {
-            this.Title = "impulse response";
+            this.Title = "value";
             this.Zoom(-1, 1);
         }
     }

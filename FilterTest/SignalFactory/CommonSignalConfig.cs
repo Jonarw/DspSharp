@@ -7,8 +7,8 @@ namespace FilterTest.SignalFactory
     {
         private AvailableSignals _SignalType;
 
-        [DisplayName("signal type")]
-        [Category("basic settings")]
+        [DisplayName("select signal:")]
+        [Category("signal type")]
         [SortIndex(0)]
         public AvailableSignals SignalType
         {

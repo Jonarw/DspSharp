@@ -11,7 +11,7 @@ namespace FilterPlot.Axes
         /// </summary>
         public AmplitudeAxis()
         {
-            this.Title = "Magnitude [dB]";
+            this.Title = "magnitude [dB]";
             //Me.Zoom(-50, 50)
         }
     }

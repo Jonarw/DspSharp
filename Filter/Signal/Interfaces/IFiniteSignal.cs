@@ -6,7 +6,6 @@ namespace Filter.Signal
     /// <summary>
     ///     Describes a digital signal that is representable in time domain with a finite number of time samples.
     /// </summary>
-    /// <seealso cref="Filter.Signal.IEnumerableSignal" />
     public interface IFiniteSignal : IEnumerableSignal
     {
         /// <summary>

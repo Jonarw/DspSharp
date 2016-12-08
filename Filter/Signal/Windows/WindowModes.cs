@@ -1,3 +1,5 @@
+using PropertyTools.DataAnnotations;
+
 namespace Filter.Signal.Windows
 {
     /// <summary>
@@ -8,16 +10,16 @@ namespace Filter.Signal.Windows
         /// <summary>
         ///     Symmetric window (starting with 0, then rising towards 1, then declining towards 0)
         /// </summary>
-        Symmetric,
+        [Description("symmetric")] Symmetric,
 
         /// <summary>
         ///     Causal window (starting with 1, then declining).
         /// </summary>
-        Causal,
+        [Description("causal")] Causal,
 
         /// <summary>
         ///     Anti-causal window (starting with 0, then rising towards 1)
         /// </summary>
-        AntiCausal
+        [Description("anti-causal")] AntiCausal
     }
 }
