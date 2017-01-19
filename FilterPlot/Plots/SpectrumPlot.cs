@@ -46,7 +46,7 @@ namespace FilterPlot
             [Description("fixed, symmetric")] FixedSymmetric
         }
 
-        private bool _CustomResulutionEnabled = true;
+        private bool _CustomResulutionEnabled = false;
         private WindowTypes _EnumerableFiniteWindowType = WindowTypes.Hann;
         private int _EnumerableFixedLength = 1024;
         private int _EnumerableFixedStart;
@@ -66,7 +66,7 @@ namespace FilterPlot
         private WindowModes _InfiniteWindowMode = WindowModes.Symmetric;
         private bool _Logarithmic = true;
         private int _NumberOfPoints = 500;
-        private int _Smoothing = 24;
+        private int _Smoothing = 0;
         private double _StartFrequency = 20;
         private double _StopFrequency = 20000;
         private WindowTypes _SyntheticFiniteWindowType = WindowTypes.Hann;
