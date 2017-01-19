@@ -332,7 +332,14 @@ namespace Filter.Algorithms
             return ret.ToReadOnlyList();
         }
 
-        public static int ConvertTimeToSampleDelay(double delay, double sampleRate, out bool integer)
+        /// <summary>
+        ///     Converts a time to its equivalent in samples.
+        /// </summary>
+        /// <param name="delay">The time.</param>
+        /// <param name="sampleRate">The sample rate.</param>
+        /// <param name="integer">If set to <c>true</c>, the provided time equals an integer number of samples.</param>
+        /// <returns>The number of samples equivalent to the provided time.</returns>
+        public static int ConvertTimeToSamples(double delay, double sampleRate, out bool integer)
         {
             var mod = Math.Abs(delay % (1 / sampleRate));
 
@@ -348,6 +355,12 @@ namespace Filter.Algorithms
             return Convert.ToInt32(delay * sampleRate);
         }
 
+        /// <summary>
+        ///     Convolves the specified finite signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal.</param>
+        /// <returns>The convolution of the two signals.</returns>
         public static IReadOnlyList<double> Convolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
         {
             var l = signal1.Count + signal1.Count - 1;
@@ -417,6 +430,28 @@ namespace Filter.Algorithms
 
                 buffer = blockconv.GetRangeOptimized(blockSize, signal2.Count - 1).ToReadOnlyList();
             }
+        }
+
+        /// <summary>
+        ///     Computes the cross-correlation of two finite signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal.</param>
+        /// <returns>The result of the computation.</returns>
+        public static IReadOnlyList<double> CrossCorrelate(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
+        {
+            return Convolve(signal1.Reverse().ToReadOnlyList(), signal2);
+        }
+
+        /// <summary>
+        ///     Computes the cross-correlation of two signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal (can be infinite).</param>
+        /// <returns>The result of the computation.</returns>
+        public static IEnumerable<double> CrossCorrelate(IReadOnlyList<double> signal1, IEnumerable<double> signal2)
+        {
+            return Convolve(signal2, signal1.Reverse().ToReadOnlyList());
         }
 
         /// <summary>
