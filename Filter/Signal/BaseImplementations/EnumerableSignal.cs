@@ -36,7 +36,7 @@ namespace Filter.Signal
         public IFftSpectrum GetSpectrum(int fftLength)
         {
             var signal = this.Signal.ToReadOnlyList(fftLength);
-            return new FftSpectrum(signal, fftLength, this.Start);
+            return new FftSpectrum(signal, fftLength, this.SampleRate, this.Start);
         }
 
         /// <summary>
