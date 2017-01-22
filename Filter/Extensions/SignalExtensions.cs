@@ -157,7 +157,7 @@ namespace Filter.Extensions
                 throw new SamplerateMismatchException();
             }
 
-            return new EnumerableSignal(Dsp.CrossCorrelate(s1.Signal, s2.Signal), s1.SampleRate, s1.Start - s2.Start)
+            return new EnumerableSignal(Dsp.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
             };

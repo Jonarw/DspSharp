@@ -43,7 +43,7 @@ namespace Filter.Spectrum
         /// </summary>
         public IReadOnlyList<double> GroupDelay
         {
-            get { return this._groupDelay ?? (this._groupDelay = Dsp.CalculateGroupDelay(this.Phase, this.Frequencies.Values).ToReadOnlyList()); }
+            get { return this._groupDelay ?? (this._groupDelay = Dsp.CalculateGroupDelay(this.Frequencies.Values, this.Phase).ToReadOnlyList()); }
         }
 
         /// <summary>

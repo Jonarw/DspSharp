@@ -107,7 +107,7 @@ namespace Filter.Algorithms
         /// </summary>
         private int GetNextXIndex(double x)
         {
-            if (x < this.xOrig[this._lastIndex])
+            if ((x < this.xOrig[this._lastIndex]) && (this._lastIndex > 0))
             {
                 throw new ArgumentException("The X values to evaluate must be sorted.");
             }

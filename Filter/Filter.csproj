@@ -63,6 +63,7 @@
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
     <Compile Include="Exceptions\SamplerateMismatchException.cs" />
     <Compile Include="Extensions\FilterExtensions.cs" />
+    <Compile Include="Extensions\Utilities.cs" />
     <Compile Include="FilterFactory\FilterTypes.cs" />
     <Compile Include="ISignalBasedFilter.cs" />
     <Compile Include="LtiFilters\CustomConvolver.cs" />

@@ -318,7 +318,7 @@ namespace Filter.Extensions
             if (length > list.Count)
             {
                 stop = start == 0 ? list.Count - 1 : start - 1;
-                return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop)).Concat(Dsp.Zeros(length - list.Count));
+                return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop)).ZeroPad(length - list.Count);
             }
 
             stop = Dsp.Mod(start + length, list.Count);
@@ -653,6 +653,39 @@ namespace Filter.Extensions
         }
 
         /// <summary>
+        ///     Calculates the standard deviation of a sequence.
+        /// </summary>
+        /// <param name="values">The sequence.</param>
+        /// <returns>The standard deviation of the sequence.</returns>
+        public static double StandardDeviation(this IEnumerable<double> values)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            var valueslist = values.ToReadOnlyList();
+            return StandardDeviation(valueslist, valueslist.Average());
+        }
+
+        /// <summary>
+        ///     Calculates the standard deviation of a sequence.
+        /// </summary>
+        /// <param name="values">The sequence.</param>
+        /// <param name="mean">The mean of the sequence.</param>
+        /// <returns>The standard deviation of the sequence.</returns>
+        public static double StandardDeviation(this IEnumerable<double> values, double mean)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            var valueslist = values.ToReadOnlyList();
+            return Math.Sqrt(valueslist.Variance(mean));
+        }
+
+        /// <summary>
         ///     Subtracts two real-valued vectors element-wise. The longer vector is truncated to the length of the shorter vector.
         /// </summary>
         /// <param name="input">The first vector.</param>
@@ -852,6 +885,46 @@ namespace Filter.Extensions
                 enumerator.MoveNext();
                 yield return new Complex(real, enumerator.Current);
             }
+        }
+
+        /// <summary>
+        ///     Calculates the variance of a sequence.
+        /// </summary>
+        /// <param name="values">The sequence.</param>
+        /// <returns>The variance of the sequence.</returns>
+        public static double Variance(this IEnumerable<double> values)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            var valueslist = values.ToReadOnlyList();
+            return Variance(valueslist, valueslist.Average());
+        }
+
+        /// <summary>
+        ///     Calculates the variance of a sequence.
+        /// </summary>
+        /// <param name="values">The sequence.</param>
+        /// <param name="mean">The mean of the sequence.</param>
+        /// <returns>The variance of the sequence.</returns>
+        public static double Variance(this IEnumerable<double> values, double mean)
+        {
+            if (values == null)
+            {
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            var valueslist = values.ToReadOnlyList();
+
+            if (valueslist.Count == 0)
+            {
+                return 0;
+            }
+
+            double variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
+            return variance / valueslist.Count;
         }
 
         /// <summary>

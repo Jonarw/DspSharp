@@ -27,6 +27,42 @@ namespace Filter.Algorithms
             Smooth
         }
 
+        /// <summary>
+        ///     Enumerates the available alignments for sin sweeps.
+        /// </summary>
+        public enum SweepAlignments
+        {
+            /// <summary>
+            ///     No special alignment.
+            /// </summary>
+            None,
+
+            /// <summary>
+            ///     End at a zero.
+            /// </summary>
+            Zero,
+
+            /// <summary>
+            ///     End at a zero from a positive half wave.
+            /// </summary>
+            PositiveZero,
+
+            /// <summary>
+            ///     End at a zero from a negative half wave.
+            /// </summary>
+            NegativeZero,
+
+            /// <summary>
+            ///     End at 1.
+            /// </summary>
+            PositiveOne,
+
+            /// <summary>
+            ///     End at -1.
+            /// </summary>
+            NegativeOne
+        }
+
         private static int WhiteNoiseSeedNumber { get; set; }
 
         /// <summary>
@@ -45,9 +81,34 @@ namespace Filter.Algorithms
             IReadOnlyList<double> xtarget,
             bool logX = true)
         {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (xtarget == null)
+            {
+                throw new ArgumentNullException(nameof(xtarget));
+            }
+
             if (x.Count != y.Count)
             {
-                throw new ArgumentException();
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + " should be the same length.");
+            }
+
+            if (x.Count == 0)
+            {
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + "cannot be empty.");
+            }
+
+            if (xtarget.Count == 0)
+            {
+                yield break;
             }
 
             IReadOnlyList<double> actualX;
@@ -140,12 +201,146 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
+        ///     Resamples a frequency domain signal to a specified series of frequencies. Depending on the local point density of
+        ///     the original
+        ///     and new frequency values, either spline interpolation, linear interpolation or moving averaging is used to
+        ///     calculate the new spectral amplitudes.
+        /// </summary>
+        /// <param name="x">The original frequencies.</param>
+        /// <param name="y">The original spectral amplitudes. Must be the same length as <paramref name="x" />.</param>
+        /// <param name="targetX">The target frequencies.</param>
+        /// <param name="logX">Determines whether the calculation shall be performed in a logarithmic x space.</param>
+        /// <returns>The resampled spectral amplitudes.</returns>
+        public static IEnumerable<Complex> AdaptiveInterpolation(
+            IReadOnlyList<double> x,
+            IReadOnlyList<Complex> y,
+            IReadOnlyList<double> targetX,
+            bool logX = true)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (targetX == null)
+            {
+                throw new ArgumentNullException(nameof(targetX));
+            }
+
+            if (x.Count != y.Count)
+            {
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + " should be the same length.");
+            }
+
+            if (x.Count == 0)
+            {
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + "cannot be empty.");
+            }
+
+            var magnitude = y.Magitude().ToReadOnlyList();
+            var phase = y.Phase().ToReadOnlyList();
+            phase = UnwrapPhase(phase).ToReadOnlyList();
+
+            var smagnitude = AdaptiveInterpolation(x, magnitude, targetX, logX);
+            var sphase = AdaptiveInterpolation(x, phase, targetX, logX);
+
+            return PolarToComplex(smagnitude, sphase);
+        }
+
+        /// <summary>
+        ///     Computes a logarithmic sine sweep where the stop frequency is slightly altered so that the sweep stops exactly at a
+        ///     zero-crossing.
+        /// </summary>
+        /// <param name="from">The start frequency.</param>
+        /// <param name="to">The stop frequency.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="alignment">The alignment.</param>
+        /// <param name="samplerate">The samplerate.</param>
+        /// <returns></returns>
+        public static IEnumerable<double> AlignedLogSweep(double from, double to, double length, SweepAlignments alignment, double samplerate = 44100)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            if (from <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(from));
+            }
+
+            if (to <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(to));
+            }
+
+            if (samplerate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(samplerate));
+            }
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (to == from)
+            {
+                throw new ArgumentException(nameof(to) + " and " + nameof(from) + " cannot be the same.");
+            }
+
+            if (alignment == SweepAlignments.None)
+            {
+                return LogSweep(from, to, length, samplerate);
+            }
+
+            length = Convert.ToInt32(length * samplerate) / samplerate;
+
+            var w1 = Math.Min(to, from) * 2 * Math.PI;
+            var w2 = Math.Max(to, from) * 2 * Math.PI;
+            var k = length * (w2 - w1) / (Math.PI * Math.Log(w2 / w1));
+
+            if (alignment == SweepAlignments.Zero)
+            {
+                k = Convert.ToInt32(k);
+            }
+            else if (alignment == SweepAlignments.NegativeZero)
+            {
+                k = Convert.ToInt32(0.5 * k) * 2;
+            }
+            else if (alignment == SweepAlignments.PositiveZero)
+            {
+                k = Convert.ToInt32(0.5 * (k + 1)) * 2 - 1;
+            }
+            else if (alignment == SweepAlignments.NegativeOne)
+            {
+                k = Convert.ToInt32(0.5 * (k + 0.5)) * 2 - 0.5;
+            }
+            else if (alignment == SweepAlignments.PositiveOne)
+            {
+                k = Convert.ToInt32(0.5 * (k - 0.5)) * 2 + 0.5;
+            }
+
+            w2 = FindRoot(w2N => length * (w2N - w1) / (Math.PI * Math.Log(w2N / w1)) - k, w2, 1);
+
+            var actualfrom = from < to ? from : w2 / (2 * Math.PI);
+            var actualto = from < to ? w2 / (2 * Math.PI) : to;
+            return LogSweep(actualfrom, actualto, length, samplerate);
+        }
+
+        /// <summary>
         ///     Converts a real-valued array to a zero-phase complex-valued array.
         /// </summary>
         /// <param name="amplitude">The amplitude array.</param>
         /// <returns>A new complex array of the same length as <paramref name="amplitude" /> containing the result.</returns>
         public static IEnumerable<Complex> AmplitudeToComplex(IEnumerable<double> amplitude)
         {
+            if (amplitude == null)
+            {
+                throw new ArgumentNullException(nameof(amplitude));
+            }
+
             return amplitude.Select(d => new Complex(d, 0.0));
         }
 
@@ -155,20 +350,38 @@ namespace Filter.Algorithms
         /// </summary>
         /// <param name="frequencies">The frequencies of the complex spectrum.</param>
         /// <param name="amplitudes">
-        ///     The complex amplitudes of the spectrum. Must be the same length as
-        ///     <paramref name="frequencies" />.
+        ///     The complex amplitudes of the spectrum.
         /// </param>
         /// <param name="delay">The delay to be applied to the spectrum. Can be negative.</param>
         /// <returns>
-        ///     A new array of the same length as <paramref name="frequencies" /> and <paramref name="amplitudes" />
-        ///     containing the result.
+        ///     A new array containing the result. If <paramref name="frequencies" /> and <paramref name="amplitudes" /> are not
+        ///     the same length, the longer one is truncated.
         /// </returns>
         public static IEnumerable<Complex> ApplyDelayToSpectrum(IEnumerable<double> frequencies, IEnumerable<Complex> amplitudes, double delay)
         {
+            if (frequencies == null)
+            {
+                throw new ArgumentNullException(nameof(frequencies));
+            }
+
+            if (amplitudes == null)
+            {
+                throw new ArgumentNullException(nameof(amplitudes));
+            }
+
             var factor = Complex.ImaginaryOne * 2 * Math.PI * delay;
             return frequencies.Zip(amplitudes, (f, a) => Complex.Exp(factor * f) * a);
         }
 
+        /// <summary>
+        ///     Experimental; approximates the spectrum of an infinite signal, tries to identify the nescessery analysis window
+        ///     length.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="energyRatio">The energy ratio.</param>
+        /// <param name="initialLength">The initial length.</param>
+        /// <param name="maximumLength">The maximum length.</param>
+        /// <returns></returns>
         public static IReadOnlyList<Complex> ApproximateSpectrumOfInfiniteSignal(
             IEnumerable<double> signal,
             double energyRatio = 0.00001,
@@ -194,27 +407,38 @@ namespace Filter.Algorithms
         /// <summary>
         ///     Calculates the group delay of a system for a given phase response.
         /// </summary>
-        /// <param name="phase">The phase values.</param>
         /// <param name="frequencies">
-        ///     The frequencies the phase values correspond to. Must be the same length as
-        ///     <paramref name="phase" />.
+        ///     The frequencies the phase values correspond to.
         /// </param>
+        /// <param name="phase">The phase values.</param>
         /// <returns>
-        ///     An array of the same length as <paramref name="phase" /> and <paramref name="frequencies" /> containing the
-        ///     result (in seconds).
+        ///     An array containing the result (in seconds). If <paramref name="frequencies" /> and <paramref name="phase" /> are
+        ///     not the same length, the longer one is truncated.
         /// </returns>
-        public static IEnumerable<double> CalculateGroupDelay(IEnumerable<double> phase, IEnumerable<double> frequencies)
+        public static IEnumerable<double> CalculateGroupDelay(IEnumerable<double> frequencies, IEnumerable<double> phase)
         {
+            if (frequencies == null)
+            {
+                throw new ArgumentNullException(nameof(frequencies));
+            }
+
+            if (phase == null)
+            {
+                throw new ArgumentNullException(nameof(phase));
+            }
+
             var phaselist = phase.ToReadOnlyList();
             var frequencylist = frequencies.ToReadOnlyList();
 
-            if (phaselist.Count != frequencylist.Count)
+            var n = Math.Min(phaselist.Count, frequencylist.Count);
+
+            if (n == 0)
             {
-                throw new ArgumentException();
+                yield break;
             }
 
             yield return (phaselist[0] - phaselist[1]) / (2 * Math.PI * (frequencylist[1] - frequencylist[0]));
-            for (var c = 1; c <= phaselist.Count - 2; c++)
+            for (var c = 1; c < n - 1; c++)
             {
                 yield return (phaselist[c - 1] - phaselist[c + 1]) / (2 * Math.PI * (frequencylist[c + 1] - frequencylist[c - 1]));
             }
@@ -224,112 +448,29 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Generates a slope.
-        /// </summary>
-        /// <param name="frequencies">The frequencies at which the slope is evaluated.</param>
-        /// <param name="from">The start frequency.</param>
-        /// <param name="to">The stop frequency.</param>
-        /// <param name="gain">The gain.</param>
-        /// <param name="mode">The slope mode.</param>
-        /// <param name="logarithmicFrequencies">If set to <c>true</c> the generation is done on a logarithmic frequency scale.</param>
-        /// <param name="logarithmicAmplitudes">if set to <c>true</c> the generation is done on a logarithmic amplitude scale.</param>
-        /// <returns>The result.</returns>
-        public static IEnumerable<double> CalculateSlope(
-            IEnumerable<double> frequencies,
-            double from,
-            double to,
-            double gain,
-            SlopeModes mode = SlopeModes.Smooth,
-            bool logarithmicFrequencies = true,
-            bool logarithmicAmplitudes = true)
-        {
-            IReadOnlyList<double> actualFrequencies;
-            double actualTo, actualFrom;
-
-            double actualToGain, actualFromGain;
-            Func<double, double> smoothSlope = x => -0.5 * (Math.Cos(Math.PI * x) + 1);
-
-            if (logarithmicFrequencies)
-            {
-                actualFrequencies = frequencies.Log(10).ToReadOnlyList();
-                actualTo = Math.Log10(to);
-                actualFrom = Math.Log10(from);
-            }
-            else
-            {
-                actualFrequencies = frequencies.ToReadOnlyList();
-                actualTo = to;
-                actualFrom = from;
-            }
-
-            if (logarithmicAmplitudes)
-            {
-                actualFromGain = 0;
-                actualToGain = Math.Log10(gain);
-            }
-            else
-            {
-                actualFromGain = 1;
-                actualToGain = gain;
-            }
-
-            var delta = actualTo - actualFrom;
-            var deltaGain = actualToGain - actualFromGain;
-
-            for (var c = 0; c <= actualFrequencies.Count - 1; c++)
-            {
-                double actualGain;
-                if (actualFrequencies[c] < actualFrom)
-                {
-                    actualGain = actualFromGain;
-                }
-                else if (actualFrequencies[c] > actualTo)
-                {
-                    actualGain = actualToGain;
-                }
-                else
-                {
-                    var tmpgain = (actualFrequencies[c] - actualFrom) / delta;
-                    if (mode == SlopeModes.Smooth)
-                    {
-                        tmpgain = smoothSlope(tmpgain);
-                    }
-                    tmpgain = deltaGain * tmpgain + actualFromGain;
-                    actualGain = tmpgain;
-                }
-
-                yield return logarithmicAmplitudes ? Math.Pow(10, actualGain) : actualGain;
-            }
-        }
-
-        /// <summary>
         ///     Performs a circular shift on an array.
         /// </summary>
         /// <param name="input">The array to be circularly shifted.</param>
         /// <param name="offset">
-        ///     The amount of samples the array should be shifted. Positive offsets are used for right-shifts while negative
-        ///     offsets are
-        ///     used for left-shifts.
+        ///     The amount of samples the array should be shifted. Positive offsets are used for left-shifts while negative
+        ///     offsets are used for right-shifts.
         /// </param>
         /// <returns>An array of the same length as <paramref name="input" /> containing the result.</returns>
-        public static IEnumerable<double> CircularShift(IReadOnlyList<double> input, int offset)
+        public static IEnumerable<T> CircularShift<T>(IReadOnlyList<T> input, int offset)
         {
-            return input.Skip(offset).Concat(input.Take(offset));
-        }
-
-        /// <summary>
-        ///     Generates a complex series consisting only of ones.
-        /// </summary>
-        /// <param name="length">The length of the series.</param>
-        /// <returns>A new complex array of length <paramref name="length" /> containing the result.</returns>
-        public static IReadOnlyList<Complex> ComplexOnes(int length)
-        {
-            var ret = new Complex[length];
-            for (int i = 0; i < length; i++)
+            if (input == null)
             {
-                ret[i] = Complex.One;
+                throw new ArgumentNullException(nameof(input));
             }
-            return ret.ToReadOnlyList();
+
+            if (input.Count == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
+
+            offset = Mod(offset, input.Count);
+
+            return input.Skip(offset).Concat(input.Take(offset));
         }
 
         /// <summary>
@@ -341,9 +482,14 @@ namespace Filter.Algorithms
         /// <returns>The number of samples equivalent to the provided time.</returns>
         public static int ConvertTimeToSamples(double delay, double sampleRate, out bool integer)
         {
+            if (sampleRate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sampleRate));
+            }
+
             var mod = Math.Abs(delay % (1 / sampleRate));
 
-            if ((mod > 1e-10) && (mod < 1 / sampleRate - 1e-10))
+            if ((mod > 1e-13) && (mod < 1 / sampleRate - 1e-13))
             {
                 integer = false;
             }
@@ -363,6 +509,21 @@ namespace Filter.Algorithms
         /// <returns>The convolution of the two signals.</returns>
         public static IReadOnlyList<double> Convolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
         {
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            if ((signal1.Count == 0) || (signal2.Count == 0))
+            {
+                return new List<double>().AsReadOnly();
+            }
+
             var l = signal1.Count + signal1.Count - 1;
             var n = Fft.NextPowerOfTwo(l);
             var spectrum1 = Fft.RealFft(signal1, n);
@@ -379,6 +540,21 @@ namespace Filter.Algorithms
         /// <returns>The convolution of the two signals.</returns>
         public static IEnumerable<double> Convolve(IEnumerable<double> signal1, IReadOnlyList<double> signal2)
         {
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            if (signal2.Count == 0)
+            {
+                yield break;
+            }
+
             var e1 = signal1.GetEnumerator();
 
             var n = 2 * Fft.NextPowerOfTwo(signal2.Count);
@@ -396,17 +572,21 @@ namespace Filter.Algorithms
                     c++;
                 }
 
-                if (c == 0)
+                IEnumerable<double> ret;
+                IReadOnlyList<double> blockconv;
+                if (c > 0)
                 {
-                    break;
+                    var sig1Fft = Fft.RealFft(sig1Buffer, n);
+                    sig1Buffer.Clear();
+                    var spec = sig1Fft.Multiply(sig2Fft);
+                    blockconv = Fft.RealIfft(spec);
+                    ret = blockconv;
                 }
-
-                var sig1Fft = Fft.RealFft(sig1Buffer, n);
-                sig1Buffer.Clear();
-                var spec = sig1Fft.Multiply(sig2Fft);
-                var blockconv = Fft.RealIfft(spec);
-
-                IEnumerable<double> ret = blockconv;
+                else
+                {
+                    blockconv = Enumerable.Empty<double>().ToReadOnlyList();
+                    ret = Enumerable.Empty<double>();
+                }
 
                 if (buffer != null)
                 {
@@ -440,18 +620,38 @@ namespace Filter.Algorithms
         /// <returns>The result of the computation.</returns>
         public static IReadOnlyList<double> CrossCorrelate(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
         {
-            return Convolve(signal1.Reverse().ToReadOnlyList(), signal2);
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            return Convolve(signal2.Reverse().ToReadOnlyList(), signal1);
         }
 
         /// <summary>
         ///     Computes the cross-correlation of two signals.
         /// </summary>
-        /// <param name="signal1">The first signal.</param>
-        /// <param name="signal2">The second signal (can be infinite).</param>
+        /// <param name="signal1">The second signal (can be infinite).</param>
+        /// <param name="signal2">The first signal.</param>
         /// <returns>The result of the computation.</returns>
-        public static IEnumerable<double> CrossCorrelate(IReadOnlyList<double> signal1, IEnumerable<double> signal2)
+        public static IEnumerable<double> CrossCorrelate(IEnumerable<double> signal1, IReadOnlyList<double> signal2)
         {
-            return Convolve(signal2, signal1.Reverse().ToReadOnlyList());
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            return Convolve(signal1, signal2.Reverse().ToReadOnlyList());
         }
 
         /// <summary>
@@ -471,6 +671,11 @@ namespace Filter.Algorithms
         /// <returns>A new array of the same length as <paramref name="dB" /> containing the result.</returns>
         public static IEnumerable<double> DbToLinear(IEnumerable<double> dB)
         {
+            if (dB == null)
+            {
+                throw new ArgumentNullException(nameof(dB));
+            }
+
             return dB.Select(DbToLinear);
         }
 
@@ -491,21 +696,173 @@ namespace Filter.Algorithms
         /// <returns>A new array of the same length as <paramref name="deg" /> containing the result.</returns>
         public static IEnumerable<double> DegToRad(IEnumerable<double> deg)
         {
+            if (deg == null)
+            {
+                throw new ArgumentNullException(nameof(deg));
+            }
+
             return deg.Select(DegToRad);
         }
 
         /// <summary>
-        ///     Generates a dirac pulse (1 followed by zeros) of a specified length.
+        ///     Uses a simple iterative algorithm to find the root of a (locally) monotonous function.
         /// </summary>
-        /// <param name="length">The length of the pulse.</param>
-        /// <returns>A new array of length <paramref name="length" /> containing the result.</returns>
-        public static IEnumerable<double> Dirac(int length)
+        /// <param name="function">The function.</param>
+        /// <param name="startValue">The start value.</param>
+        /// <param name="initialStepSize">The initial step size.</param>
+        /// <param name="threshold">The threshold where the iteration stops.</param>
+        /// <returns>The x coordinate of the root.</returns>
+        public static double FindRoot(Func<double, double> function, double startValue, double initialStepSize, double threshold = 1e-16)
         {
-            return 1.0.ToEnumerable().Concat(new double[length - 1]);
+            if (function == null)
+            {
+                throw new ArgumentNullException(nameof(function));
+            }
+
+            if (initialStepSize == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(initialStepSize));
+            }
+
+            if (threshold < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(threshold));
+            }
+
+            var e1 = function(startValue);
+            var x = startValue + initialStepSize;
+            var stepsize = initialStepSize;
+            double e;
+
+            int i = 0;
+
+            while ((e = Math.Abs(function(x))) > threshold)
+            {
+                if (Math.Abs(e - e1) < threshold)
+                {
+                    break;
+                }
+
+                stepsize = stepsize * (e / (e1 - e));
+
+                e1 = e;
+                x += stepsize;
+
+                if (i++ > 100)
+                {
+                    throw new Exception("Not converging.");
+                }
+            }
+
+            return x;
         }
 
+        /// <summary>
+        ///     Generates a slope.
+        /// </summary>
+        /// <param name="x">The x values where the slope is evaluated.</param>
+        /// <param name="startX">The start x value.</param>
+        /// <param name="stopX">The stop x value.</param>
+        /// <param name="startValue">The start slope value.</param>
+        /// <param name="stopValue">The stop slope value.</param>
+        /// <param name="mode">The slope mode.</param>
+        /// <param name="logarithmicX">If set to <c>true</c> the generation is done on a logarithmic x scale.</param>
+        /// <returns>The result.</returns>
+        public static IEnumerable<double> GenerateSlope(
+            IEnumerable<double> x,
+            double startX,
+            double stopX,
+            double startValue,
+            double stopValue,
+            SlopeModes mode = SlopeModes.Smooth,
+            bool logarithmicX = true)
+        {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            IReadOnlyList<double> actualX;
+            double actualStartX, actualStopX;
+
+            if (startX > stopX)
+            {
+                var tmp = stopX;
+                stopX = startX;
+                startX = tmp;
+                tmp = stopValue;
+                stopValue = startValue;
+                startValue = tmp;
+            }
+
+            if (logarithmicX)
+            {
+                actualX = x.Log(10).ToReadOnlyList();
+                actualStartX = Math.Log10(startX);
+                actualStopX = Math.Log10(stopX);
+            }
+            else
+            {
+                actualX = x.ToReadOnlyList();
+                actualStartX = startX;
+                actualStopX = stopX;
+            }
+
+            if (actualX.Count == 0)
+            {
+                yield break;
+            }
+
+            Func<double, double> smoothSlope = input => -0.5 * (Math.Cos(Math.PI * input) - 1);
+
+            var deltaF = actualStopX - actualStartX;
+            var deltaV = stopValue - startValue;
+
+            foreach (var f in actualX)
+            {
+                double actualGain;
+                if (f <= actualStartX)
+                {
+                    actualGain = startValue;
+                }
+                else if (f >= actualStopX)
+                {
+                    actualGain = stopValue;
+                }
+                else
+                {
+                    var tmpgain = (f - actualStartX) / deltaF;
+                    if (mode == SlopeModes.Smooth)
+                    {
+                        tmpgain = smoothSlope(tmpgain);
+                    }
+
+                    tmpgain = deltaV * tmpgain + startValue;
+                    actualGain = tmpgain;
+                }
+
+                yield return actualGain;
+            }
+        }
+
+        /// <summary>
+        ///     Generates the positive half of the Sinc function.
+        /// </summary>
+        /// <param name="frequency">The frequency.</param>
+        /// <param name="samplerate">The samplerate.</param>
+        /// <returns></returns>
         public static IEnumerable<double> HalfSinc(double frequency, double samplerate)
         {
+            if (frequency <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(frequency));
+            }
+
+            if (samplerate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(samplerate));
+            }
+
             yield return 1;
 
             double factor = 2 * Math.PI * frequency / samplerate;
@@ -541,12 +898,41 @@ namespace Filter.Algorithms
             CircularBuffer<double> outputbuffer = null,
             bool clip = false)
         {
-            if (a.Count != b.Count)
+            if (input == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (a == null)
+            {
+                throw new ArgumentNullException(nameof(a));
+            }
+
+            if (b == null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            if (a.Count < b.Count)
+            {
+                a = a.ZeroPad(b.Count - a.Count).ToReadOnlyList();
+            }
+            else if (b.Count < a.Count)
+            {
+                b = b.ZeroPad(a.Count - b.Count).ToReadOnlyList();
+            }
+
+            if ((a.Count == 0) || (a[0] == 0))
+            {
+                throw new Exception("a0 cannot be 0.");
             }
 
             var n = a.Count - 1;
+
+            if (n < 0)
+            {
+                yield break;
+            }
 
             if ((inputbuffer == null) || (outputbuffer == null))
             {
@@ -628,12 +1014,41 @@ namespace Filter.Algorithms
             IReadOnlyList<double> frequencies,
             double samplerate)
         {
-            var len = a.Count;
-            if (b.Count != len)
+            if (a == null)
             {
-                throw new NotSupportedException();
+                throw new ArgumentNullException(nameof(a));
             }
 
+            if (b == null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
+            if (frequencies == null)
+            {
+                throw new ArgumentNullException(nameof(frequencies));
+            }
+
+            if (samplerate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(samplerate));
+            }
+
+            if (a.Count < b.Count)
+            {
+                a = a.ZeroPad(b.Count - a.Count).ToReadOnlyList();
+            }
+            else if (b.Count < a.Count)
+            {
+                b = b.ZeroPad(a.Count - b.Count).ToReadOnlyList();
+            }
+
+            if ((a.Count == 0) || (a[0] == 0))
+            {
+                throw new Exception("a0 cannot be 0.");
+            }
+
+            var n = a.Count;
             double factor = 2 * Math.PI / samplerate;
 
             foreach (double d in frequencies)
@@ -641,10 +1056,10 @@ namespace Filter.Algorithms
                 var w = d * factor;
                 Complex nom = 0;
                 Complex den = 0;
-                for (var c1 = 0; c1 < len; c1++)
+                for (var c1 = 0; c1 < n; c1++)
                 {
-                    nom += b[c1] * Complex.Exp((len - c1) * Complex.ImaginaryOne * w);
-                    den += a[c1] * Complex.Exp((len - c1) * Complex.ImaginaryOne * w);
+                    nom += b[c1] * Complex.Exp(-(n - c1) * Complex.ImaginaryOne * w);
+                    den += a[c1] * Complex.Exp(-(n - c1) * Complex.ImaginaryOne * w);
                 }
 
                 yield return nom / den;
@@ -652,7 +1067,7 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Interpolates a complex-valued series.
+        ///     Performs an cubic spline interpolation of a complex-valued series.
         /// </summary>
         /// <param name="x">The x-values of the original series.</param>
         /// <param name="y">The complex y-values of the original series. Must be the same length as <paramref name="x" />.</param>
@@ -662,15 +1077,30 @@ namespace Filter.Algorithms
         ///     interpolation is done on a logarithmic scale as well.
         /// </param>
         /// <returns>A new array of the same length as <paramref name="targetX" /> containing the result.</returns>
-        public static IEnumerable<Complex> Interpolate(
+        public static IEnumerable<Complex> InterpolateComplex(
             IReadOnlyList<double> x,
             IReadOnlyList<Complex> y,
             IReadOnlyList<double> targetX,
             bool logX = true)
         {
+            if (x == null)
+            {
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (targetX == null)
+            {
+                throw new ArgumentNullException(nameof(targetX));
+            }
+
             if (x.Count != y.Count)
             {
-                throw new Exception();
+                throw new ArgumentException();
             }
 
             IReadOnlyList<double> actualX;
@@ -698,6 +1128,44 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
+        ///     Approximates the Lambert W function.
+        /// </summary>
+        /// <remarks>https://en.wikipedia.org/wiki/Lambert_W_function#Numerical_evaluation</remarks>
+        /// <param name="input">The input.</param>
+        /// <returns></returns>
+        public static double LambertW(double input)
+        {
+            if (input < -1 / Math.E)
+            {
+                throw new ArgumentOutOfRangeException(nameof(input));
+            }
+
+            double wj = 0;
+            double pwj;
+            int i = 0;
+
+            double ewj;
+
+            do
+            {
+                ewj = Math.Exp(wj);
+                pwj = wj;
+                wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
+                i++;
+                if (i > 1000)
+                {
+                    throw new Exception("Not converging...");
+                }
+            }
+            while (Math.Abs(wj - pwj) > 1e-15);
+
+            ewj = Math.Exp(wj);
+            wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
+
+            return wj;
+        }
+
+        /// <summary>
         ///     Converts a single value from linear scale to dB.
         /// </summary>
         /// <param name="linear">The value in linear scale.</param>
@@ -721,6 +1189,11 @@ namespace Filter.Algorithms
         /// <returns>A new array of the same length as <paramref name="linear" /> containing the result.</returns>
         public static IEnumerable<double> LinearToDb(IEnumerable<double> linear, double minValue = double.NegativeInfinity)
         {
+            if (linear == null)
+            {
+                throw new ArgumentNullException(nameof(linear));
+            }
+
             return linear.Select(d => LinearToDb(d, minValue));
         }
 
@@ -733,12 +1206,12 @@ namespace Filter.Algorithms
         /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
         public static IEnumerable<double> LinSeries(double from, double to, int length)
         {
-            if (length < 1)
+            if (length < 2)
             {
-                throw new ArgumentException();
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
-            var d = (to - from) / (length - 1);
 
+            var d = (to - from) / (length - 1);
             return Enumerable.Range(0, length).Select(i => i * d + from);
         }
 
@@ -751,6 +1224,21 @@ namespace Filter.Algorithms
         /// <returns>A new array of length <paramref name="steps" /> containing the result.</returns>
         public static IEnumerable<double> LogSeries(double from, double to, int steps)
         {
+            if (steps < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(steps));
+            }
+
+            if (from <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(@from));
+            }
+
+            if (to <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(to));
+            }
+
             var startValueLog = Math.Log(from);
             var stopValueLog = Math.Log(to);
             var stepSizeLog = (stopValueLog - startValueLog) / (steps - 1);
@@ -759,8 +1247,67 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Computes a logarithmic sweep.
+        ///     Computes a logarithmic sine sweep using the direct analytic approach proposed by Farina.
         /// </summary>
+        /// <remarks>Angelo Farina - Simultaneous Measurement of Impulse Response and Distortion With a Swept-Sine Technique, 2000</remarks>
+        /// <param name="from">The start frequency of the sweep in Hz.</param>
+        /// <param name="to">The stop frequency of the sweep in Hz.</param>
+        /// <param name="length">The length oft the sweep in seconds.</param>
+        /// <param name="samplerate">The samplerate of the sweep.</param>
+        public static IEnumerable<double> LogSweep(double from, double to, double length, double samplerate = 44100)
+        {
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            if (samplerate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(samplerate));
+            }
+
+            if (from <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(from));
+            }
+
+            if (to <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(to));
+            }
+
+            if (to == from)
+            {
+                throw new ArgumentException();
+            }
+
+            var w1 = Math.Min(from, to) * 2 * Math.PI;
+            var w2 = Math.Max(from, to) * 2 * Math.PI;
+            var steps = (int)(length * samplerate);
+
+            var factor1 = w1 * length / Math.Log(w2 / w1);
+            var factor2 = Math.Log(w2 / w1) / length;
+
+            if (to > from)
+            {
+                for (int i = 0; i < steps; i++)
+                {
+                    yield return Math.Sin(factor1 * (Math.Exp(i / samplerate * factor2) - 1));
+                }
+            }
+            else
+            {
+                for (int i = steps - 1; i >= 0; i--)
+                {
+                    yield return Math.Sin(factor1 * (Math.Exp(i / samplerate * factor2) - 1));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Computes a logarithmic sweep using an alternative stepped algorithm [deprecated, untested, likely to be removed].
+        /// </summary>
+        /// <remarks>https://blogs.msdn.microsoft.com/matthew_van_eerde/2009/08/07/how-to-calculate-a-sine-sweep-the-right-way/</remarks>
         /// <param name="from">The start frequency of the sweep in Hz.</param>
         /// <param name="to">The stop frequency of the sweep in Hz.</param>
         /// <param name="length">The length oft the sweep in seconds.</param>
@@ -769,8 +1316,7 @@ namespace Filter.Algorithms
         ///     The oversampling used to calculate the sweep. Increases the accuracy of the phase
         ///     calculation, especially at higher frequencies.
         /// </param>
-        /// <returns>An new array containing the result.</returns>
-        public static IEnumerable<double> LogSweep(double from, double to, double length, double samplerate = 44100, int oversampling = 10)
+        public static IEnumerable<double> LogSweepAlternative(double from, double to, double length, double samplerate = 44100, int oversampling = 10)
         {
             var logAngularFrom = Math.Log(from * 2 * Math.PI / (samplerate * oversampling));
             var logAngularTo = Math.Log(to * 2 * Math.PI / (samplerate * oversampling));
@@ -802,6 +1348,11 @@ namespace Filter.Algorithms
         /// <returns>The result.</returns>
         public static double MinimumDistance(IEnumerable<double> input)
         {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
             var inputlist = input.ToReadOnlyList();
 
             var ret = double.PositiveInfinity;
@@ -813,11 +1364,43 @@ namespace Filter.Algorithms
             return ret;
         }
 
+        /// <summary>
+        ///     Calculates the modulus (remainder of a division).
+        /// </summary>
+        /// <param name="x">The dividend.</param>
+        /// <param name="m">The divisor.</param>
+        /// <returns>The remainder of the division.</returns>
         public static int Mod(int x, int m)
         {
             if (x == 0)
             {
                 return 0;
+            }
+
+            if (m == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(m));
+            }
+
+            return (x % m + m) % m;
+        }
+
+        /// <summary>
+        ///     Calculates the modulus (remainder of a division).
+        /// </summary>
+        /// <param name="x">The dividend.</param>
+        /// <param name="m">The divisor.</param>
+        /// <returns>The remainder of the division.</returns>
+        public static double Mod(double x, double m)
+        {
+            if (x == 0)
+            {
+                return 0;
+            }
+
+            if (m == 0)
+            {
+                return double.NaN;
             }
 
             return (x % m + m) % m;
@@ -828,11 +1411,12 @@ namespace Filter.Algorithms
         /// </summary>
         /// <param name="x">The value.</param>
         /// <returns>The result.</returns>
+        //TODO: Find better algorithm
         public static double ModBessel0(double x)
         {
             if (x < 0)
             {
-                throw new Exception("Value out of range");
+                throw new ArgumentOutOfRangeException(nameof(x));
             }
 
             if (x < 4.9)
@@ -855,21 +1439,6 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Generates a series of ones.
-        /// </summary>
-        /// <param name="length">The length of the series.</param>
-        /// <returns>A new array of length <paramref name="length" /> containing the result.</returns>
-        public static IReadOnlyList<double> Ones(int length)
-        {
-            var ret = new double[length];
-            for (int i = 0; i < length; i++)
-            {
-                ret[i] = 1.0;
-            }
-            return ret.ToReadOnlyList();
-        }
-
-        /// <summary>
         ///     Converts two individual arrays containing magnitude and phase information to one complex array.
         /// </summary>
         /// <param name="amplitude">The amplitude data.</param>
@@ -880,6 +1449,16 @@ namespace Filter.Algorithms
         /// </returns>
         public static IEnumerable<Complex> PolarToComplex(IEnumerable<double> amplitude, IEnumerable<double> phase)
         {
+            if (amplitude == null)
+            {
+                throw new ArgumentNullException(nameof(amplitude));
+            }
+
+            if (phase == null)
+            {
+                throw new ArgumentNullException(nameof(phase));
+            }
+
             return amplitude.Zip(phase, Complex.FromPolarCoordinates);
         }
 
@@ -894,61 +1473,34 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Converts an array from rad to deg.
+        ///     Converts a sequence from rad to deg.
         /// </summary>
         /// <param name="rad">The array in rad.</param>
-        /// <returns>A new array of the same length as <paramref name="rad" /> containing the result.</returns>
+        /// <returns>A new sequence of the same length as <paramref name="rad" /> containing the result.</returns>
         public static IEnumerable<double> RadToDeg(IEnumerable<double> rad)
         {
+            if (rad == null)
+            {
+                throw new ArgumentNullException(nameof(rad));
+            }
+
             return rad.Select(RadToDeg);
         }
 
         /// <summary>
-        ///     Resamples a frequency domain signal to a specified series of frequencies. Depending on the local point density of
-        ///     the original
-        ///     and new frequency values, either spline interpolation, linear interpolation or moving averaging is used to
-        ///     calculate the new spectral amplitudes.
-        /// </summary>
-        /// <param name="x">The original frequencies.</param>
-        /// <param name="y">The original spectral amplitudes. Must be the same length as <paramref name="x" />.</param>
-        /// <param name="targetX">The target frequencies.</param>
-        /// <param name="logX">Determines whether the calculation shall be performed in a logarithmic x space.</param>
-        /// <returns>The resampled spectral amplitudes.</returns>
-        public static IEnumerable<Complex> ResampleFrequencyResponse(
-            IReadOnlyList<double> x,
-            IReadOnlyList<Complex> y,
-            IReadOnlyList<double> targetX,
-            bool logX = true)
-        {
-            if (x.Count != y.Count)
-            {
-                throw new ArgumentException();
-            }
-
-            var magnitude = y.Magitude().ToReadOnlyList();
-            var phase = y.Phase().ToReadOnlyList();
-            phase = UnwrapPhase(phase).ToReadOnlyList();
-
-            var smagnitude = AdaptiveInterpolation(x, magnitude, targetX, logX);
-            var sphase = AdaptiveInterpolation(x, phase, targetX, logX);
-
-            return PolarToComplex(smagnitude, sphase);
-        }
-
-        /// <summary>
-        ///     Performs a linear right-shift on an array, filling the beginning with zeros.
+        ///     Performs a linear right-shift on a sequence, filling the beginning with zeros.
         /// </summary>
         /// <param name="input">The array to be shifted.</param>
-        /// <param name="offset">The amount of samples the array should be shifted. Must be positive.</param>
-        /// <returns>An array containing the result.</returns>
+        /// <param name="offset">The amount of samples the array should be shifted. If negative, the beginning of the sequence is truncated.</param>
+        /// <returns>A sequence containing the result.</returns>
         public static IEnumerable<double> RightShift(IEnumerable<double> input, int offset)
         {
-            if (offset < 0)
+            if (input == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentNullException(nameof(input));
             }
 
-            return Zeros(offset).Concat(input);
+            return offset > 0 ? input.LeadingZeros(offset) : input.Skip(-offset);
         }
 
         /// <summary>
@@ -969,44 +1521,77 @@ namespace Filter.Algorithms
         /// <summary>
         ///     Smooths the y-values of a set of xy-related data with a moving average filter.
         /// </summary>
-        /// <param name="xValues">The x-values.</param>
-        /// <param name="yValues">The y-values. Must be the same length as <paramref name="xValues" />.</param>
+        /// <param name="x">The x-values.</param>
+        /// <param name="y">The y-values. Must be the same length as <paramref name="x" />.</param>
         /// <param name="resolution">The smoothing resultion in points per octave.</param>
         /// <param name="logX">If <c>true</c> (default), the x-values are assumed to be on a logarithmic scale.</param>
         /// <returns>
-        ///     An array of the same length as <paramref name="xValues" /> and <paramref name="yValues" /> containing the
+        ///     A sequence of the same length as <paramref name="x" /> and <paramref name="y" /> containing the
         ///     result.
         /// </returns>
-        public static IEnumerable<double> Smooth(IReadOnlyList<double> xValues, IReadOnlyList<double> yValues, int resolution, bool logX = true)
+        public static IEnumerable<double> Smooth(IReadOnlyList<double> x, IReadOnlyList<double> y, int resolution, bool logX = true)
         {
-            if (xValues.Count != yValues.Count)
+            if (x == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentNullException(nameof(x));
+            }
+
+            if (y == null)
+            {
+                throw new ArgumentNullException(nameof(y));
+            }
+
+            if (x.Count != y.Count)
+            {
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + " should be the same length.");
+            }
+
+            if (x.Count == 0)
+            {
+                throw new ArgumentException(nameof(x) + " and " + nameof(y) + " cannot be empty.");
+            }
+
+            if (resolution < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(resolution));
             }
 
             if (resolution == 0)
             {
-                foreach (var d in yValues)
+                foreach (var d in y)
                 {
                     yield return d;
                 }
+
+                yield break;
             }
+
+            Func<double, double, double, double> smoothWindow = (logF, logF0, bw) => 
+            {
+                var argument = (logF - logF0) / bw * Math.PI;
+                if (Math.Abs(argument) >= Math.PI)
+                {
+                    return 0;
+                }
+
+                return 0.5 * (1.0 + Math.Cos(argument));
+            };
 
             double bandwidth;
             IReadOnlyList<double> actualX;
 
             if (logX)
             {
-                actualX = xValues.Log(10).ToReadOnlyList();
+                actualX = x.Log(10).ToReadOnlyList();
                 bandwidth = Math.Log(Math.Pow(2.0, 1.0 / resolution));
             }
             else
             {
-                actualX = xValues;
+                actualX = x;
                 bandwidth = Math.Pow(2.0, 1.0 / resolution);
             }
 
-            for (var fc = 0; fc < yValues.Count; fc++)
+            for (var fc = 0; fc < y.Count; fc++)
             {
                 double factorSum = 0;
                 double sum = 0;
@@ -1019,9 +1604,9 @@ namespace Filter.Algorithms
                         break;
                     }
 
-                    factor = SmoothWindow(actualX[fc2], actualX[fc], bandwidth);
+                    factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
-                    sum += factor * yValues[fc2];
+                    sum += factor * y[fc2];
                     fc2 -= 1;
                 }
 
@@ -1033,9 +1618,9 @@ namespace Filter.Algorithms
                         break;
                     }
 
-                    factor = SmoothWindow(actualX[fc2], actualX[fc], bandwidth);
+                    factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
-                    sum += factor * yValues[fc2];
+                    sum += factor * y[fc2];
                     fc2 += 1;
                 }
 
@@ -1046,11 +1631,16 @@ namespace Filter.Algorithms
         /// <summary>
         ///     Unwraps phase information.
         /// </summary>
-        /// <param name="phase">The phase array.</param>
+        /// <param name="phase">The phase sequence.</param>
         /// <param name="useDeg">If true, the phase unit is assumed to be degree, otherwise rad (default).</param>
-        /// <returns>A new array the same length as <paramref name="phase" /> containing the result.</returns>
+        /// <returns>A new sequence of the same length as <paramref name="phase" /> containing the result.</returns>
         public static IEnumerable<double> UnwrapPhase(IEnumerable<double> phase, bool useDeg = false)
         {
+            if (phase == null)
+            {
+                throw new ArgumentNullException(nameof(phase));
+            }
+
             double fullPeriod;
             double halfPeriod;
             if (useDeg)
@@ -1066,27 +1656,28 @@ namespace Filter.Algorithms
 
             double offset = 0;
 
-            var ephase = phase.GetEnumerator();
-            if (!ephase.MoveNext())
+            var e = phase.GetEnumerator();
+            if (!e.MoveNext())
             {
                 yield break;
             }
 
-            var previousPhase = ephase.Current;
+            var previousPhase = e.Current;
+            yield return e.Current;
 
-            yield return previousPhase;
-            while (ephase.MoveNext())
+            while (e.MoveNext())
             {
-                if (previousPhase - ephase.Current > halfPeriod)
+                if (previousPhase - e.Current > halfPeriod)
                 {
                     offset += fullPeriod;
                 }
-                else if (previousPhase - ephase.Current < -halfPeriod)
+                else if (previousPhase - e.Current < -halfPeriod)
                 {
                     offset -= fullPeriod;
                 }
-                previousPhase = ephase.Current + offset;
-                yield return previousPhase;
+
+                previousPhase = e.Current;
+                yield return e.Current + offset;
             }
         }
 
@@ -1128,6 +1719,21 @@ namespace Filter.Algorithms
         /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
         public static IEnumerable<double> WindowedSinc(double frequency, double samplerate, int length, int start = 0)
         {
+            if (frequency <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(frequency));
+            }
+
+            if (samplerate <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(samplerate));
+            }
+
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
             double factor = 2 * Math.PI * frequency / samplerate;
             return Enumerable.Range(start, length).Select(
                 i =>
@@ -1150,6 +1756,11 @@ namespace Filter.Algorithms
         /// <returns></returns>
         public static IEnumerable<double> WrapPhase(IEnumerable<double> input, bool useDeg = false)
         {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
             double fullPeriod;
             double halfPeriod;
 
@@ -1176,52 +1787,9 @@ namespace Filter.Algorithms
                     {
                         tmp += fullPeriod;
                     }
+
                     return tmp;
                 });
-        }
-
-        /// <summary>
-        ///     Zero-Pads or truncates an array of arbitraty length to the desired length.
-        /// </summary>
-        /// <param name="input">The input array.</param>
-        /// <param name="length">The desired length.</param>
-        /// <returns>A new array of length <paramref name="length" /> containing the result.</returns>
-        public static IEnumerable<double> ZeroPad(IEnumerable<double> input, int length)
-        {
-            var e = input.GetEnumerator();
-            int c = 0;
-
-            while (e.MoveNext() && (c < length))
-            {
-                yield return e.Current;
-                c++;
-            }
-
-            while (c < length)
-            {
-                yield return 0.0;
-                c++;
-            }
-        }
-
-        /// <summary>
-        ///     Generates a series of zeros.
-        /// </summary>
-        /// <param name="length">The length of the series.</param>
-        /// <returns>A new array of length <paramref name="length" /> containing the result.</returns>
-        public static IReadOnlyList<double> Zeros(int length)
-        {
-            return new double[length].ToReadOnlyList();
-        }
-
-        private static double SmoothWindow(double logF, double logF0, double bandwidth)
-        {
-            var argument = (logF - logF0) / bandwidth * Math.PI;
-            if (Math.Abs(argument) >= Math.PI)
-            {
-                return 0;
-            }
-            return 0.5 * (1.0 + Math.Cos(argument));
         }
     }
 }

@@ -71,7 +71,7 @@ namespace FilterTest.SignalFactory
             }
 
             var series = new FftSeries(this.SampleRate, this.SignalLength);
-            var ret = Dsp.ResampleFrequencyResponse(frequencies, values, series.Values.ToReadOnlyList(), false).ToReadOnlyList();
+            var ret = Dsp.AdaptiveInterpolation(frequencies, values, series.Values.ToReadOnlyList(), false).ToReadOnlyList();
 
             return new FiniteSignal(new FftSpectrum(series, ret), this.TimeOffset);
         }
