@@ -60,10 +60,13 @@
     <Compile Include="Algorithms\Fft\FFT.cs" />
     <Compile Include="Algorithms\Fft\IFftProvider.cs" />
     <Compile Include="Algorithms\HashHelper.cs" />
+    <Compile Include="Algorithms\Mls.cs" />
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
+    <Compile Include="ChangeEventHandler.cs" />
     <Compile Include="Exceptions\SamplerateMismatchException.cs" />
     <Compile Include="Extensions\FilterExtensions.cs" />
     <Compile Include="Extensions\Utilities.cs" />
+    <Compile Include="FilterChangedEventArgs.cs" />
     <Compile Include="FilterFactory\FilterTypes.cs" />
     <Compile Include="ISignalBasedFilter.cs" />
     <Compile Include="LtiFilters\CustomConvolver.cs" />

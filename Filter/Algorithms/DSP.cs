@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Numerics;
 using Filter.Extensions;
+using Filter.Signal.Windows;
 
 namespace Filter.Algorithms
 {
@@ -524,11 +526,177 @@ namespace Filter.Algorithms
                 return new List<double>().AsReadOnly();
             }
 
-            var l = signal1.Count + signal1.Count - 1;
-            var n = Fft.NextPowerOfTwo(l);
+            var l = signal1.Count + signal2.Count - 1;
+            var n = Fft.GetOptimalFftLength(l);
             var spectrum1 = Fft.RealFft(signal1, n);
             var spectrum2 = Fft.RealFft(signal2, n);
             var spectrum = spectrum2.Multiply(spectrum1);
+            return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
+        }
+
+        public static void GenerateLogSweepAndInverse(double from, double to, int length, double samplerate, out IReadOnlyList<double> sweep, out IReadOnlyList<double> inverse)
+        {
+            var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
+            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
+
+            sweep = sw.Multiply(win).ToReadOnlyList();
+            var c = sweep.Count;
+
+            //var fftsw = Fft.RealFft(sweep.Reverse());
+            inverse = sweep.Reverse().Select(
+                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
+
+            //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
+            //var fftinv = fftsw.Zip(frequencies,
+            //    (c, f) =>
+            //    {
+            //        return c;
+
+            //        if (f < from)
+            //        {
+            //            return c;
+            //        }
+
+            //        if (f > to)
+            //        {
+            //            return c * to / from;
+            //        }
+
+            //        return c * f / from;
+            //    });
+
+            //inverse = Fft.RealIfft(fftinv);
+        }
+
+        public static IReadOnlyList<double> FrequencyWindowedInversion(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
+            var fftinput = Fft.RealFft(input);
+            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
+            var winfunc = Window.GetWindowFunction(windowType);
+
+            var spec = fftinput.Zip(
+                frequencies,
+                (c, f) =>
+                {
+                    if ((f <= fc1) || (f >= fc2))
+                    {
+                        return 0;
+                    }
+
+                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
+                    {
+                        return 1 / c;
+                    }
+
+                    if (f < fc1 + windowBwL)
+                    {
+                        return 1 / c * winfunc((f - fc1) / windowBwL);
+                    }
+
+                    return 1 / c * winfunc((fc2 - f) / windowBwH);
+                });
+
+            return Fft.RealIfft(spec);
+        }
+
+        //TODO: unit test
+        public static IReadOnlyList<double> KirkebyInversion(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double eest = 1,
+            double eint = 0,
+            double dfbandwidth = 1)
+        {
+            var fftinput = Fft.RealFft(input);
+            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
+
+            var factor = Math.Pow(2, 0.5 * dfbandwidth);
+            var fc1L = fc1 / factor;
+            var fc1U = fc1 * factor;
+            var fc2L = fc2 / factor;
+            var fc2U = fc2 * factor;
+
+            var spec = frequencies.Select(
+                (d, i) =>
+                {
+                    double e;
+
+                    if ((d <= fc1L) || (d >= fc2U))
+                    {
+                        e = eest;
+                    }
+                    else if ((d >= fc1U) && (d <= fc2L))
+                    {
+                        e = eint;
+                    }
+                    else if (d <= fc1U)
+                    {
+                        var f = Math.Log(d / fc1L, fc1U / fc1L);
+                        e = f * eint + (1 - f) * eest;
+                    }
+                    else
+                    {
+                        var f = Math.Log(d / fc2L, fc2U / fc2L);
+                        e = f * eest + (1 - f) * eint;
+                    }   
+
+                    return Complex.Conjugate(fftinput[i]) / (fftinput[i] * Complex.Conjugate(fftinput[i]) + e);
+                });
+
+            return Fft.RealIfft(spec);
+        }
+
+
+        //TODO: unit test
+        /// <summary>
+        ///     Convolves the specified finite signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal.</param>
+        /// <returns>The convolution of the two signals.</returns>
+        public static IReadOnlyList<double> DeConvolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2, double sampleRate, double lowerFc, double upperFc)
+        {
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            if ((signal1.Count == 0) || (signal2.Count == 0))
+            {
+                return new List<double>().AsReadOnly();
+            }
+
+            var l = signal1.Count + signal1.Count - 1;
+            var n = Fft.GetOptimalFftLength(l);
+
+            var frequencies = Fft.GetFrequencies(sampleRate, n).ToReadOnlyList();
+            var spectrum1 = Fft.RealFft(signal1, n);
+            var spectrum2 = Fft.RealFft(signal2, n);
+
+            var spectrum = spectrum1.Divide(spectrum2).ToList();
+
+            for (int i = 0; i < frequencies.Count; i++)
+            {
+                if ((frequencies[i] <= lowerFc) || (frequencies[i] >= upperFc))
+                {
+                    spectrum[i] = 0;
+                }
+            }
+
             return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
         }
 
@@ -557,7 +725,7 @@ namespace Filter.Algorithms
 
             var e1 = signal1.GetEnumerator();
 
-            var n = 2 * Fft.NextPowerOfTwo(signal2.Count);
+            var n = 2 * Fft.GetOptimalFftLength(signal2.Count);
             var blockSize = n - signal2.Count + 1;
             var sig2Fft = Fft.RealFft(signal2, n);
             IReadOnlyList<double> buffer = null;
@@ -1206,7 +1374,7 @@ namespace Filter.Algorithms
         /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
         public static IEnumerable<double> LinSeries(double from, double to, int length)
         {
-            if (length < 2)
+            if (length < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(length));
             }

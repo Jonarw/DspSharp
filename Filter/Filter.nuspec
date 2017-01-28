@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Dsp.Audio</id>
+    <version>0.1</version>
+    <title>$title$</title>
+    <authors>Jonarw</authors>
+    <owners>Jonarw</owners>
+    <licenseUrl>https://github.com/Jonarw/filter/blob/develop/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Jonarw/filter</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Collection of algorithms and classes for digital audio signal processing in C#</description>
+    <releaseNotes>First public release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>audio dsp signal processing</tags>
+  </metadata>
+</package>

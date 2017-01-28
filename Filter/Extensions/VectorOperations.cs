@@ -97,7 +97,7 @@ namespace Filter.Extensions
         /// </summary>
         /// <param name="input">The first vector.</param>
         /// <param name="input2">The second vector.</param>
-        /// <param name="offset">The offset. Positive values delay the second vector relative to the first vector.</param>
+        /// <param name="offset">The offset. Positive values delay the second vector relative to the first vector and vice-versa.</param>
         /// <returns></returns>
         public static IEnumerable<double> AddFullWithOffset(this IEnumerable<double> input, IEnumerable<double> input2, int offset)
         {
@@ -151,7 +151,7 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static double CalculateEnergy(this IEnumerable<double> input)
         {
-            return input.Aggregate((d, d1) => d + d1 * d1);
+            return input.Aggregate(0.0, (d, d1) => d + d1 * d1);
         }
 
         /// <summary>
@@ -166,6 +166,16 @@ namespace Filter.Extensions
             amount = Dsp.Mod(amount, list.Count);
             return list.Skip(amount).Concat(list.Take(amount));
         }
+
+        /// <summary>
+        /// Calculates the complex conjugate of a sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <returns>The complex conjugate of the sequence.</returns>
+        public static IEnumerable<Complex> ComplexConjugate(this IEnumerable<Complex> input)
+        {
+            return input.Select(c => new Complex(c.Real, -c.Imaginary));
+        } 
 
         /// <summary>
         ///     Convolves two vectors.
@@ -221,30 +231,6 @@ namespace Filter.Extensions
         public static IEnumerable<double> Divide(this double scalar, IEnumerable<double> input)
         {
             return input.Select(c => scalar / c);
-        }
-
-        /// <summary>
-        ///     Deterimines wheather two vectors have the same values.
-        /// </summary>
-        /// <param name="e1">The first vector.</param>
-        /// <param name="e2">The second vector.</param>
-        /// <returns></returns>
-        public static bool Equals(this IEnumerable<double> e1, IEnumerable<double> e2)
-        {
-            var s1 = e1 as IReadOnlyCollection<double>;
-            if (s1 != null)
-            {
-                var s2 = e2 as IReadOnlyCollection<double>;
-                if (s2 != null)
-                {
-                    if (s1.Count != s2.Count)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return e1.SequenceEqual(e2);
         }
 
         /// <summary>
@@ -376,7 +362,7 @@ namespace Filter.Extensions
         }
 
         /// <summary>
-        ///     Gets a range range from a vector, taking advantage of indexed access if the vector type supports it.
+        ///     Gets a range from a vector, taking advantage of indexed access if the vector type supports it.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="startindex">The start of the range.</param>
@@ -491,20 +477,21 @@ namespace Filter.Extensions
         public static int MaxIndex<T>(this IEnumerable<T> sequence)
             where T : IComparable<T>
         {
-            int maxIndex = -1;
+            int index = -1;
             T maxValue = default(T); // Immediately overwritten anyway
 
-            int index = 0;
-            foreach (T value in sequence)
-            {
-                if ((value.CompareTo(maxValue) > 0) || (maxIndex == -1))
+            return sequence.Aggregate(0,
+                (i, value) =>
                 {
-                    maxIndex = index;
-                    maxValue = value;
-                }
-                index++;
-            }
-            return maxIndex;
+                    index++;
+                    if (value.CompareTo(maxValue) > 0)
+                    {
+                        maxValue = value;
+                        return index;
+                    }
+
+                    return i;
+                });
         }
 
         /// <summary>
@@ -516,20 +503,21 @@ namespace Filter.Extensions
         public static int MinIndex<T>(this IEnumerable<T> sequence)
             where T : IComparable<T>
         {
-            int minIndex = -1;
+            int index = -1;
             T minValue = default(T); // Immediately overwritten anyway
 
-            int index = 0;
-            foreach (T value in sequence)
-            {
-                if ((value.CompareTo(minValue) < 0) || (minIndex == -1))
+            return sequence.Aggregate(0,
+                (i, value) =>
                 {
-                    minIndex = index;
-                    minValue = value;
-                }
-                index++;
-            }
-            return minIndex;
+                    index++;
+                    if (value.CompareTo(minValue) < 0)
+                    {
+                        minValue = value;
+                        return index;
+                    }
+
+                    return i;
+                });
         }
 
         /// <summary>
@@ -936,6 +924,28 @@ namespace Filter.Extensions
         public static IEnumerable<double> ZeroPad(this IEnumerable<double> d, int n)
         {
             IEnumerator<double> enumerator = d.GetEnumerator();
+            int i = 0;
+
+            while (enumerator.MoveNext() && (i++ < n))
+            {
+                yield return enumerator.Current;
+            }
+
+            while (i++ < n)
+            {
+                yield return 0;
+            }
+        }
+
+        /// <summary>
+        ///     Zeropads a vector.
+        /// </summary>
+        /// <param name="d">The vector.</param>
+        /// <param name="n">The amount of zeros.</param>
+        /// <returns></returns>
+        public static IEnumerable<Complex> ZeroPad(this IEnumerable<Complex> d, int n)
+        {
+            IEnumerator<Complex> enumerator = d.GetEnumerator();
             int i = 0;
 
             while (enumerator.MoveNext() && (i++ < n))

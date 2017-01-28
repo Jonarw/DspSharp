@@ -69,11 +69,11 @@ namespace Filter.Algorithms.FFTWSharp
         /// <summary>
         ///     Get the complex data stored in the array
         /// </summary>
-        public IEnumerable<Complex> GetData()
+        public IReadOnlyList<Complex> GetData()
         {
             double[] tmp = new double[this.length << 1];
             Marshal.Copy(this.handle, tmp, 0, this.length << 1);
-            return tmp.UnInterleaveComplex();
+            return tmp.UnInterleaveComplex().ToReadOnlyList();
         }
 
         ~fftw_complexarray()

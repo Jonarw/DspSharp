@@ -104,7 +104,7 @@ namespace Filter.Extensions
                 (start, length) =>
                 {
                     var l = s1.Length + Math.Max(s1.Length, length) - 1;
-                    var n = Fft.NextPowerOfTwo(l);
+                    var n = Fft.GetOptimalFftLength(l);
 
                     var spectrum1 = Fft.RealFft(s1.Signal, n);
 
@@ -161,6 +161,29 @@ namespace Filter.Extensions
             {
                 DisplayName = "cross correlation"
             };
+        }
+
+        /// <summary>
+        ///     Gets a signal range as a new finite signal.
+        /// </summary>
+        /// <param name="signal">The original signal.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="length">The length.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static IFiniteSignal GetWindowedSignal(this ISignal signal, int start, int length)
+        {
+            if (signal == null)
+            {
+                throw new ArgumentNullException(nameof(signal));
+            }
+
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
+
+            return new FiniteSignal(signal.GetWindowedSignal(start, length).ToReadOnlyList(), signal.SampleRate, start);
         }
 
         /// <summary>
@@ -262,6 +285,50 @@ namespace Filter.Extensions
         public static ISignal Negate(this ISignal s)
         {
             return new InfiniteSignal((start, length) => s.GetWindowedSignal(start, length).Negate(), s.SampleRate) {DisplayName = "negation result"};
+        }
+
+        /// <summary>
+        ///     Processes the specified enumerable signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="function">The processing function.</param>
+        /// <exception cref="ArgumentNullException">
+        /// </exception>
+        public static IEnumerableSignal Process(this IEnumerableSignal signal, Func<IEnumerable<double>, IEnumerable<double>> function)
+        {
+            if (signal == null)
+            {
+                throw new ArgumentNullException(nameof(signal));
+            }
+
+            if (function == null)
+            {
+                throw new ArgumentNullException(nameof(function));
+            }
+
+            return new EnumerableSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
+        }
+
+        /// <summary>
+        ///     Processes the specified finite signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="function">The processing function.</param>
+        /// <exception cref="ArgumentNullException">
+        /// </exception>
+        public static IFiniteSignal Process(this IFiniteSignal signal, Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
+        {
+            if (signal == null)
+            {
+                throw new ArgumentNullException(nameof(signal));
+            }
+
+            if (function == null)
+            {
+                throw new ArgumentNullException(nameof(function));
+            }
+
+            return new FiniteSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
         }
 
         /// <summary>

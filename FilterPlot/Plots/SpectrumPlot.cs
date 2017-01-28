@@ -46,7 +46,7 @@ namespace FilterPlot
             [Description("fixed, symmetric")] FixedSymmetric
         }
 
-        private bool _CustomResulutionEnabled = false;
+        private bool _CustomResulutionEnabled;
         private WindowTypes _EnumerableFiniteWindowType = WindowTypes.Hann;
         private int _EnumerableFixedLength = 1024;
         private int _EnumerableFixedStart;
@@ -66,7 +66,7 @@ namespace FilterPlot
         private WindowModes _InfiniteWindowMode = WindowModes.Symmetric;
         private bool _Logarithmic = true;
         private int _NumberOfPoints = 500;
-        private int _Smoothing = 0;
+        private int _Smoothing;
         private double _StartFrequency = 20;
         private double _StopFrequency = 20000;
         private WindowTypes _SyntheticFiniteWindowType = WindowTypes.Hann;
@@ -92,10 +92,9 @@ namespace FilterPlot
             set { this.SetField(ref this._ViewStart, value); }
         }
 
-        private UniformSeries CustomFrequencies { get; set; }
+        protected override Axis XAxis { get; } = new FrequencyAxis();
 
-        private Axis XAxis { get; set; }
-        private Axis YAxis { get; set; }
+        private UniformSeries CustomFrequencies { get; set; }
 
         protected override Series CreateGraph(ISignal signal)
         {
@@ -242,16 +241,6 @@ namespace FilterPlot
 
             ret.Points.AddRange(values.Zip(frequencies, (m, f) => new DataPoint(f, m)));
             return ret;
-        }
-
-        protected override Axis CreateXAxis()
-        {
-            if (this.XAxis == null)
-            {
-                this.XAxis = new FrequencyAxis();
-            }
-
-            return this.XAxis;
         }
 
         protected abstract IEnumerable<double> GetYValues(ISpectrum spectrum);

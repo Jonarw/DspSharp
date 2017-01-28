@@ -6,6 +6,7 @@ using System.Numerics;
 using Filter.Algorithms;
 using Filter.Algorithms.FFTWSharp;
 using Filter.Extensions;
+using Filter.Signal;
 
 namespace Filter_Win
 {
@@ -26,14 +27,108 @@ namespace Filter_Win
             {
                 // no wisdom exists (yet)
             }
+
             AppDomain.CurrentDomain.ProcessExit += this.ExportWisdom;
         }
 
         private string WisdomPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
                                              "\\fftw\\fftw_real.wsd";
 
-        private Dictionary<int, ForwardFftPlan> ForwardPlans { get; } = new Dictionary<int, ForwardFftPlan>();
-        private Dictionary<int, InverseFftPlan> InversePlans { get; } = new Dictionary<int, InverseFftPlan>();
+        private Dictionary<int, ForwardRealFftPlan> RealForwardPlans { get; } = new Dictionary<int, ForwardRealFftPlan>();
+        private Dictionary<int, InverseRealFftPlan> RealInversePlans { get; } = new Dictionary<int, InverseRealFftPlan>();
+        private Dictionary<int, ComplexFftPlan> ComplexForwardPlans { get; } = new Dictionary<int, ComplexFftPlan>();
+        private Dictionary<int, ComplexFftPlan> ComplexInversePlans { get; } = new Dictionary<int, ComplexFftPlan>();
+
+        public IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (n < 0)
+            {
+                n = input.Count;
+            }
+
+            if (n == 0)
+            {
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
+            }
+
+            if (!this.ComplexForwardPlans.ContainsKey(n))
+            {
+                this.ComplexForwardPlans.Add(n, new ComplexFftPlan(n, fftw_direction.Forward));
+            }
+
+            var plan = this.ComplexForwardPlans[n];
+            return plan.Execute(input.ZeroPad(n));
+        }
+
+        private Dictionary<int, int> OptimalFftLengths { get; } = new Dictionary<int, int>(); 
+
+        public int GetOptimalFftLength(int originalLength)
+        {
+            if (!this.OptimalFftLengths.ContainsKey(originalLength))
+            {
+                int ret = originalLength - 1;
+                int i;
+
+                do
+                {
+                    ret++;
+                    i = ret;
+
+                    while (i % 2 == 0)
+                    {
+                        i /= 2;
+                    }
+
+                    while (i % 3 == 0)
+                    {
+                        i /= 3;
+                    }
+
+                    while (i % 5 == 0)
+                    {
+                        i /= 5;
+                    }
+
+                    while (i % 7 == 0)
+                    {
+                        i /= 7;
+                    }
+                }
+                while (i > 7);
+
+                this.OptimalFftLengths.Add(originalLength, ret);
+            }
+
+            return this.OptimalFftLengths[originalLength];
+        }
+
+        public IReadOnlyList<Complex> ComplexIfft(IReadOnlyList<Complex> input)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            if (input.Count == 0)
+            {
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
+            }
+
+            var n = input.Count;
+
+            if (!this.ComplexInversePlans.ContainsKey(n))
+            {
+                this.ComplexInversePlans.Add(n, new ComplexFftPlan(n, fftw_direction.Backward));
+            }
+
+            var plan = this.ComplexInversePlans[n];
+            return plan.Execute(input).Multiply(1.0 / n).ToReadOnlyList();
+        }
 
         /// <summary>
         ///     Computes the FFT over real-valued input data. Only the positive half of the hermitian symmetric fourier spectrum is
@@ -44,19 +139,28 @@ namespace Filter_Win
         /// <returns>The positive half of the hermitian-symmetric spectrum, including DC and Nyquist/2.</returns>
         public IReadOnlyList<Complex> RealFft(IReadOnlyList<double> input, int n = -1)
         {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
             if (n < 0)
             {
                 n = input.Count;
             }
 
-            if (!this.ForwardPlans.ContainsKey(n))
+            if (n == 0)
             {
-                this.ForwardPlans.Add(n, new ForwardFftPlan(n));
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
             }
 
-            var plan = this.ForwardPlans[n];
-            plan.Input = input.ZeroPad(n);
-            return plan.Output.ToReadOnlyList();
+            if (!this.RealForwardPlans.ContainsKey(n))
+            {
+                this.RealForwardPlans.Add(n, new ForwardRealFftPlan(n));
+            }
+
+            var plan = this.RealForwardPlans[n];
+            return plan.Execute(input.ZeroPad(n));
         }
 
         /// <summary>
@@ -66,16 +170,33 @@ namespace Filter_Win
         /// <returns>The computed time-domain values. Always has an even length.</returns>
         public IReadOnlyList<double> RealIfft(IReadOnlyList<Complex> input)
         {
-            var n = (input.Count - 1) << 1;
-
-            if (!this.InversePlans.ContainsKey(n))
+            if (input == null)
             {
-                this.InversePlans.Add(n, new InverseFftPlan(n));
+                throw new ArgumentNullException(nameof(input));
             }
 
-            var plan = this.InversePlans[n];
-            plan.Input = input;
-            return plan.Output.Multiply(1.0 / n).ToReadOnlyList();
+            if (input.Count == 0)
+            {
+                return Enumerable.Empty<double>().ToReadOnlyList();
+            }
+
+            int n;
+            if (Math.Abs(input[input.Count - 1].Imaginary) > 1e-13)
+            {
+                n = (input.Count << 1) - 1;
+            }
+            else
+            {
+                n = (input.Count - 1) << 1;
+            }
+
+            if (!this.RealInversePlans.ContainsKey(n))
+            {
+                this.RealInversePlans.Add(n, new InverseRealFftPlan(n));
+            }
+
+            var plan = this.RealInversePlans[n];
+            return plan.Execute(input).Multiply(1.0 / n).ToReadOnlyList();
         }
 
         /// <summary>
@@ -86,141 +207,6 @@ namespace Filter_Win
         private void ExportWisdom(object sender, EventArgs e)
         {
             fftw.export_wisdom_to_filename(this.WisdomPath);
-        }
-    }
-
-    /// <summary>
-    ///     Handles the creating of an fftw plan and the associated memory blocks.
-    /// </summary>
-    public abstract class FftPlan
-    {
-        /// <summary>
-        ///     Initializes a new instance of the base class <see cref="FftPlan" />.
-        /// </summary>
-        /// <param name="fftLength">The FFT lenght the plan is used for.</param>
-        protected FftPlan(int fftLength)
-        {
-            this.N = fftLength;
-            this.FftwR = new fftw_realarray(this.N);
-            this.FftwC = new fftw_complexarray((this.N >> 1) + 1);
-        }
-
-        /// <summary>
-        ///     The FFT length the plan is used for.
-        /// </summary>
-        public int N { get; }
-
-        /// <summary>
-        ///     The FFTW plan.
-        /// </summary>
-        protected fftw_plan FftwP { get; set; }
-
-        /// <summary>
-        ///     The unmanaged data array for the real values.
-        /// </summary>
-        protected fftw_realarray FftwR { get; set; }
-
-        /// <summary>
-        ///     The unmanaged data array for the complex values.
-        /// </summary>
-        protected fftw_complexarray FftwC { get; set; }
-    }
-
-    /// <summary>
-    ///     Plan for a real-valued forward FFT.
-    /// </summary>
-    public class ForwardFftPlan : FftPlan
-    {
-        private IEnumerable<double> _Input;
-        private IReadOnlyList<Complex> _Output;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ForwardFftPlan" /> class.
-        /// </summary>
-        /// <param name="fftLength">The FFT length the plan is used for.</param>
-        public ForwardFftPlan(int fftLength) : base(fftLength)
-        {
-            this.FftwP = fftw_plan.dft_r2c_1d(this.N, this.FftwR, this.FftwC, fftw_flags.Measure);
-        }
-
-        /// <summary>
-        ///     The real-valued input data, i.e. the time samples.
-        /// </summary>
-        public IEnumerable<double> Input
-        {
-            get { return this._Input; }
-            set
-            {
-                this._Input = value;
-                this._Output = null;
-            }
-        }
-
-        /// <summary>
-        ///     The complex-valued result, i.e. the positive half of the hermitian-symmatric fourier spectrum of the previously
-        ///     provided input data.
-        /// </summary>
-        public IReadOnlyList<Complex> Output
-        {
-            get
-            {
-                if (this._Output == null)
-                {
-                    this.FftwR.SetData(this.Input.ToArray());
-                    this.FftwP.Execute();
-                    this._Output = this.FftwC.GetData().ToReadOnlyList();
-                }
-                return this._Output;
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Plan for a real-valued iFFT.
-    /// </summary>
-    public class InverseFftPlan : FftPlan
-    {
-        private IEnumerable<Complex> _Input;
-        private IReadOnlyList<double> _Output;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InverseFftPlan" /> class.
-        /// </summary>
-        /// <param name="fftLength">The FFT length the plan is used for.</param>
-        public InverseFftPlan(int fftLength) : base(fftLength)
-        {
-            this.FftwP = fftw_plan.dft_c2r_1d(this.N, this.FftwC, this.FftwR, fftw_flags.Measure);
-        }
-
-        /// <summary>
-        ///     The complex valued input data, i.e. the positive half of a hermitian symmatric fourier spectrum.
-        /// </summary>
-        public IEnumerable<Complex> Input
-        {
-            get { return this._Input; }
-            set
-            {
-                this._Input = value;
-                this._Output = null;
-            }
-        }
-
-        /// <summary>
-        ///     The real-valued result, i.e. the time samples.
-        /// </summary>
-        public IReadOnlyList<double> Output
-        {
-            get
-            {
-                if (this._Output == null)
-                {
-                    this.FftwC.SetData(this.Input);
-                    this.FftwP.Execute();
-                    this._Output = this.FftwR.GetData().ToReadOnlyList();
-                }
-                return this._Output;
-            }
-            protected set { this._Output = value; }
         }
     }
 }

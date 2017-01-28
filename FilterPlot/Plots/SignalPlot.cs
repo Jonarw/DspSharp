@@ -19,6 +19,12 @@ namespace FilterPlot
             this.Model.LegendPosition = LegendPosition.TopLeft;
             this.Model.IsLegendVisible = true;
 
+            this.XAxis.Position = AxisPosition.Bottom;
+            this.YAxis.Position = AxisPosition.Left;
+
+            this.Model.Axes.Add(this.XAxis);
+            this.Model.Axes.Add(this.YAxis);
+
             this.PropertyChanged += this.ConfigChanged;
         }
 
@@ -40,15 +46,6 @@ namespace FilterPlot
             }
 
             this.Model.Series.Clear();
-            this.Model.Axes.Clear();
-
-            var xaxis = this.CreateXAxis();
-            xaxis.Position = AxisPosition.Bottom;
-            this.Model.Axes.Add(xaxis);
-
-            var yaxis = this.CreateYAxis();
-            yaxis.Position = AxisPosition.Left;
-            this.Model.Axes.Add(yaxis);
 
             foreach (var signal in this.Signals)
             {
@@ -59,8 +56,8 @@ namespace FilterPlot
         }
 
         protected abstract Series CreateGraph(ISignal signal);
-        protected abstract Axis CreateXAxis();
-        protected abstract Axis CreateYAxis();
+        protected abstract Axis XAxis { get; }
+        protected abstract Axis YAxis { get; }
 
     }
 }

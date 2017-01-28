@@ -6,86 +6,71 @@ using FilterPlot.Graphs;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using PropertyTools.DataAnnotations;
 
 namespace FilterPlot
 {
     public class ImpulseResponsePlot : SignalPlot
     {
-        private int _XMax = 1024;
-        private int _XMin;
-        private LinearAxis XAxis { get; set; }
-        private LinearAxis YAxis { get; set; }
-
         public ImpulseResponsePlot()
         {
             this.DisplayName = "time domain";
+            this.XAxis.AxisChanged += this.XAxisChanged;
         }
+
+        public int XMax => (int)Math.Floor(this.XAxis.ActualMaximum);
+
+        public int XMin => (int)Math.Ceiling(this.XAxis.ActualMinimum);
+
+        protected sealed override Axis XAxis { get; } = new SampleAxis();
+        protected sealed override Axis YAxis { get; } = new ImpulseResponseAxis();
+        private int DataMax { get; set; }
+        private int DataMin { get; set; }
 
         protected override Series CreateGraph(ISignal signal)
         {
             var ret = new ImpulseResponseGraph();
 
+            var fsignal = signal as IFiniteSignal;
+            if (fsignal != null)
+            {
+                ret.Points.AddRange(fsignal.Signal.Zip(Enumerable.Range(fsignal.Start, fsignal.Length), (m, t) => new DataPoint(t, m)));
+                return ret;
+            }
+
+            var esignal = signal as IEnumerableSignal;
+            if (esignal != null)
+            {
+                ret.Points.AddRange(
+                    signal.GetWindowedSignal(esignal.Start, this.DataMax - esignal.Start)
+                        .Zip(Enumerable.Range(esignal.Start, this.DataMax - esignal.Start), (m, t) => new DataPoint(t, m)));
+                return ret;
+            }
+
             ret.Points.AddRange(
-                signal.GetWindowedSignal(this.XMin, this.XMax - this.XMin + 1)
-                    .Zip(Enumerable.Range(this.XMin, this.XMax - this.XMin + 1), (m, t) => new DataPoint(t, m)));
+                signal.GetWindowedSignal(this.DataMin, this.DataMax - this.DataMin + 1)
+                    .Zip(Enumerable.Range(this.DataMin, this.DataMax - this.DataMin + 1), (m, t) => new DataPoint(t, m)));
 
             return ret;
-            //var fsignal = signal as IFiniteSignal;
-            //if (fsignal != null)
-            //{
-            //    ret.Points.AddRange(fsignal.Signal.Zip(Enumerable.Range(fsignal.Start, fsignal.Length), (m, t) => new DataPoint(t, m)));
-            //    return ret;
-            //}
-
-            //var esignal = signal as IEnumerableSignal;
-            //if (esignal != null)
-            //{
-            //    var wsignal = esignal.Multiply(this.CausalWindow);
-            //    return this.CreateGraph(wsignal);
-            //}
-
-            //var iwsignal = signal.Multiply(this.SymmetricWindow);
-            //return this.CreateGraph(iwsignal);
         }
 
-        protected override Axis CreateXAxis()
+        private void XAxisChanged(object sender, AxisChangedEventArgs e)
         {
-            return new SampleAxis {Minimum = this.XMin, Maximum = this.XMax, IsZoomEnabled = false, IsPanEnabled = false};
-        }
+            var range = this.XAxis.ActualMaximum - this.XAxis.ActualMinimum;
 
-        protected override Axis CreateYAxis()
-        {
-            return this.YAxis ?? (this.YAxis = new ImpulseResponseAxis());
-        }
-
-        [Category("X axis")]
-        [DisplayName("minimum")]
-        public int XMin
-        {
-            get { return this._XMin; }
-            set
+            if ((this.XAxis.ActualMinimum < this.DataMin) || (this.XAxis.ActualMinimum > this.DataMin + 4 * range))
             {
-                this.SetField(ref this._XMin, value);
-                if (this.XMax < this.XMin)
-                {
-                    this.XMax = this.XMin + 100;
-                }
+                this.DataMin = (int)Math.Floor(this.XAxis.ActualMinimum - 0.5 * range);
+                this.Update(true);
             }
-        }
 
-        [DisplayName("maximum")]
-        public int XMax
-        {
-            get { return this._XMax; }
-            set
+            if ((this.XAxis.ActualMaximum > this.DataMax) || (this.XAxis.ActualMaximum < this.DataMax + 4 * range))
             {
-                this.SetField(ref this._XMax, value);
-                if (this.XMax < this.XMin)
-                {
-                    this.XMin = this.XMax - 100;
-                }
+                this.DataMax = (int)Math.Ceiling(this.XAxis.ActualMaximum + 0.5 * range);
+                this.Update(true);
             }
+
+            this.RaisePropertyChanged(nameof(this.XMin));
+            this.RaisePropertyChanged(nameof(this.XMax));
         }
     }
 }

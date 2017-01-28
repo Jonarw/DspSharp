@@ -12,17 +12,7 @@ namespace FilterPlot
             this.DisplayName = "phase";
         }
 
-        private LinearAxis YAxis { get; set; }
-
-        protected override Axis CreateYAxis()
-        {
-            if (this.YAxis == null)
-            {
-                this.YAxis = new PhaseAxis();
-            }
-
-            return this.YAxis;
-        }
+        protected override Axis YAxis { get; } = new PhaseAxis();
 
         protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
         {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.Remoting;
 using Filter.Algorithms;
 using Filter.Extensions;
 using Filter_Win;
@@ -21,7 +20,7 @@ namespace FilterTests
             var x2 = new[] {0.0, 1.0, 2.0, 3, 4, 5, 6, 7, 8, 9, 10};
 
             var y2 = Dsp.AdaptiveInterpolation(x, y, x2).ToReadOnlyList();
-                
+
             Assert.That(y2.Count == x2.Length);
             Assert.That(y2[0] == y[0]);
             FilterAssert.ListIsMonotonouslyRising(y2);
@@ -40,8 +39,8 @@ namespace FilterTests
         [Test]
         public void TestAdaptiveInterpolationComplex()
         {
-            var x = new[] { 0.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 3.0, 20.0 };
-            var m = new[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 };
+            var x = new[] {0.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 3.0, 20.0};
+            var m = new[] {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
             double[] p =
             {
                 0,
@@ -56,7 +55,7 @@ namespace FilterTests
                 Math.PI * 2.25
             };
 
-            var x2 = new[] { 0.0, 1.0, 2.0, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var x2 = new[] {0.0, 1.0, 2.0, 3, 4, 5, 6, 7, 8, 9, 10};
 
             var y = m.Zip(p, Complex.FromPolarCoordinates).ToReadOnlyList();
 
@@ -77,7 +76,6 @@ namespace FilterTests
             Assert.Throws<ArgumentException>(() => Dsp.AdaptiveInterpolation(new List<double>(), new List<Complex>(), x2).ToReadOnlyList());
         }
 
-
         [Test]
         public void TestAlignedLogSweep()
         {
@@ -87,9 +85,11 @@ namespace FilterTests
             Assert.That(sweep[0] == 0);
             FilterAssert.ListContainsPlausibleValues(sweep);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => Dsp.AlignedLogSweep(-1, 2000, .1, Dsp.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => Dsp.AlignedLogSweep(-1, 2000, .1, Dsp.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
             Assert.Throws<ArgumentOutOfRangeException>(() => Dsp.AlignedLogSweep(20, -1, .1, Dsp.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
-            Assert.Throws<ArgumentOutOfRangeException>(() => Dsp.AlignedLogSweep(20, 2000, -1, Dsp.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => Dsp.AlignedLogSweep(20, 2000, -1, Dsp.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
             Assert.Throws<ArgumentOutOfRangeException>(() => Dsp.AlignedLogSweep(20, 2000, .1, Dsp.SweepAlignments.NegativeOne, -1).ToReadOnlyList());
             Assert.Throws<ArgumentException>(() => Dsp.AlignedLogSweep(20, 20, .1, Dsp.SweepAlignments.NegativeOne, -1).ToReadOnlyList());
         }
@@ -101,7 +101,7 @@ namespace FilterTests
             var output = Dsp.AmplitudeToComplex(input).ToReadOnlyList();
             Complex[] target = {Complex.One, 2, 3};
             FilterAssert.ListsAreEqual(output, target);
-            
+
             Assert.That(Dsp.AmplitudeToComplex(new List<double>()).ToReadOnlyList().Count == 0);
 
             Assert.Throws<ArgumentNullException>(() => Dsp.AmplitudeToComplex(null));
@@ -110,15 +110,15 @@ namespace FilterTests
         [Test]
         public void TestApplyDelayToSpectrum()
         {
-            var x = new[] { 250, 500.0, 1000, 2000 };
-            var y = new[] { Complex.One, Complex.One, Complex.One, Complex.One };
+            var x = new[] {250, 500.0, 1000, 2000};
+            var y = new[] {Complex.One, Complex.One, Complex.One, Complex.One};
             Complex[] target = {Complex.ImaginaryOne, -Complex.One, Complex.One, Complex.One};
 
             var output = Dsp.ApplyDelayToSpectrum(x, y, 0.001).ToReadOnlyList();
 
             FilterAssert.ListsAreReasonablyClose(target, output);
 
-            var y2 = new[] { 4.0 * Complex.One, 5, 6, 7};
+            var y2 = new[] {4.0 * Complex.One, 5, 6, 7};
             output = Dsp.ApplyDelayToSpectrum(x, y2, 2).ToReadOnlyList();
             Assert.That(output.Count == x.Length);
 
@@ -209,7 +209,7 @@ namespace FilterTests
             var result = Dsp.CalculateGroupDelay(frequencies, phase).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result, 1e-4);
 
-            var p2 = new[] { 4.0, 5, 6, 7 };
+            var p2 = new[] {4.0, 5, 6, 7};
             result = Dsp.CalculateGroupDelay(frequencies, p2).ToReadOnlyList();
             Assert.That(result.Count == p2.Length);
 
@@ -221,37 +221,18 @@ namespace FilterTests
         }
 
         [Test]
-        public void TestGenerateSlope()
-        {
-            var x = new[] { 1.0, 2, 3, 4, 5, 6, 7, 8 };
-
-            var output = Dsp.GenerateSlope(x, 2, 7, -10, 20).ToReadOnlyList();
-
-            Assert.That(output.Count == x.Length);
-            Assert.That(output[0] == -10);
-            Assert.That(output[output.Count - 1] == 20);
-            FilterAssert.ListIsMonotonouslyRising(output);
-
-            var output2 = Dsp.GenerateSlope(x, 7, 2, 20, -10).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(output, output2);
-
-            Assert.That(Dsp.GenerateSlope(new List<double>(), 2, 7, 10, 20).ToReadOnlyList().Count == 0);
-            Assert.Throws<ArgumentNullException>(() => Dsp.GenerateSlope(null, 2, 7, 10, 20).ToReadOnlyList());
-        }
-
-        [Test]
         public void TestCircularShift()
         {
-            var x = new[] { 1.0, 2, 3, 4, 5, 6, 7, 8 };
+            var x = new[] {1.0, 2, 3, 4, 5, 6, 7, 8};
 
             var output = Dsp.CircularShift(x, 0).ToReadOnlyList();
             FilterAssert.ListsAreEqual(x, output);
 
             output = Dsp.CircularShift(x, -2).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(new[] { 7, 8, 1.0, 2, 3, 4, 5, 6 }, output);
+            FilterAssert.ListsAreEqual(new[] {7, 8, 1.0, 2, 3, 4, 5, 6}, output);
 
             output = Dsp.CircularShift(x, 2).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(new[] { 3, 4, 5, 6, 7, 8, 1.0, 2 }, output);
+            FilterAssert.ListsAreEqual(new[] {3, 4, 5, 6, 7, 8, 1.0, 2}, output);
 
             Assert.That(Dsp.CircularShift(new List<double>(), 2).ToReadOnlyList().Count == 0);
             Assert.Throws<ArgumentNullException>(() => Dsp.CircularShift<double>(null, 2).ToReadOnlyList());
@@ -390,7 +371,6 @@ namespace FilterTests
 
             var target = new[]
             {
-
                 0.032846344214803,
                 0.218444018516304,
                 0.681607923894635,
@@ -437,10 +417,10 @@ namespace FilterTests
                 0.064156852325964,
                 0.037485314888463
             };
-            
+
             var result = Dsp.Convolve(y, x).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);     
-                   
+            FilterAssert.ListsAreReasonablyClose(target, result);
+
             result = Dsp.Convolve(y, x2).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target2, result);
 
@@ -631,6 +611,25 @@ namespace FilterTests
         }
 
         [Test]
+        public void TestGenerateSlope()
+        {
+            var x = new[] {1.0, 2, 3, 4, 5, 6, 7, 8};
+
+            var output = Dsp.GenerateSlope(x, 2, 7, -10, 20).ToReadOnlyList();
+
+            Assert.That(output.Count == x.Length);
+            Assert.That(output[0] == -10);
+            Assert.That(output[output.Count - 1] == 20);
+            FilterAssert.ListIsMonotonouslyRising(output);
+
+            var output2 = Dsp.GenerateSlope(x, 7, 2, 20, -10).ToReadOnlyList();
+            FilterAssert.ListsAreEqual(output, output2);
+
+            Assert.That(Dsp.GenerateSlope(new List<double>(), 2, 7, 10, 20).ToReadOnlyList().Count == 0);
+            Assert.Throws<ArgumentNullException>(() => Dsp.GenerateSlope(null, 2, 7, 10, 20).ToReadOnlyList());
+        }
+
+        [Test]
         public void TestHalfSinc()
         {
             var target = new[]
@@ -712,7 +711,7 @@ namespace FilterTests
             var result = Dsp.IirFilter(input, a, b).Take(20).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            FilterAssert.ListContainsPlausibleValues(Dsp.IirFilter(input, new[]{1.0}, b).Take(20).ToReadOnlyList());
+            FilterAssert.ListContainsPlausibleValues(Dsp.IirFilter(input, new[] {1.0}, b).Take(20).ToReadOnlyList());
 
             FilterAssert.ListContainsOnlyZeroes(Dsp.IirFilter(Enumerable.Empty<double>(), a, b).Take(10).ToReadOnlyList());
             FilterAssert.ListContainsOnlyZeroes(Dsp.IirFilter(input, a, Enumerable.Empty<double>().ToReadOnlyList()).Take(10).ToReadOnlyList());
@@ -722,14 +721,14 @@ namespace FilterTests
             Assert.Throws<ArgumentNullException>(() => Dsp.IirFilter(input, a, null).Take(20).ToReadOnlyList());
 
             Assert.Throws<Exception>(() => Dsp.IirFilter(input, Enumerable.Empty<double>().ToReadOnlyList(), b).Take(20).ToReadOnlyList());
-            Assert.Throws<Exception>(() => Dsp.IirFilter(input, new[] { 0.0 }, b).Take(20).ToReadOnlyList());
+            Assert.Throws<Exception>(() => Dsp.IirFilter(input, new[] {0.0}, b).Take(20).ToReadOnlyList());
         }
 
         [Test]
         public void TestIirFrequencyResponse()
         {
             var a = new[]
-{
+            {
                 1.005324035839730,
                 -1.979734945559880,
                 0.994675964160273
@@ -770,8 +769,9 @@ namespace FilterTests
             Assert.Throws<ArgumentNullException>(() => Dsp.IirFrequencyResponse(a, b, null, 44100).ToReadOnlyList());
             Assert.Throws<ArgumentOutOfRangeException>(() => Dsp.IirFrequencyResponse(a, b, frequencies, -1).ToReadOnlyList());
 
-            Assert.Throws<Exception>(() => Dsp.IirFrequencyResponse(Enumerable.Empty<double>().ToReadOnlyList(), b, frequencies, 44100).ToReadOnlyList());
-            Assert.Throws<Exception>(() => Dsp.IirFrequencyResponse(new [] {0.0}, b, frequencies, 44100).ToReadOnlyList());
+            Assert.Throws<Exception>(
+                () => Dsp.IirFrequencyResponse(Enumerable.Empty<double>().ToReadOnlyList(), b, frequencies, 44100).ToReadOnlyList());
+            Assert.Throws<Exception>(() => Dsp.IirFrequencyResponse(new[] {0.0}, b, frequencies, 44100).ToReadOnlyList());
         }
 
         [Test]
@@ -809,7 +809,8 @@ namespace FilterTests
         {
             double[] input = {-0.367879, -0.2, -0.1, 0, 0.5, 1, 2, 5, 10, 50, 10000, 1e50};
             double[] target =
-            {   -0.998452103780727259318294980306402,
+            {
+                -0.998452103780727259318294980306402,
                 -0.259171101819073745,
                 -0.11183255915896296483356945682026584227264536229126586,
                 0,
@@ -832,8 +833,8 @@ namespace FilterTests
         [Test]
         public void TestLinearToDb()
         {
-            var input = new[] { 1.0, 10, 2, 0};
-            var target = new[] { 0, 20, 6.020599913279624, -100 };
+            var input = new[] {1.0, 10, 2, 0};
+            var target = new[] {0, 20, 6.020599913279624, -100};
 
             var result = Dsp.LinearToDb(input, -100).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
@@ -847,13 +848,13 @@ namespace FilterTests
             double[] target = {1, 2, 3, 4, 5};
             var result = Dsp.LinSeries(1, 5, 5).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
-            Assert.Catch<ArgumentOutOfRangeException>(() => Dsp.LinSeries(1, 5, 1));
+            Assert.Catch<ArgumentOutOfRangeException>(() => Dsp.LinSeries(1, 5, -1));
         }
 
         [Test]
         public void TestLogSeries()
         {
-            double[] target = { 1, 2, 4, 8, 16 };   
+            double[] target = {1, 2, 4, 8, 16};
             var result = Dsp.LogSeries(1, 16, 5).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
             Assert.Catch<ArgumentOutOfRangeException>(() => Dsp.LogSeries(1, 16, 1));
@@ -964,7 +965,7 @@ namespace FilterTests
                 new Complex(0, 2),
                 new Complex(-3, 0),
                 new Complex(0, -4),
-                new Complex(5, 0),
+                new Complex(5, 0)
             };
 
             var result = Dsp.PolarToComplex(amp, phase).ToReadOnlyList();
@@ -977,12 +978,11 @@ namespace FilterTests
             Assert.Catch<ArgumentNullException>(() => Dsp.PolarToComplex(amp, null));
         }
 
-
         [Test]
         public void TestRadToDeg()
         {
-            var target = new[] { 0.0, -90, 180, 270 };
-            var input = new[] { 0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI };
+            var target = new[] {0.0, -90, 180, 270};
+            var input = new[] {0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI};
 
             var result = Dsp.RadToDeg(input).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
@@ -1098,8 +1098,8 @@ namespace FilterTests
         [Test]
         public void TestWrapPhase()
         {
-            double[] input = { 170, 179, 185, 360, 530, 630, 530, 370, 210, 150, 0 };
-            double[] target = { 170, 179, -175, 0, 170, -90, 170, 10, -150, 150, 0 };
+            double[] input = {170, 179, 185, 360, 530, 630, 530, 370, 210, 150, 0};
+            double[] target = {170, 179, -175, 0, 170, -90, 170, 10, -150, 150, 0};
 
             var input2 = Dsp.DegToRad(input).ToReadOnlyList();
 

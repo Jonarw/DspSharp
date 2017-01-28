@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Dsp.Audio.FFT.Win64</id>
+    <version>0.1-unstable0001</version>
+    <title>Filter_Win</title>
+    <authors>Jonarw</authors>
+    <owners>Jonarw</owners>
+    <licenseUrl>https://github.com/Jonarw/filter/blob/develop/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Jonarw/filter/tree/develop/Filter_Win</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>FFT provider for Filter using fftw</description>
+    <releaseNotes>First release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>filter dsp audio signal processing fft</tags>
+  </metadata>
+</package>

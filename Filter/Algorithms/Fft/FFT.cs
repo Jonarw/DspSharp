@@ -9,7 +9,7 @@ namespace Filter.Algorithms
     /// <summary>
     ///     Provides a static abstraction for FFT calculation.
     /// </summary>
-    public sealed class Fft
+    public static class Fft
     {
         public static IFftProvider FftProvider { get; set; }
 
@@ -31,9 +31,9 @@ namespace Filter.Algorithms
         /// </summary>
         /// <param name="input">The input value.</param>
         /// <returns>The result.</returns>
-        public static int NextPowerOfTwo(int input)
+        public static int GetOptimalFftLength(int input)
         {
-            return Convert.ToInt32(Math.Pow(2, Math.Ceiling(Math.Log(input, 2))));
+            return FftProvider.GetOptimalFftLength(input);
         }
 
         /// <summary>
@@ -45,10 +45,21 @@ namespace Filter.Algorithms
         /// <returns>The positive half of the hermitian-symmetric spectrum, including DC and Nyquist/2.</returns>
         public static IReadOnlyList<Complex> RealFft(IEnumerable<double> input, int n = -1)
         {
-            if (n < 0)
+            if (input == null)
             {
-                input = input.ToReadOnlyList();
-                n = input.Count();
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            IReadOnlyList<double> inputlist;
+
+            if (n < 0 )
+            {
+                inputlist = input.ToReadOnlyList();
+                n = inputlist.Count;
+            }
+            else
+            {
+                inputlist = input.ToReadOnlyList(n);
             }
 
             if (n == 0)
@@ -56,7 +67,7 @@ namespace Filter.Algorithms
                 return Enumerable.Empty<Complex>().ToReadOnlyList();
             }
 
-            return FftProvider.RealFft(input.ToReadOnlyList(n), n);
+            return FftProvider.RealFft(inputlist, n);
         }
 
         /// <summary>
@@ -66,29 +77,74 @@ namespace Filter.Algorithms
         /// <returns>The computed time-domain values. Always has an even length.</returns>
         public static IReadOnlyList<double> RealIfft(IEnumerable<Complex> input)
         {
-            return FftProvider.RealIfft(input.ToReadOnlyList());
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            var inputlist = input.ToReadOnlyList();
+
+            if (inputlist.Count == 0)
+            {
+                return Enumerable.Empty<double>().ToReadOnlyList();
+            }
+
+            return FftProvider.RealIfft(inputlist);
         }
 
         /// <summary>
-        ///     Computes an oversampled FFT over real-valued input data. Only the positive half of the hermitian symmetric fourier
-        ///     spectrum is returned.
+        ///     Computes the FFT of complex-valued input data.
         /// </summary>
-        /// <param name="input">The real-valued input data.</param>
-        /// <param name="oversampling">The oversampling factor</param>
+        /// <param name="input">The input data.</param>
         /// <param name="n">The desired fft length. If set, the <paramref name="input" /> is zero-padded to <paramref name="n" />.</param>
-        /// <returns>The positive half of the hermitian-symmetric spectrum, including DC and Nyquist/2.</returns>
-        public static IEnumerable<Complex> RealOversampledFft(IEnumerable<double> input, int oversampling, int n = -1)
+        /// <returns>The FFT of the input.</returns>
+        public static IReadOnlyList<Complex> ComplexFft(IEnumerable<Complex> input, int n = -1)
         {
-            var inputlist = input.ToReadOnlyList();
-
-            if (n < 0)
+            if (input == null)
             {
-                n = inputlist.Count;
+                throw new ArgumentNullException(nameof(input));
             }
 
-            n *= oversampling;
-            var fft = FftProvider.RealFft(inputlist, n);
-            return fft.SparseSeries(oversampling);
+            IReadOnlyList<Complex> inputlist;
+
+            if (n < 0 )
+            {
+                inputlist = input.ToReadOnlyList();
+                n = inputlist.Count;
+            }
+            else
+            {
+                inputlist = input.ToReadOnlyList(n);
+            }
+
+            if (n == 0)
+            {
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
+            }
+
+            return FftProvider.ComplexFft(inputlist, n);
+        }
+
+        /// <summary>
+        ///     Computes the IFFT of complex-valued input data.
+        /// </summary>
+        /// <param name="input">The input data.</param>
+        /// <returns>The IFFT of the input.</returns>
+        public static IReadOnlyList<Complex> ComplexIfft(IEnumerable<Complex> input)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
+            var inputlist = input.ToReadOnlyList();
+
+            if (inputlist.Count == 0)
+            {
+                return Enumerable.Empty<Complex>().ToReadOnlyList();
+            }
+
+            return FftProvider.ComplexIfft(inputlist);
         }
     }
 }

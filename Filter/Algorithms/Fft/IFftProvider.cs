@@ -9,7 +9,29 @@ namespace Filter.Algorithms
     public interface IFftProvider
     {
         /// <summary>
-        ///     Computes the FFT over the real valued input vector.
+        ///     Computes the FFT of a complex-valued sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <param name="n">The FFT length. The input vector is automatically truncated or zero-padded to this length.</param>
+        /// <returns>The FFT of the sequence.</returns>
+        IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1);
+
+        /// <summary>
+        ///     Gets the length of next biggest FFT length that the FFT provider can compute efficiently.
+        /// </summary>
+        /// <param name="originalLength">The original length.</param>
+        /// <returns>The most efficient fft length greater or equal to the original length.</returns>
+        int GetOptimalFftLength(int originalLength);
+
+        /// <summary>
+        ///     Computes the IFFT of a complex-valued sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <returns>The IFFT of the sequence.</returns>
+        IReadOnlyList<Complex> ComplexIfft(IReadOnlyList<Complex> input);
+
+        /// <summary>
+        ///     Computes the FFT of the real valued input vector.
         /// </summary>
         /// <param name="input">The input vector.</param>
         /// <param name="n">The FFT length. The input vector is automatically truncated or zero-padded to this length.</param>
@@ -17,10 +39,10 @@ namespace Filter.Algorithms
         IReadOnlyList<Complex> RealFft(IReadOnlyList<double> input, int n = -1);
 
         /// <summary>
-        ///     Computes the IFFT over the positive half of a hermitian-symmetric spectrum.
+        ///     Computes the IFFT of the positive half of a hermitian-symmetric spectrum.
         /// </summary>
         /// <param name="input">The positive half of a hermitian-symmetric spectrum.</param>
-        /// <returns>The real-valued time signal corresponding to the input vector.</returns>
+        /// <returns>The real-valued time signal corresponding to the input sequence.</returns>
         IReadOnlyList<double> RealIfft(IReadOnlyList<Complex> input);
     }
 }

@@ -28,5 +28,7 @@ namespace Filter.Extensions
 
             return !enumerable.Any();
         }
+
+        
     }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Dsp.Audio.Plot</id>
+    <version>0.1-unstable001</version>
+    <title>FilterPlot</title>
+    <authors>Jonarw</authors>
+    <owners>Jonarw</owners>
+    <licenseUrl>https://github.com/Jonarw/filter/blob/develop/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Jonarw/filter/tree/develop/FilterPlot</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Tools for plotting signals created by Filter.</description>
+    <releaseNotes>First release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>plot dsp audio signal processing filter</tags>
+  </metadata>
+</package>

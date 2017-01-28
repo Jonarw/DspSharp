@@ -20,8 +20,12 @@ namespace Filter.Signal.Windows
         /// <param name="length">The window length.</param>
         /// <param name="samplerate">The window samplerate.</param>
         /// <param name="mode">The window mode.</param>
-        public Window(WindowTypes type, int start, int length, double samplerate, WindowModes mode)
-            : base(CreateWindow(type, mode, length), samplerate, start)
+        /// <param name="ratio">
+        ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
+        ///     rectangular window and everyting between a tapered window.
+        /// </param>
+        public Window(WindowTypes type, int start, int length, double samplerate, WindowModes mode, double ratio = 1)
+            : base(CreateWindow(type, mode, length, ratio), samplerate, start)
         {
             this.Type = type;
             this.Mode = mode;
@@ -35,9 +39,37 @@ namespace Filter.Signal.Windows
         /// <param name="length">The window length.</param>
         /// <param name="samplerate">The window samplerate.</param>
         /// <param name="mode">The window mode.</param>
-        public Window(WindowTypes type, int length, double samplerate, WindowModes mode)
-            : this(type, GetDefaultStart(mode, length), length, samplerate, mode)
+        /// <param name="ratio">
+        ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
+        ///     rectangular window and everyting between a tapered window.
+        /// </param>
+        public Window(WindowTypes type, int length, double samplerate, WindowModes mode, double ratio = 1)
+            : this(type, GetDefaultStart(mode, length), length, samplerate, mode, ratio)
         {
+        }
+
+        public static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length, double ratio)
+        {
+            var l = Convert.ToInt32(length * ratio);
+
+            if (mode == WindowModes.Symmetric)
+            {
+                var hw = GetCausalHalfWindow(type, (l >> 1) + 1).ToReadOnlyList();
+                var positivehw = hw.GetPaddedRange(1, ((l + 1) >> 1) - 1).ToReadOnlyList();
+                return hw.Reverse().Concat(Enumerable.Repeat(1.0, length - hw.Count - positivehw.Count)).Concat(positivehw).ToReadOnlyList();
+            }
+
+            if (mode == WindowModes.Causal)
+            {
+                return Enumerable.Repeat(1.0, length - l).Concat(GetCausalHalfWindow(type, l)).ToReadOnlyList();
+            }
+
+            if (mode == WindowModes.AntiCausal)
+            {
+                return GetCausalHalfWindow(type, length).Reverse().Concat(Enumerable.Repeat(1.0, length - l)).ToReadOnlyList();
+            }
+
+            throw new Exception();
         }
 
         /// <summary>
@@ -46,76 +78,22 @@ namespace Filter.Signal.Windows
         /// <param name="type">The window type.</param>
         /// <param name="length">The length of the half window.</param>
         /// <returns></returns>
-        /// <remarks>https://en.wikipedia.org/wiki/Window_function#A_list_of_window_functions</remarks>
-        public static IEnumerable<double> GetHalfWindow(WindowTypes type, int length)
+        public static IEnumerable<double> GetCausalHalfWindow(WindowTypes type, int length)
         {
-            // first value is always 1
-            yield return 1.0;
+            var winfunc = GetWindowFunction(type);
+            return Enumerable.Range(1, length).Reverse().Select(i => winfunc((double)i / length));
+        }
 
-            switch (type)
-            {
-            case WindowTypes.Rectangular:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 1.0;
-                }
-                break;
-            case WindowTypes.Hann:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 0.5 * (1 - Math.Cos(Math.PI * n / length));
-                }
-                break;
-            case WindowTypes.Hamming:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 0.54 - 0.46 * Math.Cos(Math.PI * n / length);
-                }
-                break;
-            case WindowTypes.Triangular:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 1 - (double)(length - n) / length;
-                }
-                break;
-            case WindowTypes.Welch:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 1 - Math.Pow((double)(length - n) / length, 2);
-                }
-                break;
-            case WindowTypes.Blackman:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 0.42659 - 0.49656 * Math.Cos(Math.PI * n / length) + 0.076849 * Math.Cos(2 * Math.PI * n / length);
-                }
-                break;
-            case WindowTypes.BlackmanHarris:
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return 0.35875 - 0.48829 * Math.Cos(Math.PI * n / length) + 0.14128 * Math.Cos(2 * Math.PI * n / length) -
-                                 0.01168 * Math.Cos(3 * Math.PI * n / length);
-                }
-                break;
-            case WindowTypes.KaiserAlpha2:
-            {
-                var denom = Dsp.ModBessel0(Math.PI * 2);
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return Dsp.ModBessel0(Math.PI * 2 * Math.Sqrt(1 - Math.Pow((double)n / length - 1, 2))) / denom;
-                }
-            }
-                break;
-            case WindowTypes.KaiserAlpha3:
-            {
-                var denom = Dsp.ModBessel0(Math.PI * 3);
-                for (var n = length - 1; n > 0; n--)
-                {
-                    yield return Dsp.ModBessel0(Math.PI * 3 * Math.Sqrt(1 - Math.Pow((double)n / length - 1, 2))) / denom;
-                }
-            }
-                break;
-            }
+        /// <summary>
+        ///     Gets the negative half of a window function.
+        /// </summary>
+        /// <param name="type">The window type.</param>
+        /// <param name="length">The length of the half window.</param>
+        /// <returns></returns>
+        public static IEnumerable<double> GetAntiCausalHalfWindow(WindowTypes type, int length)
+        {
+            var winfunc = GetWindowFunction(type);
+            return Enumerable.Range(1, length).Select(i => winfunc((double)i / length));
         }
 
         /// <summary>
@@ -126,28 +104,82 @@ namespace Filter.Signal.Windows
         /// <returns></returns>
         public static IEnumerable<double> GetWindow(WindowTypes type, int length)
         {
-            var hw = GetHalfWindow(type, (length >> 1) + 1).ToReadOnlyList();
+            var hw = GetCausalHalfWindow(type, (length >> 1) + 1).ToReadOnlyList();
             return hw.Reverse().Concat(hw.GetPaddedRange(1, ((length + 1) >> 1) - 1));
         }
 
-        private static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length)
+        /// <remarks>https://en.wikipedia.org/wiki/Window_function#A_list_of_window_functions</remarks>
+        public static Func<double, double> GetWindowFunction(WindowTypes windowType)
         {
-            if (mode == WindowModes.Symmetric)
+            switch (windowType)
             {
-                return GetWindow(type, length).ToReadOnlyList();
+            case WindowTypes.Rectangular:
+                return d => 1;
+            case WindowTypes.Hann:
+                return HannWindow;
+            case WindowTypes.Hamming:
+                return HammingWindow;
+            case WindowTypes.Triangular:
+                return TriangularWindow;
+            case WindowTypes.Welch:
+                return WelchWindow;
+            case WindowTypes.Blackman:
+                return BlackmanWindow;
+            case WindowTypes.BlackmanHarris:
+                return BlackmanHarrisWindow;
+            case WindowTypes.KaiserAlpha2:
+                return Kaiser2Window;
+            case WindowTypes.KaiserAlpha3:
+                return Kaiser3Window;
             }
 
-            if (mode == WindowModes.Causal)
+            throw new ArgumentOutOfRangeException(nameof(windowType), windowType, null);
+        }
+
+        public static double GetWindowValue(WindowTypes windowType, double value)
+        {
+            if (value <= 0)
             {
-                return GetHalfWindow(type, length).ToReadOnlyList();
+                return 0;
             }
 
-            if (mode == WindowModes.AntiCausal)
+            if (value >= 1)
             {
-                return GetHalfWindow(type, length).Reverse().ToReadOnlyList();
+                return 1;
             }
 
-            throw new Exception();
+            return GetWindowFunction(windowType)(value);
+        }
+
+        public static IEnumerable<double> GetWindowValues(WindowTypes windowType, IEnumerable<double> value)
+        {
+            var winfunc = GetWindowFunction(windowType);
+
+            return value.Select(
+                d =>
+                {
+                    if (d <= 0)
+                    {
+                        return 0;
+                    }
+
+                    if (d >= 1)
+                    {
+                        return 1;
+                    }
+
+                    return winfunc(d);
+                });
+        }
+
+        private static double BlackmanHarrisWindow(double value)
+        {
+            return 0.35875 - 0.48829 * Math.Cos(Math.PI * value) + 0.14128 * Math.Cos(2 * Math.PI * value) - 0.01168 * Math.Cos(3 * Math.PI * value);
+        }
+
+        private static double BlackmanWindow(double value)
+        {
+            return 0.42659 - 0.49656 * Math.Cos(Math.PI * value) + 0.076849 * Math.Cos(2 * Math.PI * value);
         }
 
         private static int GetDefaultStart(WindowModes mode, int length)
@@ -168,6 +200,36 @@ namespace Filter.Signal.Windows
             }
 
             throw new Exception();
+        }
+
+        private static double HammingWindow(double value)
+        {
+            return 0.54 - 0.46 * Math.Cos(Math.PI * value);
+        }
+
+        private static double HannWindow(double value)
+        {
+            return 0.5 * (1 - Math.Cos(Math.PI * value));
+        }
+
+        private static double Kaiser2Window(double value)
+        {
+            return Dsp.ModBessel0(Math.PI * 2 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Dsp.ModBessel0(Math.PI * 2);
+        }
+
+        private static double Kaiser3Window(double value)
+        {
+            return Dsp.ModBessel0(Math.PI * 3 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Dsp.ModBessel0(Math.PI * 3);
+        }
+
+        private static double TriangularWindow(double value)
+        {
+            return value;
+        }
+
+        private static double WelchWindow(double value)
+        {
+            return 1 - Math.Pow(1 - value, 2);
         }
 
         [Category("window")]

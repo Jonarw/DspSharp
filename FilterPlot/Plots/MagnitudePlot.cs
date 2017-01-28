@@ -13,17 +13,7 @@ namespace FilterPlot
             this.DisplayName = "magnitude";
         }
 
-        private Axis YAxis { get; set; }
-
-        protected override Axis CreateYAxis()
-        {
-            if (this.YAxis == null)
-            {
-                this.YAxis = new AmplitudeAxis();
-            }
-
-            return this.YAxis;
-        }
+        protected override Axis YAxis { get; } = new AmplitudeAxis();
 
         protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
         {
