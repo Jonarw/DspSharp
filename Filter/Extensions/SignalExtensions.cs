@@ -26,7 +26,7 @@ namespace Filter.Extensions
                 throw new SamplerateMismatchException();
             }
 
-            return new InfiniteSignal((start, length) => s1.GetWindowedSignal(start, length).Add(s2.GetWindowedSignal(start, length)), s1.SampleRate)
+            return new InfiniteSignal((start, length) => s1.GetWindowedSamples(start, length).Add(s2.GetWindowedSamples(start, length)), s1.SampleRate)
             {
                 DisplayName = "addition result"
             };
@@ -108,9 +108,9 @@ namespace Filter.Extensions
 
                     var spectrum1 = Fft.RealFft(s1.Signal, n);
 
-                    var signal2A = s2.GetWindowedSignal(start - s1.Length - s1.Start, s1.Length);
+                    var signal2A = s2.GetWindowedSamples(start - s1.Length - s1.Start, s1.Length);
                     var spectrum2A = Fft.RealFft(signal2A, n);
-                    var signal2B = s2.GetWindowedSignal(start - s1.Start, length);
+                    var signal2B = s2.GetWindowedSamples(start - s1.Start, length);
                     var spectrum2B = Fft.RealFft(signal2B, n);
 
                     var spectrumA = spectrum1.Multiply(spectrum2A);
@@ -183,7 +183,7 @@ namespace Filter.Extensions
                 throw new ArgumentOutOfRangeException(nameof(length));
             }
 
-            return new FiniteSignal(signal.GetWindowedSignal(start, length).ToReadOnlyList(), signal.SampleRate, start);
+            return new FiniteSignal(signal.GetWindowedSamples(start, length).ToReadOnlyList(), signal.SampleRate, start);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Filter.Extensions
                 throw new SamplerateMismatchException();
             }
 
-            return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSignal(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
+            return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
             {
                 DisplayName = "multiplication result"
             };
@@ -263,7 +263,7 @@ namespace Filter.Extensions
             }
 
             return new InfiniteSignal(
-                (start, length) => s1.GetWindowedSignal(start, length).Multiply(s2.GetWindowedSignal(start, length)),
+                (start, length) => s1.GetWindowedSamples(start, length).Multiply(s2.GetWindowedSamples(start, length)),
                 s1.SampleRate) {DisplayName = "multiplication result"};
         }
 
@@ -284,7 +284,7 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static ISignal Negate(this ISignal s)
         {
-            return new InfiniteSignal((start, length) => s.GetWindowedSignal(start, length).Negate(), s.SampleRate) {DisplayName = "negation result"};
+            return new InfiniteSignal((start, length) => s.GetWindowedSamples(start, length).Negate(), s.SampleRate) {DisplayName = "negation result"};
         }
 
         /// <summary>
@@ -307,6 +307,50 @@ namespace Filter.Extensions
             }
 
             return new EnumerableSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
+        }
+
+        /// <summary>
+        ///     Processes the specified finite signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="filter">The filter.</param>
+        /// <exception cref="ArgumentNullException">
+        /// </exception>
+        public static IFiniteSignal Process(this IFiniteSignal signal, IFiniteFilter filter)
+        {
+            if (signal == null)
+            {
+                throw new ArgumentNullException(nameof(signal));
+            }
+
+            if (filter == null)
+            {
+                throw new ArgumentNullException(nameof(filter));
+            }
+
+            return signal.Process(filter.Process);
+        }
+
+        /// <summary>
+        ///     Processes the specified finite signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <param name="filter">The filter.</param>
+        /// <exception cref="ArgumentNullException">
+        /// </exception>
+        public static IEnumerableSignal Process(this IEnumerableSignal signal, IFilter filter)
+        {
+            if (signal == null)
+            {
+                throw new ArgumentNullException(nameof(signal));
+            }
+
+            if (filter == null)
+            {
+                throw new ArgumentNullException(nameof(filter));
+            }
+
+            return signal.Process(filter.Process);
         }
 
         /// <summary>
@@ -348,7 +392,7 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static ISignal Reverse(this ISignal signal)
         {
-            return new InfiniteSignal((start, length) => signal.GetWindowedSignal(-start - length + 1, length).Reverse(), signal.SampleRate);
+            return new InfiniteSignal((start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(), signal.SampleRate);
         }
     }
 }

@@ -63,11 +63,24 @@
     <Compile Include="Algorithms\Mls.cs" />
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
     <Compile Include="ChangeEventHandler.cs" />
+    <Compile Include="Collections\Extensions.cs" />
+    <Compile Include="Collections\IObservableList.cs" />
+    <Compile Include="Collections\IReadOnlyObservableList.cs" />
+    <Compile Include="Collections\ObservableList.cs" />
+    <Compile Include="Collections\ObservableSortedDictionary.cs" />
+    <Compile Include="Collections\ReadOnlyObservableList.cs" />
     <Compile Include="Exceptions\SamplerateMismatchException.cs" />
     <Compile Include="Extensions\FilterExtensions.cs" />
     <Compile Include="Extensions\Utilities.cs" />
     <Compile Include="FilterChangedEventArgs.cs" />
     <Compile Include="FilterFactory\FilterTypes.cs" />
+    <Compile Include="Filters\AwgnFilter.cs" />
+    <Compile Include="Filters\CustomFilter.cs" />
+    <Compile Include="Filters\CustomFiniteFilter.cs" />
+    <Compile Include="Filters\FilterSet.cs" />
+    <Compile Include="Filters\FiniteFilterSet.cs" />
+    <Compile Include="FiniteFilter.cs" />
+    <Compile Include="IFiniteFilter.cs" />
     <Compile Include="ISignalBasedFilter.cs" />
     <Compile Include="LtiFilters\CustomConvolver.cs" />
     <Compile Include="Signal\BaseImplementations\SignalBase.cs" />
@@ -115,13 +128,15 @@
     <Compile Include="Signal\SignalTypes\WhiteNoise.cs" />
     <Compile Include="Signal\Windows\WindowModes.cs" />
     <Compile Include="Signal\Windows\WindowTypes.cs" />
-    <Compile Include="SmartCollection.cs" />
     <Compile Include="Spectrum\FftSpectrum.cs" />
     <Compile Include="Spectrum\IFftSpectrum.cs" />
     <Compile Include="Spectrum\ISpectrum.cs" />
     <Compile Include="Spectrum\Spectrum.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="filter class diagram.cd" />
+    <None Include="isignal diagram.cd" />
+    <None Include="signal class diagram.cd" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

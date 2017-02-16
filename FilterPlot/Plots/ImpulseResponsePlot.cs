@@ -41,13 +41,13 @@ namespace FilterPlot
             if (esignal != null)
             {
                 ret.Points.AddRange(
-                    signal.GetWindowedSignal(esignal.Start, this.DataMax - esignal.Start)
+                    signal.GetWindowedSamples(esignal.Start, this.DataMax - esignal.Start)
                         .Zip(Enumerable.Range(esignal.Start, this.DataMax - esignal.Start), (m, t) => new DataPoint(t, m)));
                 return ret;
             }
 
             ret.Points.AddRange(
-                signal.GetWindowedSignal(this.DataMin, this.DataMax - this.DataMin + 1)
+                signal.GetWindowedSamples(this.DataMin, this.DataMax - this.DataMin + 1)
                     .Zip(Enumerable.Range(this.DataMin, this.DataMax - this.DataMin + 1), (m, t) => new DataPoint(t, m)));
 
             return ret;

@@ -52,7 +52,7 @@ namespace Filter.Signal
         /// <returns>
         ///     The specified section.
         /// </returns>
-        public override IEnumerable<double> GetWindowedSignal(int start, int length)
+        public override IEnumerable<double> GetWindowedSamples(int start, int length)
         {
             return this.Signal.GetPaddedRange(start - this.Start, length);
         }

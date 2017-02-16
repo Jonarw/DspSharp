@@ -2,22 +2,24 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using Filter.Collections;
 using Filter.Extensions;
 using Filter.Signal;
 using PropertyTools.DataAnnotations;
+using UmtUtilities.Collections;
 
 namespace Filter.LtiFilters
 {
     public class CustomConvolver : Convolver, ISignalBasedFilter
     {
-        private ObservableCollection<ISignal> _availableSignals = new ObservableCollection<ISignal>();
+        private IReadOnlyObservableList<ISignal> _availableSignals;
         private IFiniteSignal _Source;
 
         public CustomConvolver(double samplerate) : base(samplerate)
         {
         }
 
-        public SmartCollection<IFiniteSignal> AvailableFiniteSignals { get; } = new SmartCollection<IFiniteSignal>();
+        public IObservableList<IFiniteSignal> AvailableFiniteSignals { get; } = new ObservableList<IFiniteSignal>();
 
         public override IReadOnlyList<double> ImpulseResponse
         {
@@ -37,7 +39,7 @@ namespace Filter.LtiFilters
             get { return this.Source != null; }
         }
 
-        public ObservableCollection<ISignal> AvailableSignals
+        public IReadOnlyObservableList<ISignal> AvailableSignals
         {
             get { return this._availableSignals; }
             set

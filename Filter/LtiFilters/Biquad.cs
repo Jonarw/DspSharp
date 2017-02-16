@@ -219,7 +219,7 @@ namespace Filter.LtiFilters
                 this.SetField(ref this._Type, value);
                 this.RaisePropertyChanged(nameof(this.IsGainUsed));
                 this.CalculateCoefficients();
-                this.OnChange();
+                this.RaiseChangedEvent();
             }
         }
 
@@ -234,7 +234,7 @@ namespace Filter.LtiFilters
             {
                 this.SetField(ref this._Fc, value);
                 this.CalculateCoefficients();
-                this.OnChange();
+                this.RaiseChangedEvent();
             }
         }
 
@@ -249,7 +249,7 @@ namespace Filter.LtiFilters
             {
                 this.SetField(ref this._Gain, value);
                 this.CalculateCoefficients();
-                this.OnChange();
+                this.RaiseChangedEvent();
             }
         }
 
@@ -264,7 +264,7 @@ namespace Filter.LtiFilters
             {
                 this.SetField(ref this._Q, value);
                 this.CalculateCoefficients();
-                this.OnChange();
+                this.RaiseChangedEvent();
             }
         }
 

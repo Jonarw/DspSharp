@@ -59,7 +59,7 @@ namespace Filter
         /// <value>
         ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
         /// </value>
-        public bool HasInfiniteImpulseResponse { get; protected set; } = false;
+        public virtual bool HasInfiniteImpulseResponse => true;
 
         /// <summary>
         ///     Processes the specified signal.
@@ -81,16 +81,16 @@ namespace Filter
         /// <summary>
         ///     Should be called every time the filter object is changed in a way that alters its filter effect.
         /// </summary>
-        protected void OnChange()
+        protected void RaiseChangedEvent()
         {
-            this.OnChangeOverride();
+            this.OnChange();
             this.Changed?.Invoke(this, new FilterChangedEventArgs());
         }
 
         /// <summary>
         ///     Can be overridden by a child class to perform a certain action every time the filter is changed.
         /// </summary>
-        protected virtual void OnChangeOverride()
+        protected virtual void OnChange()
         {
         }
 

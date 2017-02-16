@@ -168,14 +168,14 @@ namespace Filter.Extensions
         }
 
         /// <summary>
-        /// Calculates the complex conjugate of a sequence.
+        ///     Calculates the complex conjugate of a sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
         /// <returns>The complex conjugate of the sequence.</returns>
         public static IEnumerable<Complex> ComplexConjugate(this IEnumerable<Complex> input)
         {
             return input.Select(c => new Complex(c.Real, -c.Imaginary));
-        } 
+        }
 
         /// <summary>
         ///     Convolves two vectors.
@@ -459,6 +459,38 @@ namespace Filter.Extensions
         }
 
         /// <summary>
+        ///     Loops the provided sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="loops">The number of loops.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public static IEnumerable<T> Loop<T>(this IEnumerable<T> source, int loops)
+        {
+            if (loops < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(loops));
+            }
+
+            if (loops == 0)
+            {
+                return Enumerable.Empty<T>();
+            }
+
+            var sourcelist = source.ToReadOnlyList();
+
+            IEnumerable<T> ret = sourcelist;
+
+            for (int i = 0; i < loops - 1; i++)
+            {
+                ret = ret.Concat(sourcelist);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
         ///     Extracts the magnitude from a complex-valued vector.
         /// </summary>
         /// <param name="input">The vector.</param>
@@ -480,7 +512,8 @@ namespace Filter.Extensions
             int index = -1;
             T maxValue = default(T); // Immediately overwritten anyway
 
-            return sequence.Aggregate(0,
+            return sequence.Aggregate(
+                0,
                 (i, value) =>
                 {
                     index++;
@@ -506,7 +539,8 @@ namespace Filter.Extensions
             int index = -1;
             T minValue = default(T); // Immediately overwritten anyway
 
-            return sequence.Aggregate(0,
+            return sequence.Aggregate(
+                0,
                 (i, value) =>
                 {
                     index++;

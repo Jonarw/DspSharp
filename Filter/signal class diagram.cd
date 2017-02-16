@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Filter.Signal.EnumerableSignal" Collapsed="true">
+    <Position X="32.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAASAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Signal\BaseImplementations\EnumerableSignal.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.394" />
+  </Class>
+  <Class Name="Filter.Signal.FiniteSignal" Collapsed="true">
+    <Position X="34.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQQADAAAAAAAAAAAABygAIAIAAAIAAAAAAAABA=</HashCode>
+      <FileName>Signal\BaseImplementations\FiniteSignal.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.426" />
+  </Class>
+  <Class Name="Filter.Signal.InfiniteSignal" Collapsed="true">
+    <Position X="37" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAACACAAAAAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Signal\BaseImplementations\InfiniteSignal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.SignalBase" Collapsed="true">
+    <Position X="33.5" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAEAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Signal\BaseImplementations\SignalBase.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.424" />
+  </Class>
+  <Class Name="Filter.Signal.SyntheticSignal" Collapsed="true">
+    <Position X="37" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Signal\BaseImplementations\SyntheticSignal.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.373" />
+  </Class>
+  <Class Name="Filter.Signal.Dirac" Collapsed="true">
+    <Position X="32.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Signal\SignalTypes\Dirac.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.IdealHighpass" Collapsed="true">
+    <Position X="31" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJA=</HashCode>
+      <FileName>Signal\SignalTypes\IdealHighpass.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.IdealLowpass" Collapsed="true">
+    <Position X="33" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJA=</HashCode>
+      <FileName>Signal\SignalTypes\IdealLowpass.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.LogSweep" Collapsed="true">
+    <Position X="34.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Signal\SignalTypes\LogSweep.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.Sinc" Collapsed="true">
+    <Position X="35" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Signal\SignalTypes\Sinc.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.Sinus" Collapsed="true">
+    <Position X="37" Y="13.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>Signal\SignalTypes\Sinus.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.WhiteNoise" Collapsed="true">
+    <Position X="30.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAgAAAAAAAAAAACAIACABAAAAAEgAAAAABAAAA=</HashCode>
+      <FileName>Signal\SignalTypes\WhiteNoise.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Filter.Signal.Windows.Window" Collapsed="true">
+    <Position X="30.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAIgAAAAIAAABMCAAACBAAQAAAAAAABASAAABCAAAA=</HashCode>
+      <FileName>Signal\Windows\Window.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

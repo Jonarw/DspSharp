@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Filter.Algorithms;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.LtiFilters
@@ -8,12 +9,12 @@ namespace Filter.LtiFilters
     /// <summary>
     ///     Represents a filter with a constant group delay and no effects otherwise.
     /// </summary>
-    public class SampleDelayFilter : FilterBase
+    public class DelayFilter : FiniteFilter
     {
         private double _delay;
         private int _SampleDelay;
 
-        public SampleDelayFilter(double samplerate) : base(samplerate)
+        public DelayFilter(double samplerate) : base(samplerate)
         {
             this.Name = "delay filter";
         }
@@ -35,11 +36,11 @@ namespace Filter.LtiFilters
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return Enumerable.Repeat(0.0, this.SampleDelay).Concat(signal);
+            return Dsp.GetZeros(this.SampleDelay).Concat(signal);
         }
 
         /// <summary>
-        ///     Gets or sets the delay of the <see cref="SampleDelayFilter" /> in integer samples.
+        ///     Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
         /// </summary>
         [Category("delay")]
         [DisplayName("delay in samples")]
@@ -54,12 +55,12 @@ namespace Filter.LtiFilters
                 }
 
                 this.Delay = value / this.Samplerate;
-                this.OnChange();
+                this.RaiseChangedEvent();
             }
         }
 
         /// <summary>
-        ///     Gets the delay of the <see cref="SampleDelayFilter" /> in seconds.
+        ///     Gets the delay of the <see cref="DelayFilter" /> in seconds.
         /// </summary>
         [DisplayName("delay in seconds")]
         public double Delay

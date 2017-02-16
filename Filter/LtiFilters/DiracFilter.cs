@@ -5,11 +5,11 @@ namespace Filter.LtiFilters
     /// <summary>
     ///     A filter with a transfer function of 1.
     /// </summary>
-    public class DiracFilter : FilterBase
+    public class DiracFilter : FiniteFilter
     {
         public DiracFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "dirac filter";
+            this.Name = "Dirac Filter";
         }
 
         /// <summary>

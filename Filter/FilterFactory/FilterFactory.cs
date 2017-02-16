@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using Filter.Filters;
 using Filter.LtiFilters;
 using Filter.Signal;
+using UmtUtilities.Collections;
 
 namespace Filter
 {
@@ -19,7 +20,7 @@ namespace Filter
         /// <param name="availableSignals">The available signals for all filters that are based on existing signals.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
-        public static IFilter CreateFilter(FilterTypes type, double samplerate, ObservableCollection<ISignal> availableSignals = null)
+        public static IFilter CreateFilter(FilterTypes type, double samplerate, IReadOnlyObservableList<ISignal> availableSignals = null)
         {
             if (type == FilterTypes.Distortion)
             {
@@ -43,7 +44,7 @@ namespace Filter
 
             if (type == FilterTypes.Delay)
             {
-                return new SampleDelayFilter(samplerate);
+                return new DelayFilter(samplerate);
             }
 
             if (type == FilterTypes.Dirac)

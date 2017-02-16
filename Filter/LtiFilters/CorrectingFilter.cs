@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Filter.Signal;
 using Filter.Signal.Windows;
+using UmtUtilities.Collections;
 
 #pragma warning disable 1591
 // work in progress!
@@ -48,7 +49,7 @@ namespace Filter.LtiFilters
 
         private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
         {
-            if (this._UpdateMode == UpdateModes.Automatic) this.OnChange();
+            if (this._UpdateMode == UpdateModes.Automatic) this.RaiseChangedEvent();
         }
 
         private UpdateModes _UpdateMode;
@@ -224,6 +225,6 @@ namespace Filter.LtiFilters
             this.Name = "correcting filter";
         }
 
-        public ObservableCollection<ISignal> AvailableSignals { get; set; }
+        public IReadOnlyObservableList<ISignal> AvailableSignals { get; set; }
     }
 }

@@ -7,11 +7,11 @@ namespace Filter.LtiFilters
     ///     Base class for all filters that can be described by their impulse response.
     /// </summary>
     /// <seealso cref="FilterBase" />
-    public abstract class Convolver : FilterBase
+    public abstract class Convolver : FiniteFilter
     {
         protected Convolver(double samplerate) : base(samplerate)
         {
-            this.Name = "convolver";
+            this.Name = "Convolver";
         }
 
         public abstract IReadOnlyList<double> ImpulseResponse { get; }

@@ -7,13 +7,13 @@ namespace Filter.LtiFilters
     /// <summary>
     ///     Represents a filter with a constant gain and no effects otherwise.
     /// </summary>
-    public class GainFilter : FilterBase
+    public class GainFilter : FiniteFilter
     {
         private double _Gain = 1;
 
         public GainFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "gain filter";
+            this.Name = "Gain Filter";
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace Filter.LtiFilters
         /// <summary>
         ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
         /// </summary>
-        [Category("gain filter")]
-        [DisplayName("gain")]
+        [Category("Gain Filter")]
+        [DisplayName("Gain")]
         public double Gain
         {
             get { return this._Gain; }

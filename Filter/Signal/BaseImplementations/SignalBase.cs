@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal
@@ -8,10 +9,8 @@ namespace Filter.Signal
     /// </summary>
     /// <seealso cref="Filter.Observable" />
     /// <seealso cref="Filter.Signal.ISignal" />
-    public abstract class SignalBase : Observable, ISignal
+    public abstract class SignalBase : ISignal
     {
-        private string _DisplayName;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="SignalBase" /> class.
         /// </summary>
@@ -29,15 +28,17 @@ namespace Filter.Signal
         /// <returns>
         ///     The specified section.
         /// </returns>
-        public abstract IEnumerable<double> GetWindowedSignal(int start, int length);
+        public abstract IEnumerable<double> GetWindowedSamples(int start, int length);
+
+        public IFiniteSignal GetWindowedSignal(int start, int length)
+        {
+            return new FiniteSignal(this.GetWindowedSamples(start, length).ToReadOnlyList(), this.SampleRate);
+        }
 
         [Category("general")]
         [DisplayName("display name")]
-        public string DisplayName
-        {
-            get { return this._DisplayName; }
-            set { this.SetField(ref this._DisplayName, value); }
-        }
+        public string DisplayName { get; set; }
+
 
         [DisplayName("sample rate")]
         public double SampleRate { get; }

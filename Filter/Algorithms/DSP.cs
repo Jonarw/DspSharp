@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Numerics;
 using Filter.Extensions;
@@ -11,7 +10,7 @@ namespace Filter.Algorithms
     /// <summary>
     ///     Static container class for acoustic algorithms.
     /// </summary>
-    public sealed class Dsp
+    public static class Dsp
     {
         /// <summary>
         ///     Enumeration of all supported slope-generating methods.
@@ -534,136 +533,13 @@ namespace Filter.Algorithms
             return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
         }
 
-        public static void GenerateLogSweepAndInverse(double from, double to, int length, double samplerate, out IReadOnlyList<double> sweep, out IReadOnlyList<double> inverse)
-        {
-            var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
-            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
-
-            sweep = sw.Multiply(win).ToReadOnlyList();
-            var c = sweep.Count;
-
-            //var fftsw = Fft.RealFft(sweep.Reverse());
-            inverse = sweep.Reverse().Select(
-                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
-
-            //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
-            //var fftinv = fftsw.Zip(frequencies,
-            //    (c, f) =>
-            //    {
-            //        return c;
-
-            //        if (f < from)
-            //        {
-            //            return c;
-            //        }
-
-            //        if (f > to)
-            //        {
-            //            return c * to / from;
-            //        }
-
-            //        return c * f / from;
-            //    });
-
-            //inverse = Fft.RealIfft(fftinv);
-        }
-
-        public static IReadOnlyList<double> FrequencyWindowedInversion(
-            IReadOnlyList<double> input,
-            double samplerate,
-            double fc1,
-            double fc2,
-            double windowBwL,
-            double windowBwH,
-            WindowTypes windowType)
-        {
-            var fftinput = Fft.RealFft(input);
-            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
-            var winfunc = Window.GetWindowFunction(windowType);
-
-            var spec = fftinput.Zip(
-                frequencies,
-                (c, f) =>
-                {
-                    if ((f <= fc1) || (f >= fc2))
-                    {
-                        return 0;
-                    }
-
-                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
-                    {
-                        return 1 / c;
-                    }
-
-                    if (f < fc1 + windowBwL)
-                    {
-                        return 1 / c * winfunc((f - fc1) / windowBwL);
-                    }
-
-                    return 1 / c * winfunc((fc2 - f) / windowBwH);
-                });
-
-            return Fft.RealIfft(spec);
-        }
-
-        //TODO: unit test
-        public static IReadOnlyList<double> KirkebyInversion(
-            IReadOnlyList<double> input,
-            double samplerate,
-            double fc1,
-            double fc2,
-            double eest = 1,
-            double eint = 0,
-            double dfbandwidth = 1)
-        {
-            var fftinput = Fft.RealFft(input);
-            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
-
-            var factor = Math.Pow(2, 0.5 * dfbandwidth);
-            var fc1L = fc1 / factor;
-            var fc1U = fc1 * factor;
-            var fc2L = fc2 / factor;
-            var fc2U = fc2 * factor;
-
-            var spec = frequencies.Select(
-                (d, i) =>
-                {
-                    double e;
-
-                    if ((d <= fc1L) || (d >= fc2U))
-                    {
-                        e = eest;
-                    }
-                    else if ((d >= fc1U) && (d <= fc2L))
-                    {
-                        e = eint;
-                    }
-                    else if (d <= fc1U)
-                    {
-                        var f = Math.Log(d / fc1L, fc1U / fc1L);
-                        e = f * eint + (1 - f) * eest;
-                    }
-                    else
-                    {
-                        var f = Math.Log(d / fc2L, fc2U / fc2L);
-                        e = f * eest + (1 - f) * eint;
-                    }   
-
-                    return Complex.Conjugate(fftinput[i]) / (fftinput[i] * Complex.Conjugate(fftinput[i]) + e);
-                });
-
-            return Fft.RealIfft(spec);
-        }
-
-
-        //TODO: unit test
         /// <summary>
         ///     Convolves the specified finite signals.
         /// </summary>
         /// <param name="signal1">The first signal.</param>
         /// <param name="signal2">The second signal.</param>
         /// <returns>The convolution of the two signals.</returns>
-        public static IReadOnlyList<double> DeConvolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2, double sampleRate, double lowerFc, double upperFc)
+        public static IReadOnlyList<double> CircularConvolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
         {
             if (signal1 == null)
             {
@@ -680,24 +556,15 @@ namespace Filter.Algorithms
                 return new List<double>().AsReadOnly();
             }
 
-            var l = signal1.Count + signal1.Count - 1;
-            var n = Fft.GetOptimalFftLength(l);
-
-            var frequencies = Fft.GetFrequencies(sampleRate, n).ToReadOnlyList();
-            var spectrum1 = Fft.RealFft(signal1, n);
-            var spectrum2 = Fft.RealFft(signal2, n);
-
-            var spectrum = spectrum1.Divide(spectrum2).ToList();
-
-            for (int i = 0; i < frequencies.Count; i++)
+            if (signal1.Count != signal2.Count)
             {
-                if ((frequencies[i] <= lowerFc) || (frequencies[i] >= upperFc))
-                {
-                    spectrum[i] = 0;
-                }
+                throw new NotImplementedException();
             }
 
-            return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
+            var spectrum1 = Fft.RealFft(signal1);
+            var spectrum2 = Fft.RealFft(signal2);
+            var spectrum = spectrum2.Multiply(spectrum1);
+            return Fft.RealIfft(spectrum).ToReadOnlyList();
         }
 
         /// <summary>
@@ -802,6 +669,27 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
+        ///     Computes the cross-correlation of two finite signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal.</param>
+        /// <returns>The result of the computation.</returns>
+        public static IReadOnlyList<double> CircularCrossCorrelate(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
+        {
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            return CircularConvolve(signal2.Reverse().ToReadOnlyList(), signal1);
+        }
+
+        /// <summary>
         ///     Computes the cross-correlation of two signals.
         /// </summary>
         /// <param name="signal1">The second signal (can be infinite).</param>
@@ -845,6 +733,55 @@ namespace Filter.Algorithms
             }
 
             return dB.Select(DbToLinear);
+        }
+
+        //TODO: unit test
+        /// <summary>
+        ///     Convolves the specified finite signals.
+        /// </summary>
+        /// <param name="signal1">The first signal.</param>
+        /// <param name="signal2">The second signal.</param>
+        /// <returns>The convolution of the two signals.</returns>
+        public static IReadOnlyList<double> DeConvolve(
+            IReadOnlyList<double> signal1,
+            IReadOnlyList<double> signal2,
+            double sampleRate,
+            double lowerFc,
+            double upperFc)
+        {
+            if (signal1 == null)
+            {
+                throw new ArgumentNullException(nameof(signal1));
+            }
+
+            if (signal2 == null)
+            {
+                throw new ArgumentNullException(nameof(signal2));
+            }
+
+            if ((signal1.Count == 0) || (signal2.Count == 0))
+            {
+                return new List<double>().AsReadOnly();
+            }
+
+            var l = signal1.Count + signal1.Count - 1;
+            var n = Fft.GetOptimalFftLength(l);
+
+            var frequencies = Fft.GetFrequencies(sampleRate, n).ToReadOnlyList();
+            var spectrum1 = Fft.RealFft(signal1, n);
+            var spectrum2 = Fft.RealFft(signal2, n);
+
+            var spectrum = spectrum1.Divide(spectrum2).ToList();
+
+            for (int i = 0; i < frequencies.Count; i++)
+            {
+                if ((frequencies[i] <= lowerFc) || (frequencies[i] >= upperFc))
+                {
+                    spectrum[i] = 0;
+                }
+            }
+
+            return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
         }
 
         /// <summary>
@@ -923,6 +860,84 @@ namespace Filter.Algorithms
             }
 
             return x;
+        }
+
+        public static IReadOnlyList<double> FrequencyWindowedInversion(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
+            var fftinput = Fft.RealFft(input);
+            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
+            var winfunc = Window.GetWindowFunction(windowType);
+
+            var spec = fftinput.Zip(
+                frequencies,
+                (c, f) =>
+                {
+                    if ((f <= fc1) || (f >= fc2))
+                    {
+                        return 0;
+                    }
+
+                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
+                    {
+                        return 1 / c;
+                    }
+
+                    if (f < fc1 + windowBwL)
+                    {
+                        return 1 / c * winfunc((f - fc1) / windowBwL);
+                    }
+
+                    return 1 / c * winfunc((fc2 - f) / windowBwH);
+                });
+
+            return Fft.RealIfft(spec);
+        }
+
+        public static void GenerateLogSweepAndInverse(
+            double from,
+            double to,
+            int length,
+            double samplerate,
+            out IReadOnlyList<double> sweep,
+            out IReadOnlyList<double> inverse)
+        {
+            var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
+            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
+
+            sweep = sw.Multiply(win).ToReadOnlyList();
+            var c = sweep.Count;
+
+            //var fftsw = Fft.RealFft(sweep.Reverse());
+            inverse = sweep.Reverse().Select(
+                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
+
+            //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
+            //var fftinv = fftsw.Zip(frequencies,
+            //    (c, f) =>
+            //    {
+            //        return c;
+
+            //        if (f < from)
+            //        {
+            //            return c;
+            //        }
+
+            //        if (f > to)
+            //        {
+            //            return c * to / from;
+            //        }
+
+            //        return c * f / from;
+            //    });
+
+            //inverse = Fft.RealIfft(fftinv);
         }
 
         /// <summary>
@@ -1011,6 +1026,17 @@ namespace Filter.Algorithms
 
                 yield return actualGain;
             }
+        }
+
+        /// <summary>
+        ///     Generates a sequence of zeros.
+        /// </summary>
+        /// <param name="count">The number of zeros.</param>
+        /// <returns></returns>
+        public static IReadOnlyList<double> GetZeros(int count)
+        {
+            var ret = new double[count];
+            return ret.ToReadOnlyList();
         }
 
         /// <summary>
@@ -1293,6 +1319,55 @@ namespace Filter.Algorithms
             var pspline = CubicSpline.Compute(actualX.ToArray(), phase.ToArray(), actualTargetX.ToArray());
 
             return PolarToComplex(mspline, pspline);
+        }
+
+        //TODO: unit test
+        public static IReadOnlyList<double> KirkebyInversion(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double eest = 1,
+            double eint = 0,
+            double dfbandwidth = 1)
+        {
+            var fftinput = Fft.RealFft(input);
+            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
+
+            var factor = Math.Pow(2, 0.5 * dfbandwidth);
+            var fc1L = fc1 / factor;
+            var fc1U = fc1 * factor;
+            var fc2L = fc2 / factor;
+            var fc2U = fc2 * factor;
+
+            var spec = frequencies.Select(
+                (d, i) =>
+                {
+                    double e;
+
+                    if ((d <= fc1L) || (d >= fc2U))
+                    {
+                        e = eest;
+                    }
+                    else if ((d >= fc1U) && (d <= fc2L))
+                    {
+                        e = eint;
+                    }
+                    else if (d <= fc1U)
+                    {
+                        var f = Math.Log(d / fc1L, fc1U / fc1L);
+                        e = f * eint + (1 - f) * eest;
+                    }
+                    else
+                    {
+                        var f = Math.Log(d / fc2L, fc2U / fc2L);
+                        e = f * eest + (1 - f) * eint;
+                    }
+
+                    return Complex.Conjugate(fftinput[i]) / (fftinput[i] * Complex.Conjugate(fftinput[i]) + e);
+                });
+
+            return Fft.RealIfft(spec);
         }
 
         /// <summary>
@@ -1659,7 +1734,10 @@ namespace Filter.Algorithms
         ///     Performs a linear right-shift on a sequence, filling the beginning with zeros.
         /// </summary>
         /// <param name="input">The array to be shifted.</param>
-        /// <param name="offset">The amount of samples the array should be shifted. If negative, the beginning of the sequence is truncated.</param>
+        /// <param name="offset">
+        ///     The amount of samples the array should be shifted. If negative, the beginning of the sequence is
+        ///     truncated.
+        /// </param>
         /// <returns>A sequence containing the result.</returns>
         public static IEnumerable<double> RightShift(IEnumerable<double> input, int offset)
         {
@@ -1734,7 +1812,7 @@ namespace Filter.Algorithms
                 yield break;
             }
 
-            Func<double, double, double, double> smoothWindow = (logF, logF0, bw) => 
+            Func<double, double, double, double> smoothWindow = (logF, logF0, bw) =>
             {
                 var argument = (logF - logF0) / bw * Math.PI;
                 if (Math.Abs(argument) >= Math.PI)

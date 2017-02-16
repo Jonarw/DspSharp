@@ -6,7 +6,7 @@ namespace Filter.LtiFilters
     /// <summary>
     ///     A filter with a transfer function of -1.
     /// </summary>
-    public class InvertFilter : FilterBase
+    public class InvertFilter : FiniteFilter
     {
         public InvertFilter(double samplerate) : base(samplerate)
         {

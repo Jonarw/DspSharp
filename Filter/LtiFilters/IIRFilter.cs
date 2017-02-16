@@ -17,7 +17,6 @@ namespace Filter.LtiFilters
         public IirFilter(double samplerate) : base(samplerate)
         {
             this.Name = "IIR filter";
-            this.HasInfiniteImpulseResponse = true;
         }
 
         /// <summary>

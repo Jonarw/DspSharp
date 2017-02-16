@@ -23,6 +23,14 @@ namespace Filter.Signal
         /// <param name="start">The start of the section.</param>
         /// <param name="length">The length of the section.</param>
         /// <returns>The specified section.</returns>
-        IEnumerable<double> GetWindowedSignal(int start, int length);
+        IEnumerable<double> GetWindowedSamples(int start, int length);
+
+        /// <summary>
+        ///     Gets a section of the signal in time domain.
+        /// </summary>
+        /// <param name="start">The start of the section.</param>
+        /// <param name="length">The length of the section.</param>
+        /// <returns>The specified section.</returns>
+        IFiniteSignal GetWindowedSignal(int start, int length);
     }
 }

@@ -25,4 +25,4 @@ namespace Filter
         /// </summary>
         bool HasInfiniteImpulseResponse { get; }
     }
-}
+}   
