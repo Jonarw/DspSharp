@@ -11,6 +11,7 @@ using Filter.Signal;
 using FilterPlot;
 using FilterTest.SignalFactory;
 using Filter_Win;
+using UmtUtilities.Collections;
 
 namespace FilterTest
 {
@@ -137,7 +138,7 @@ namespace FilterTest
 
         private void AddFilter()
         {
-            this.Filters.Add(FilterFactory.CreateFilter(this.SelectedFilterType, this.Samplerate, this.Signals));
+            this.Filters.Add(FilterFactory.CreateFilter(this.SelectedFilterType, this.Samplerate, this.Signals.ToReadOnlyObservableList()));
         }
 
         private void AddSignal()

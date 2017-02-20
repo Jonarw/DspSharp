@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
-using Filter.Algorithms.FFTWSharp;
 using Filter.Extensions;
-using Filter.Signal;
+using Filter_Win.FFTWSharp;
 
 namespace Filter_Win
 {
@@ -21,7 +20,7 @@ namespace Filter_Win
             fi.Directory?.Create();
             try
             {
-                fftw.import_wisdom_from_filename(this.WisdomPath);
+                FftwInterop.import_wisdom_from_filename(this.WisdomPath);
             }
             catch (Exception)
             {
@@ -31,13 +30,12 @@ namespace Filter_Win
             AppDomain.CurrentDomain.ProcessExit += this.ExportWisdom;
         }
 
-        private string WisdomPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) +
-                                             "\\fftw\\fftw_real.wsd";
+        private string WisdomPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\fftw\\wisdom";
 
         private Dictionary<int, ForwardRealFftPlan> RealForwardPlans { get; } = new Dictionary<int, ForwardRealFftPlan>();
         private Dictionary<int, InverseRealFftPlan> RealInversePlans { get; } = new Dictionary<int, InverseRealFftPlan>();
-        private Dictionary<int, ComplexFftPlan> ComplexForwardPlans { get; } = new Dictionary<int, ComplexFftPlan>();
-        private Dictionary<int, ComplexFftPlan> ComplexInversePlans { get; } = new Dictionary<int, ComplexFftPlan>();
+        private Dictionary<int, ComplexToComplexFftPlan> ComplexForwardPlans { get; } = new Dictionary<int, ComplexToComplexFftPlan>();
+        private Dictionary<int, ComplexToComplexFftPlan> ComplexInversePlans { get; } = new Dictionary<int, ComplexToComplexFftPlan>();
 
         public IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1)
         {
@@ -58,7 +56,7 @@ namespace Filter_Win
 
             if (!this.ComplexForwardPlans.ContainsKey(n))
             {
-                this.ComplexForwardPlans.Add(n, new ComplexFftPlan(n, fftw_direction.Forward));
+                this.ComplexForwardPlans.Add(n, new ComplexToComplexFftPlan(n, FftwDirection.Forward));
             }
 
             var plan = this.ComplexForwardPlans[n];
@@ -123,7 +121,7 @@ namespace Filter_Win
 
             if (!this.ComplexInversePlans.ContainsKey(n))
             {
-                this.ComplexInversePlans.Add(n, new ComplexFftPlan(n, fftw_direction.Backward));
+                this.ComplexInversePlans.Add(n, new ComplexToComplexFftPlan(n, FftwDirection.Backward));
             }
 
             var plan = this.ComplexInversePlans[n];
@@ -206,7 +204,7 @@ namespace Filter_Win
         /// <param name="e">Event handler arguments.</param>
         private void ExportWisdom(object sender, EventArgs e)
         {
-            fftw.export_wisdom_to_filename(this.WisdomPath);
+            FftwInterop.export_wisdom_to_filename(this.WisdomPath);
         }
     }
 }

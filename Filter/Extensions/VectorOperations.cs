@@ -463,31 +463,23 @@ namespace Filter.Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="source">The source.</param>
-        /// <param name="loops">The number of loops.</param>
+        /// <param name="loops">The number of loops. If smaller than 0, the source is looped indefinitely.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public static IEnumerable<T> Loop<T>(this IEnumerable<T> source, int loops)
+        public static IEnumerable<T> Loop<T>(this IReadOnlyList<T> source, int loops)
         {
-            if (loops < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(loops));
-            }
-
             if (loops == 0)
             {
-                return Enumerable.Empty<T>();
+                yield break;
             }
 
-            var sourcelist = source.ToReadOnlyList();
-
-            IEnumerable<T> ret = sourcelist;
-
-            for (int i = 0; i < loops - 1; i++)
+            for (int i = 0; i != loops; i++)
             {
-                ret = ret.Concat(sourcelist);
+                foreach (var element in source)
+                {
+                    yield return element;
+                }
             }
-
-            return ret;
         }
 
         /// <summary>

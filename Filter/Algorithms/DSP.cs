@@ -871,6 +871,18 @@ namespace Filter.Algorithms
             double windowBwH,
             WindowTypes windowType)
         {
+            return Fft.RealIfft(FrequencyWindowedInversionSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH, windowType));
+        }
+
+        public static IReadOnlyList<Complex> FrequencyWindowedInversionSpectrum(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
             var fftinput = Fft.RealFft(input);
             var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
             var winfunc = Window.GetWindowFunction(windowType);
@@ -895,6 +907,44 @@ namespace Filter.Algorithms
                     }
 
                     return 1 / c * winfunc((fc2 - f) / windowBwH);
+                });
+
+            return spec.ToReadOnlyList();
+        }
+
+        public static IReadOnlyList<double> FrequencyWindowedBandpass(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
+            var fftinput = Fft.RealFft(input);
+            var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
+            var winfunc = Window.GetWindowFunction(windowType);
+
+            var spec = fftinput.Zip(
+                frequencies,
+                (c, f) =>
+                {
+                    if ((f <= fc1) || (f >= fc2))
+                    {
+                        return 0;
+                    }
+
+                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
+                    {
+                        return c;
+                    }
+
+                    if (f < fc1 + windowBwL)
+                    {
+                        return c * winfunc((f - fc1) / windowBwL);
+                    }
+
+                    return c * winfunc((fc2 - f) / windowBwH);
                 });
 
             return Fft.RealIfft(spec);

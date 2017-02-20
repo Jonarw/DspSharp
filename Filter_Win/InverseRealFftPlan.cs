@@ -1,25 +1,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Filter.Algorithms.FFTWSharp;
+using Filter_Win.FFTWSharp;
 
 namespace Filter_Win
 {
     /// <summary>
     ///     Plan for a real-valued IFFT.
     /// </summary>
-    public class InverseRealFftPlan : RealFftPlan
+    public class InverseRealFftPlan : RealToComplexFftPlan
     {
-        private IEnumerable<Complex> _Input;
-        private IReadOnlyList<double> _Output;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="InverseRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
         public InverseRealFftPlan(int fftLength) : base(fftLength)
         {
-            this.FftwP = fftw_plan.dft_c2r_1d(this.N, this.FftwC, this.FftwR, fftw_flags.Measure);
+            this.FftwP = FftwPlan.DftComplexToReal1D(this.N, this.FftwC, this.FftwR, FftwFlags.Measure | FftwFlags.DestroyInput);
         }
 
         /// <summary>

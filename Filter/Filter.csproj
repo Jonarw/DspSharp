@@ -25,7 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -54,6 +54,26 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Algorithms\CubicSpline.cs" />
     <Compile Include="Algorithms\DSP.cs" />
@@ -62,7 +82,12 @@
     <Compile Include="Algorithms\HashHelper.cs" />
     <Compile Include="Algorithms\Mls.cs" />
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
+    <Compile Include="AudioSource\BufferCompletedEventArgs.cs" />
+    <Compile Include="AudioSource\BufferCompletedEventHandler.cs" />
+    <Compile Include="AudioSource\FilterStreamer.cs" />
+    <Compile Include="AudioSource\IAudioSource.cs" />
     <Compile Include="ChangeEventHandler.cs" />
+    <Compile Include="CircularArray.cs" />
     <Compile Include="Collections\Extensions.cs" />
     <Compile Include="Collections\IObservableList.cs" />
     <Compile Include="Collections\IReadOnlyObservableList.cs" />
@@ -134,9 +159,7 @@
     <Compile Include="Spectrum\Spectrum.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="filter class diagram.cd" />
     <None Include="isignal diagram.cd" />
-    <None Include="signal class diagram.cd" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
