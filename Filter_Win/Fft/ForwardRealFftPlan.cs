@@ -1,13 +1,12 @@
 using System;
 using System.Numerics;
-using FilterWin.Fft.FftwSharp;
 
 namespace FilterWin.Fft
 {
     /// <summary>
     ///     Plan for a real-valued forward FFT.
     /// </summary>
-    public class ForwardRealFftPlan : RealToComplexFftPlan
+    public class ForwardRealFftPlan : RealFftPlan
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.

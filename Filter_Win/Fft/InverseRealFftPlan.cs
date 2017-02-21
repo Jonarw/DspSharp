@@ -1,15 +1,14 @@
 using System;
 using System.Numerics;
-using FilterWin.Fft.FftwSharp;
 
 namespace FilterWin.Fft
 {
     /// <summary>
     ///     Plan for a real-valued IFFT.
     /// </summary>
-    public class InverseRealFftPlan : RealToComplexFftPlan
+    public class InverseRealFftPlan : RealFftPlan
     {
-        private readonly double NormalizationFactor;
+        private double NormalizationFactor { get; }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="InverseRealFftPlan" /> class.

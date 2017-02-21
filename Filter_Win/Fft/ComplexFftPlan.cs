@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using FilterWin.Fft.FftwSharp;
 
 namespace FilterWin.Fft
 {
@@ -9,7 +8,7 @@ namespace FilterWin.Fft
     /// </summary>
     public class ComplexToComplexFftPlan
     {
-        private readonly double NormalizationFactor;
+        private double NormalizationFactor { get; }
 
         /// <summary>
         ///     Initializes a new instance of the base class <see cref="ComplexToComplexFftPlan" />.
@@ -29,7 +28,10 @@ namespace FilterWin.Fft
                 pInput = FftwInterop.malloc(this.FftLength * 2 * sizeof (double));
                 pOutput = FftwInterop.malloc(this.FftLength * 2 * sizeof (double));
 
-                this.Plan = FftwInterop.dft_1d(this.FftLength, pInput, pOutput, direction, FftwFlags.Measure | FftwFlags.DestroyInput);
+                lock (FftwInterop.FftwLock)
+                {
+                    this.Plan = FftwInterop.dft_1d(this.FftLength, pInput, pOutput, direction, FftwFlags.Measure | FftwFlags.DestroyInput);
+                }
             }
             finally
             {

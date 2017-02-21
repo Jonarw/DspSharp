@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FilterWin.Fft.FftwSharp
+namespace FilterWin.Fft
 {
     /// <summary>
     ///     FFTW planner flags

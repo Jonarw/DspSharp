@@ -2,13 +2,15 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace FilterWin.Fft.FftwSharp
+namespace FilterWin.Fft
 {
     /// <summary>
     ///     Contains the Basic Interface FFTW functions for double-precision (double) operations
     /// </summary>
     public static class FftwInterop
     {
+        public static object FftwLock = new object();
+
         /// <summary>
         ///     Clears all memory used by FFTW, resets it to initial state. Does not replace destroy_plan and free
         /// </summary>

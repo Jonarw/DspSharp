@@ -1,21 +1,20 @@
 ﻿using System;
-using FilterWin.Fft.FftwSharp;
 
 namespace FilterWin.Fft
 {
     /// <summary>
     ///     Handles the creating of an fftw plan and the associated memory blocks.
     /// </summary>
-    public abstract class RealToComplexFftPlan
+    public abstract class RealFftPlan
     {
-        public delegate IntPtr CreateRealPlanDelegate(int fftLength, IntPtr pInput, IntPtr pOutput, FftwFlags flags);
+        protected delegate IntPtr CreateRealPlanDelegate(int fftLength, IntPtr pInput, IntPtr pOutput, FftwFlags flags);
 
         /// <summary>
-        ///     Initializes a new instance of the base class <see cref="RealToComplexFftPlan" />.
+        ///     Initializes a new instance of the base class <see cref="RealFftPlan" />.
         /// </summary>
         /// <param name="fftLength">The FFT lenght the plan is used for.</param>
         /// <param name="createPlanDelegate"></param>
-        protected RealToComplexFftPlan(int fftLength, CreateRealPlanDelegate createPlanDelegate)
+        protected RealFftPlan(int fftLength, CreateRealPlanDelegate createPlanDelegate)
         {
             this.FftLength = fftLength;
             this.SpectrumLength = (this.FftLength >> 1) + 1;
@@ -28,7 +27,10 @@ namespace FilterWin.Fft
                 pInput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
                 pOutput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
 
-                this.FftwP = createPlanDelegate(this.FftLength, pInput, pOutput, FftwFlags.Measure | FftwFlags.DestroyInput);
+                lock (FftwInterop.FftwLock)
+                {
+                    this.FftwP = createPlanDelegate(this.FftLength, pInput, pOutput, FftwFlags.Measure | FftwFlags.DestroyInput);
+                }
             }
             finally
             {
@@ -50,7 +52,7 @@ namespace FilterWin.Fft
         /// </summary>
         protected IntPtr FftwP { get; set; }
 
-        ~RealToComplexFftPlan()
+        ~RealFftPlan()
         {
             FftwInterop.destroy_plan(this.FftwP);
         }

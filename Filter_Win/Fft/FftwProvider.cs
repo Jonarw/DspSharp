@@ -5,7 +5,6 @@ using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
 using Filter.Extensions;
-using FilterWin.Fft.FftwSharp;
 
 namespace FilterWin.Fft
 {

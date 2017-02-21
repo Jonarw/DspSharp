@@ -94,10 +94,10 @@
     <Compile Include="Asio\AsioSampleType.cs" />
     <Compile Include="Asio\ASIOStructures.cs" />
     <Compile Include="Fft\ComplexFftPlan.cs" />
-    <Compile Include="Fft\FftwSharp\FftwInterop.cs" />
-    <Compile Include="Fft\FftwSharp\FftwDirection.cs" />
-    <Compile Include="Fft\FftwSharp\FftwFlags.cs" />
-    <Compile Include="Fft\FftwSharp\FftwKind.cs" />
+    <Compile Include="Fft\FftwInterop.cs" />
+    <Compile Include="Fft\FftwDirection.cs" />
+    <Compile Include="Fft\FftwFlags.cs" />
+    <Compile Include="Fft\FftwKind.cs" />
     <Compile Include="Fft\RealFftPlan.cs" />
     <Compile Include="Fft\FftwProvider.cs" />
     <Compile Include="Fft\ForwardRealFftPlan.cs" />
