@@ -4,7 +4,8 @@ using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
 using Filter.Extensions;
-using Filter_Win;
+using FilterWin;
+using FilterWin.Fft;
 using NUnit.Framework;
 
 namespace FilterTests

@@ -840,6 +840,26 @@ namespace Filter.Extensions
             return sequence as IReadOnlyList<T> ?? new ReadOnlyCollection<T>(sequence.ToList());
         }
 
+        public static T[] ToArrayOptimized<T>(this IEnumerable<T> sequence)
+        {
+            var array = sequence as T[];
+
+            if (array != null)
+            {
+                return array;
+            }
+
+            var list = sequence.ToReadOnlyList();
+            var ret = new T[list.Count];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                ret[i] = list[i];
+            }
+
+            return ret;
+        }
+
         /// <summary>
         ///     Returns a readonly list containing the specified sequence, evaluating it if necessary.
         /// </summary>

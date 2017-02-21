@@ -1,4 +1,4 @@
-namespace Filter_Win.FFTWSharp
+namespace FilterWin.Fft.FftwSharp
 {
     /// <summary>
     ///     Kinds of real-to-real transforms

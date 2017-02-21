@@ -5,9 +5,9 @@ using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
 using Filter.Extensions;
-using Filter_Win.FFTWSharp;
+using FilterWin.Fft.FftwSharp;
 
-namespace Filter_Win
+namespace FilterWin.Fft
 {
     public class FftwProvider : IFftProvider
     {
@@ -18,13 +18,16 @@ namespace Filter_Win
         {
             var fi = new FileInfo(this.WisdomPath);
             fi.Directory?.Create();
-            try
+            if (fi.Exists)
             {
-                FftwInterop.import_wisdom_from_filename(this.WisdomPath);
-            }
-            catch (Exception)
-            {
-                // no wisdom exists (yet)
+                try
+                {
+                    FftwInterop.import_wisdom_from_filename(this.WisdomPath);
+                }
+                catch (Exception)
+                {
+                    // wisdom file could not be read...
+                }
             }
 
             AppDomain.CurrentDomain.ProcessExit += this.ExportWisdom;
@@ -60,7 +63,7 @@ namespace Filter_Win
             }
 
             var plan = this.ComplexForwardPlans[n];
-            return plan.Execute(input.ZeroPad(n));
+            return plan.Execute(input.ToArrayOptimized());
         }
 
         private Dictionary<int, int> OptimalFftLengths { get; } = new Dictionary<int, int>(); 
@@ -125,7 +128,7 @@ namespace Filter_Win
             }
 
             var plan = this.ComplexInversePlans[n];
-            return plan.Execute(input).Multiply(1.0 / n).ToReadOnlyList();
+            return plan.Execute(input.ToArrayOptimized());
         }
 
         /// <summary>
@@ -158,7 +161,7 @@ namespace Filter_Win
             }
 
             var plan = this.RealForwardPlans[n];
-            return plan.Execute(input.ZeroPad(n));
+            return plan.Execute(input.ToArrayOptimized());
         }
 
         /// <summary>
@@ -194,7 +197,7 @@ namespace Filter_Win
             }
 
             var plan = this.RealInversePlans[n];
-            return plan.Execute(input).Multiply(1.0 / n).ToReadOnlyList();
+            return plan.Execute(input.ToArrayOptimized());
         }
 
         /// <summary>

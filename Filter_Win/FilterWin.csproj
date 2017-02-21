@@ -7,8 +7,8 @@
     <ProjectGuid>{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Filter_Win</RootNamespace>
-    <AssemblyName>Filter_Win</AssemblyName>
+    <RootNamespace>FilterWin</RootNamespace>
+    <AssemblyName>FilterWin</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -53,11 +53,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -80,18 +81,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ComplexFftPlan.cs" />
-    <Compile Include="FFTWSharp\FftwInterop.cs" />
-    <Compile Include="FFTWSharp\FftwDirection.cs" />
-    <Compile Include="FFTWSharp\FftwFlags.cs" />
-    <Compile Include="FFTWSharp\FftwKind.cs" />
-    <Compile Include="FFTWSharp\FftwPlan.cs" />
-    <Compile Include="FFTWSharp\FftwRealarray.cs" />
-    <Compile Include="RealFftPlan.cs" />
-    <Compile Include="FftwProvider.cs" />
-    <Compile Include="FFTWSharp\FftwComplexarray.cs" />
-    <Compile Include="ForwardRealFftPlan.cs" />
-    <Compile Include="InverseRealFftPlan.cs" />
+    <Compile Include="Asio\Asio64Bit.cs" />
+    <Compile Include="Asio\AsioCallbacks.cs" />
+    <Compile Include="Asio\AsioChannelInfo.cs" />
+    <Compile Include="Asio\ASIODriver.cs" />
+    <Compile Include="Asio\AsioDriverCapability.cs" />
+    <Compile Include="Asio\ASIODriverExt.cs" />
+    <Compile Include="Asio\AsioError.cs" />
+    <Compile Include="Asio\AsioFillBufferCallback.cs" />
+    <Compile Include="Asio\AsioMessageSelector.cs" />
+    <Compile Include="Asio\ASIOSampleConvertor.cs" />
+    <Compile Include="Asio\AsioSampleType.cs" />
+    <Compile Include="Asio\ASIOStructures.cs" />
+    <Compile Include="Fft\ComplexFftPlan.cs" />
+    <Compile Include="Fft\FftwSharp\FftwInterop.cs" />
+    <Compile Include="Fft\FftwSharp\FftwDirection.cs" />
+    <Compile Include="Fft\FftwSharp\FftwFlags.cs" />
+    <Compile Include="Fft\FftwSharp\FftwKind.cs" />
+    <Compile Include="Fft\RealFftPlan.cs" />
+    <Compile Include="Fft\FftwProvider.cs" />
+    <Compile Include="Fft\ForwardRealFftPlan.cs" />
+    <Compile Include="Fft\InverseRealFftPlan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +109,9 @@
       <Project>{17269798-53cf-4088-b7ac-157108e8eaca}</Project>
       <Name>Filter</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AudioSource\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -10,7 +10,8 @@ using Filter.LtiFilters;
 using Filter.Signal;
 using FilterPlot;
 using FilterTest.SignalFactory;
-using Filter_Win;
+using FilterWin;
+using FilterWin.Fft;
 using UmtUtilities.Collections;
 
 namespace FilterTest

@@ -1,4 +1,4 @@
-namespace Filter_Win.FFTWSharp
+namespace FilterWin.Fft.FftwSharp
 {
     /// <summary>
     ///     Defines direction of operation

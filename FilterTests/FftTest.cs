@@ -4,7 +4,8 @@ using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
 using Filter.Extensions;
-using Filter_Win;
+using FilterWin;
+using FilterWin.Fft;
 using NUnit.Framework;
 //using Filter_CrossPlatform;
 
@@ -140,8 +141,8 @@ namespace FilterTests
         [Test]
         public void TestFftw()
         {
-            this.TestFftProviderReal(new FftwProvider());
             this.TestFftProviderComplex(new FftwProvider());
+            this.TestFftProviderReal(new FftwProvider());
         }
 
         private void TestFftProviderComplex(IFftProvider provider)
@@ -173,7 +174,7 @@ namespace FilterTests
         private void TestFftProviderReal(IFftProvider provider)
         {
             var result = provider.RealFft(this.xEven);
-            var inverse = provider.RealIfft(result);
+            var inverse = provider.RealIfft(this.fftxEven);
 
             FilterAssert.ListsAreReasonablyClose(result, this.fftxEven);
             FilterAssert.ListsAreReasonablyClose(this.xEven, inverse);

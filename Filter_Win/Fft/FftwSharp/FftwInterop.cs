@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Security;
 
-namespace Filter_Win.FFTWSharp
+namespace FilterWin.Fft.FftwSharp
 {
     /// <summary>
     ///     Contains the Basic Interface FFTW functions for double-precision (double) operations
@@ -237,8 +238,47 @@ namespace Filter_Win.FFTWSharp
         [DllImport("libfftw3-3.dll",
             EntryPoint = "fftw_execute",
             ExactSpelling = true,
-            CallingConvention = CallingConvention.Cdecl)]
+            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
         public static extern void execute(IntPtr plan);
+
+        /// <summary>
+        ///     Executes an FFTW plan using the specified input and output locations.
+        /// </summary>
+        /// <param name="plan">Pointer to the plan to execute</param>
+        /// <param name="input">Pointer to the input array.</param>
+        /// <param name="output">Pointer to the output array.</param>
+        /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
+        [DllImport("libfftw3-3.dll",
+            EntryPoint = "fftw_execute_dft",
+            ExactSpelling = true,
+            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void execute_dft(IntPtr plan, IntPtr input, IntPtr output);
+
+        /// <summary>
+        ///     Executes an FFTW plan using the specified input and output locations.
+        /// </summary>
+        /// <param name="plan">Pointer to the plan to execute</param>
+        /// <param name="input">Pointer to the input array.</param>
+        /// <param name="output">Pointer to the output array.</param>
+        /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
+        [DllImport("libfftw3-3.dll",
+            EntryPoint = "fftw_execute_dft_c2r",
+            ExactSpelling = true,
+            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void execute_dft_c2r(IntPtr plan, IntPtr input, IntPtr output);
+
+        /// <summary>
+        ///     Executes an FFTW plan using the specified input and output locations.
+        /// </summary>
+        /// <param name="plan">Pointer to the plan to execute</param>
+        /// <param name="input">Pointer to the input array.</param>
+        /// <param name="output">Pointer to the output array.</param>
+        /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
+        [DllImport("libfftw3-3.dll",
+            EntryPoint = "fftw_execute_dft_r2c",
+            ExactSpelling = true,
+            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+        public static extern void execute_dft_r2c(IntPtr plan, IntPtr input, IntPtr output);
 
         /// <summary>
         ///     Exports the accumulated Wisdom to the provided filename
@@ -294,6 +334,12 @@ namespace Filter_Win.FFTWSharp
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr malloc(int length);
+
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr memcpy(IntPtr dest, IntPtr src, int count);
+
+        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
+        public static extern IntPtr memset(IntPtr dest, int c, int byteCount);
 
         /// <summary>
         ///     Outputs a "nerd-readable" version of the specified plan to stdout

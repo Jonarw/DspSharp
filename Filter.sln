@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterDemo", "FilterDemo\Fi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filter", "Filter\Filter.csproj", "{17269798-53CF-4088-B7AC-157108E8EACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filter_Win", "Filter_Win\Filter_Win.csproj", "{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterWin", "Filter_Win\FilterWin.csproj", "{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilterTests", "FilterTests\FilterTests.csproj", "{6ADF7B0E-F19F-4EF6-9272-60A874A8BE93}"
 EndProject
