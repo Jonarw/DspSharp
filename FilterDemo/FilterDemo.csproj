@@ -85,11 +85,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="PropertyTools, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.dll</HintPath>
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\net45\PropertyTools.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PropertyTools.Wpf, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ea0c9f2b460934d0, processorArchitecture=MSIL">
-      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.Wpf.dll</HintPath>
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\net45\PropertyTools.Wpf.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

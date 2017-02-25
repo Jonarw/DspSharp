@@ -1,4 +1,4 @@
-namespace FilterWin.Fft
+namespace Filter.Algorithms
 {
     /// <summary>
     ///     Kinds of real-to-real transforms

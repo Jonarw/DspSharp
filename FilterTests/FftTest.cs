@@ -4,8 +4,6 @@ using System.Linq;
 using System.Numerics;
 using Filter.Algorithms;
 using Filter.Extensions;
-using FilterWin;
-using FilterWin.Fft;
 using NUnit.Framework;
 //using Filter_CrossPlatform;
 

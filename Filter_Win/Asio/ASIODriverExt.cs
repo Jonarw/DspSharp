@@ -70,8 +70,8 @@ namespace FilterWin.Asio
         /// </summary>
         /// <param name="numberOfOutputChannels">The number of outputs channels.</param>
         /// <param name="numberOfInputChannels">The number of input channel.</param>
-        /// <param name="useMaxBufferSize">if set to <c>true</c> [use max buffer size] else use Prefered size</param>
-        public int CreateBuffers(int numberOfOutputChannels, int numberOfInputChannels, bool useMaxBufferSize)
+        /// <param name="bufferSize">The buffer size.</param>
+        public int CreateBuffers(int numberOfOutputChannels, int numberOfInputChannels, int bufferSize = -1)
         {
             if (numberOfOutputChannels < 0 || numberOfOutputChannels > this.Capabilities.NbOutputChannels)
             {
@@ -83,6 +83,16 @@ namespace FilterWin.Asio
                 throw new ArgumentException(
                     "numberOfInputChannels",
                     $"Invalid number of input channels {numberOfInputChannels}, must be in the range [0,{this.Capabilities.NbInputChannels}]");
+            }
+
+            if (bufferSize < 0)
+            {
+                bufferSize = this.Capabilities.BufferPreferredSize;
+            }
+
+            if (bufferSize < this.Capabilities.BufferMinSize || bufferSize > this.Capabilities.BufferMaxSize)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bufferSize));
             }
 
             // each channel needs a buffer info
@@ -113,16 +123,7 @@ namespace FilterWin.Asio
                 this.bufferInfos[totalIndex].pBuffer1 = IntPtr.Zero;
             }
 
-            if (useMaxBufferSize)
-            {
-                // use the drivers maximum buffer size
-                this.BufferSize = this.Capabilities.BufferMaxSize;
-            }
-            else
-            {
-                // use the drivers preferred buffer size
-                this.BufferSize = this.Capabilities.BufferPreferredSize;
-            }
+            this.BufferSize = bufferSize;
 
             unsafe
             {

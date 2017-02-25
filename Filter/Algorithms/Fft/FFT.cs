@@ -11,7 +11,7 @@ namespace Filter.Algorithms
     /// </summary>
     public static class Fft
     {
-        public static IFftProvider FftProvider { get; set; }
+        public static IFftProvider FftProvider { get; set; } = new FftwProvider();
 
         /// <summary>
         ///     Calculates the even-spaced frequency points from 0 Hz (DC) to Nyquist frequency (SampleRate/2) representing the

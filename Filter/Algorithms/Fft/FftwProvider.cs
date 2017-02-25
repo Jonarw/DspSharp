@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Filter.Algorithms;
 using Filter.Extensions;
 
-namespace FilterWin.Fft
+namespace Filter.Algorithms
 {
     public class FftwProvider : IFftProvider
     {
@@ -15,27 +14,22 @@ namespace FilterWin.Fft
         /// </summary>
         public FftwProvider()
         {
-            var fi = new FileInfo(this.WisdomPath);
-            fi.Directory?.Create();
+            var fi = new FileInfo(WisdomPath);
             if (fi.Exists)
             {
                 try
                 {
-                    FftwInterop.import_wisdom_from_filename(this.WisdomPath);
+                    FftwInterop.import_wisdom_from_filename(WisdomPath);
                 }
                 catch (Exception)
                 {
                     // wisdom file could not be read...
                 }
             }
-
-            AppDomain.CurrentDomain.ProcessExit += this.ExportWisdom;
         }
 
-        private string WisdomPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\fftw\\wisdom";
+        private static string WisdomPath { get; } = "fftwisdom";
 
-        private Dictionary<int, ForwardRealFftPlan> RealForwardPlans { get; } = new Dictionary<int, ForwardRealFftPlan>();
-        private Dictionary<int, InverseRealFftPlan> RealInversePlans { get; } = new Dictionary<int, InverseRealFftPlan>();
         private Dictionary<int, ComplexToComplexFftPlan> ComplexForwardPlans { get; } = new Dictionary<int, ComplexToComplexFftPlan>();
         private Dictionary<int, ComplexToComplexFftPlan> ComplexInversePlans { get; } = new Dictionary<int, ComplexToComplexFftPlan>();
 
@@ -154,12 +148,7 @@ namespace FilterWin.Fft
                 return Enumerable.Empty<Complex>().ToReadOnlyList();
             }
 
-            if (!this.RealForwardPlans.ContainsKey(n))
-            {
-                this.RealForwardPlans.Add(n, new ForwardRealFftPlan(n));
-            }
-
-            var plan = this.RealForwardPlans[n];
+            var plan = ForwardRealFftPlan.GetPlan(n);
             return plan.Execute(input.ToArrayOptimized());
         }
 
@@ -190,23 +179,18 @@ namespace FilterWin.Fft
                 n = (input.Count - 1) << 1;
             }
 
-            if (!this.RealInversePlans.ContainsKey(n))
-            {
-                this.RealInversePlans.Add(n, new InverseRealFftPlan(n));
-            }
-
-            var plan = this.RealInversePlans[n];
+            var plan = InverseRealFftPlan.GetPlan(n);
             return plan.Execute(input.ToArrayOptimized());
         }
 
         /// <summary>
         ///     Exports the accumulated wisdom to a file for later use.
         /// </summary>
-        /// <param name="sender">Sender variable for event handler.</param>
-        /// <param name="e">Event handler arguments.</param>
-        private void ExportWisdom(object sender, EventArgs e)
+        public static void ExportWisdom()
         {
-            FftwInterop.export_wisdom_to_filename(this.WisdomPath);
+            var fi = new FileInfo(WisdomPath);
+            fi.Directory?.Create();
+            FftwInterop.export_wisdom_to_filename(WisdomPath);
         }
     }
 }

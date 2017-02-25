@@ -1,8 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Security;
 
-namespace FilterWin.Fft
+namespace Filter.Algorithms
 {
     /// <summary>
     ///     Contains the Basic Interface FFTW functions for double-precision (double) operations
@@ -10,6 +9,7 @@ namespace FilterWin.Fft
     public static class FftwInterop
     {
         public static object FftwLock = new object();
+        public const string FftwLibraryName = "fftw3";
 
         /// <summary>
         ///     Clears all memory used by FFTW, resets it to initial state. Does not replace destroy_plan and free
@@ -20,7 +20,7 @@ namespace FilterWin.Fft
         ///     in which case FFTW starts accumulating wisdom information again.
         ///     fftw_cleanup does not deallocate your plans; you should still call fftw_destroy_plan for this purpose.
         /// </remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_cleanup",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -30,7 +30,7 @@ namespace FilterWin.Fft
         ///     Deallocates an FFTW plan and all associated resources
         /// </summary>
         /// <param name="plan">Pointer to the plan to release</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_destroy_plan",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -45,7 +45,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -65,7 +65,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -85,7 +85,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -107,7 +107,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -128,7 +128,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_c2r",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -141,7 +141,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_c2r_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -155,7 +155,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_c2r_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -170,7 +170,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_c2r_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -184,7 +184,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 8-byte real numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_r2c",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -197,7 +197,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 8-byte real numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_r2c_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -211,7 +211,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 8-byte real numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_r2c_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -226,7 +226,7 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to an array of 8-byte real numbers</param>
         /// <param name="output">Pointer to an array of 16-byte complex numbers</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_dft_r2c_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -237,10 +237,10 @@ namespace FilterWin.Fft
         /// </summary>
         /// <param name="plan">Pointer to the plan to execute</param>
         /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_execute",
             ExactSpelling = true,
-            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+            CallingConvention = CallingConvention.Cdecl)]
         public static extern void execute(IntPtr plan);
 
         /// <summary>
@@ -250,10 +250,10 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to the input array.</param>
         /// <param name="output">Pointer to the output array.</param>
         /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_execute_dft",
             ExactSpelling = true,
-            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+            CallingConvention = CallingConvention.Cdecl)]
         public static extern void execute_dft(IntPtr plan, IntPtr input, IntPtr output);
 
         /// <summary>
@@ -263,10 +263,10 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to the input array.</param>
         /// <param name="output">Pointer to the output array.</param>
         /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_execute_dft_c2r",
             ExactSpelling = true,
-            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+            CallingConvention = CallingConvention.Cdecl)]
         public static extern void execute_dft_c2r(IntPtr plan, IntPtr input, IntPtr output);
 
         /// <summary>
@@ -276,17 +276,17 @@ namespace FilterWin.Fft
         /// <param name="input">Pointer to the input array.</param>
         /// <param name="output">Pointer to the output array.</param>
         /// <remarks>execute (and equivalents) is the only function in FFTW guaranteed to be thread-safe.</remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_execute_dft_r2c",
             ExactSpelling = true,
-            CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+            CallingConvention = CallingConvention.Cdecl)]
         public static extern void execute_dft_r2c(IntPtr plan, IntPtr input, IntPtr output);
 
         /// <summary>
         ///     Exports the accumulated Wisdom to the provided filename
         /// </summary>
         /// <param name="filename">The target filename</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_export_wisdom_to_filename",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -300,7 +300,7 @@ namespace FilterWin.Fft
         /// <param name="mul">Reference to double to hold number of muls</param>
         /// <param name="fma">Reference to double to hold number of fmas (fused multiply-add)</param>
         /// <remarks>Total flops ~= add+mul+2*fma or add+mul+fma if fma is supported</remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_flops",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -310,7 +310,7 @@ namespace FilterWin.Fft
         ///     Deallocates memory allocated by FFTW malloc
         /// </summary>
         /// <param name="mem">Pointer to memory to release</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_free",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -320,7 +320,7 @@ namespace FilterWin.Fft
         ///     Imports Wisdom from provided filename
         /// </summary>
         /// <param name="filename">The filename to read from</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_import_wisdom_from_filename",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -331,23 +331,17 @@ namespace FilterWin.Fft
         /// </summary>
         /// <param name="length">Amount to allocate, in bytes</param>
         /// <returns>Pointer to allocated memory</returns>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_malloc",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr malloc(int length);
 
-        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
-        public static extern IntPtr memcpy(IntPtr dest, IntPtr src, int count);
-
-        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false), SuppressUnmanagedCodeSecurity]
-        public static extern IntPtr memset(IntPtr dest, int c, int byteCount);
-
         /// <summary>
         ///     Outputs a "nerd-readable" version of the specified plan to stdout
         /// </summary>
         /// <param name="plan">The plan to output</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_print_plan",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -362,7 +356,7 @@ namespace FilterWin.Fft
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="kind">An array containing the kind of real-to-real transform to compute along each dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_r2r",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -382,7 +376,7 @@ namespace FilterWin.Fft
         /// <param name="output">Pointer to an array of 8-byte real numbers</param>
         /// <param name="kind">The kind of real-to-real transform to compute</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_r2r_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -398,7 +392,7 @@ namespace FilterWin.Fft
         /// <param name="kindx">The kind of real-to-real transform to compute along the first dimension</param>
         /// <param name="kindy">The kind of real-to-real transform to compute along the second dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_r2r_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -423,7 +417,7 @@ namespace FilterWin.Fft
         /// <param name="kindy">The kind of real-to-real transform to compute along the second dimension</param>
         /// <param name="kindz">The kind of real-to-real transform to compute along the third dimension</param>
         /// <param name="flags">Flags that specify the behavior of the planner</param>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_plan_r2r_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
@@ -451,7 +445,7 @@ namespace FilterWin.Fft
         ///     permitting) in Patient. If fftw_flags.Exhaustive is specified instead, the planner will further progress to
         ///     Exhaustive mode.
         /// </remarks>
-        [DllImport("libfftw3-3.dll",
+        [DllImport(FftwLibraryName,
             EntryPoint = "fftw_set_timelimit",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]

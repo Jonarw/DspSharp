@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
-namespace FilterWin.Fft
+namespace Filter.Algorithms
 {
     /// <summary>
     ///     Plan for a real-valued forward FFT.
@@ -12,21 +13,19 @@ namespace FilterWin.Fft
         ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
-        public ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.dft_r2c_1d)
+        protected ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.dft_r2c_1d)
         {
         }
+
+        private static Dictionary<int, ForwardRealFftPlan> PlanCache { get; } = new Dictionary<int, ForwardRealFftPlan>();
 
         public void Execute(double[] input, Complex[] output)
         {
             if (input.Length > this.FftLength)
-            {
                 throw new ArgumentException();
-            }
 
             if (output.Length < this.SpectrumLength)
-            {
                 throw new ArgumentException();
-            }
 
             IntPtr pInput = IntPtr.Zero;
             IntPtr pOutput = IntPtr.Zero;
@@ -40,19 +39,17 @@ namespace FilterWin.Fft
                 {
                     fixed (double* pinputarray = input)
                     {
-                        FftwInterop.memcpy(pInput, (IntPtr)pinputarray, input.Length * sizeof(double));
+                        Interop.memcpy((void*)pInput, pinputarray, input.Length * sizeof(double));
 
                         if (input.Length < this.FftLength)
-                        {
-                            FftwInterop.memset(pInput + input.Length * sizeof(double), 0, (this.FftLength - input.Length) * sizeof(double));
-                        }
+                            Interop.memset((double*)pInput + input.Length, 0, (this.FftLength - input.Length) * sizeof(double));
                     }
 
-                    FftwInterop.execute_dft_r2c(this.FftwP, pInput, pOutput);
+                    FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
 
                     fixed (Complex* poutputarray = output)
                     {
-                        FftwInterop.memcpy((IntPtr)poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
+                        Interop.memcpy(poutputarray, (void*)pOutput, this.SpectrumLength * 2 * sizeof(double));
                     }
                 }
             }
@@ -68,6 +65,19 @@ namespace FilterWin.Fft
             var ret = new Complex[this.SpectrumLength];
             this.Execute(input, ret);
             return ret;
+        }
+
+        public override void ExecuteUnsafe(IntPtr pInput, IntPtr pOutput)
+        {
+            FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
+        }
+
+        public static ForwardRealFftPlan GetPlan(int length)
+        {
+            if (!PlanCache.ContainsKey(length))
+                PlanCache.Add(length, new ForwardRealFftPlan(length));
+
+            return PlanCache[length];
         }
     }
 }

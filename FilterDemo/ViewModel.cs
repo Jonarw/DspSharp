@@ -10,8 +10,6 @@ using Filter.LtiFilters;
 using Filter.Signal;
 using FilterPlot;
 using FilterTest.SignalFactory;
-using FilterWin;
-using FilterWin.Fft;
 using UmtUtilities.Collections;
 
 namespace FilterTest
@@ -31,6 +29,7 @@ namespace FilterTest
 
         public ViewModel()
         {
+            return;
             this.ImpulseResponsePlot = new ImpulseResponsePlot();
             this.MagnitudePlot = new MagnitudePlot();
             this.PhasePlot = new PhasePlot();

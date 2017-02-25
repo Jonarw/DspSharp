@@ -63,6 +63,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -77,8 +78,18 @@
   <ItemGroup>
     <Compile Include="Algorithms\CubicSpline.cs" />
     <Compile Include="Algorithms\DSP.cs" />
+    <Compile Include="Algorithms\Fft\ComplexFftPlan.cs" />
     <Compile Include="Algorithms\Fft\FFT.cs" />
+    <Compile Include="Algorithms\Fft\FftPlan.cs" />
+    <Compile Include="Algorithms\Fft\FftwDirection.cs" />
+    <Compile Include="Algorithms\Fft\FftwFlags.cs" />
+    <Compile Include="Algorithms\Fft\FftwInterop.cs" />
+    <Compile Include="Algorithms\Fft\FftwKind.cs" />
+    <Compile Include="Algorithms\Fft\FftwProvider.cs" />
+    <Compile Include="Algorithms\Fft\ForwardRealFftPlan.cs" />
     <Compile Include="Algorithms\Fft\IFftProvider.cs" />
+    <Compile Include="Algorithms\Fft\InverseRealFftPlan.cs" />
+    <Compile Include="Algorithms\Fft\RealFftPlan.cs" />
     <Compile Include="Algorithms\HashHelper.cs" />
     <Compile Include="Algorithms\Mls.cs" />
     <Compile Include="Algorithms\TriDiagonalMatrix.cs" />
@@ -161,10 +172,11 @@
   <ItemGroup>
     <None Include="isignal diagram.cd" />
     <None Include="project.json" />
+    <None Include="project1.json" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="PropertyTools">
-      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0052\lib\net45\PropertyTools.dll</HintPath>
+    <Reference Include="Filter.Interop">
+      <HintPath>.\Filter.Interop.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
