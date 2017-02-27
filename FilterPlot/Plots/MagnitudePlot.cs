@@ -17,7 +17,7 @@ namespace FilterPlot
 
         protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
         {
-            return Dsp.LinearToDb(spectrum.Magnitude, -1000);
+            return FrequencyDomainOperations.LinearToDb(spectrum.Magnitude, -1000);
         }
     }
 }

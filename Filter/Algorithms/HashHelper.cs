@@ -3,13 +3,26 @@
 namespace Filter.Algorithms
 {
     /// <summary>
-    /// Provides a quick way to generate hash codes for implementing the .GetHashCode() method.
+    ///     Provides a quick way to generate hash codes for implementing the .GetHashCode() method.
     /// </summary>
     public static class HashHelper
     {
+        /// <summary>
+        ///     Alternative way to get a hashcode is to use a fluent
+        ///     interface like this:<br />
+        ///     return 0.CombineHashCode(field1).CombineHashCode(field2).
+        ///     CombineHashCode(field3);
+        /// </summary>
+        public static int CombineHashCode<T>(this int hashCode, T arg)
+        {
+            unchecked
+            {
+                return 31 * hashCode + arg.GetHashCode();
+            }
+        }
 
         /// <summary>
-        /// Gets the combined hash code of two parameters.
+        ///     Gets the combined hash code of two parameters.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
@@ -25,7 +38,7 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        /// Gets the combined hash code of three parameters.
+        ///     Gets the combined hash code of three parameters.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
@@ -45,7 +58,7 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        /// Gets the combined hash code of three parameters.
+        ///     Gets the combined hash code of three parameters.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
@@ -68,7 +81,7 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        /// Gets the combined hash code of a list of objects.
+        ///     Gets the combined hash code of a list of objects.
         /// </summary>
         /// <typeparam name="T">The type of the objects.</typeparam>
         /// <param name="list">The list of objects.</param>
@@ -87,7 +100,7 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        /// Gets the combined hash code of an IEnumberable of objects.
+        ///     Gets the combined hash code of an IEnumberable of objects.
         /// </summary>
         /// <typeparam name="T">The type of the objects.</typeparam>
         /// <param name="list">The list of objects.</param>
@@ -106,9 +119,9 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        /// Gets a hashcode for a collection for that the order of items 
-        /// does not matter.
-        /// So {1, 2, 3} and {3, 2, 1} will get same hash code.
+        ///     Gets a hashcode for a collection for that the order of items
+        ///     does not matter.
+        ///     So {1, 2, 3} and {3, 2, 1} will get same hash code.
         /// </summary>
         public static int GetHashCodeForOrderNoMatterCollection<T>(IEnumerable<T> list)
         {
@@ -122,20 +135,6 @@ namespace Filter.Algorithms
                     count++;
                 }
                 return 31 * hash + count.GetHashCode();
-            }
-        }
-
-        /// <summary>
-        /// Alternative way to get a hashcode is to use a fluent 
-        /// interface like this:<br />
-        /// return 0.CombineHashCode(field1).CombineHashCode(field2).
-        ///     CombineHashCode(field3);
-        /// </summary>
-        public static int CombineHashCode<T>(this int hashCode, T arg)
-        {
-            unchecked
-            {
-                return 31 * hashCode + arg.GetHashCode();
             }
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Filter.Algorithms.FftwProvider;
 using Filter.Extensions;
 
 namespace Filter.Algorithms
@@ -11,7 +12,10 @@ namespace Filter.Algorithms
     /// </summary>
     public static class Fft
     {
-        public static IFftProvider FftProvider { get; set; } = new FftwProvider();
+        /// <summary>
+        /// Gets or sets the FFT provider used for all FFT calculations. Defaults to a FftwProvider.
+        /// </summary>
+        public static IFftProvider FftProvider { get; set; } = new FftwProvider.FftwProvider();
 
         /// <summary>
         ///     Calculates the even-spaced frequency points from 0 Hz (DC) to Nyquist frequency (SampleRate/2) representing the
@@ -23,11 +27,11 @@ namespace Filter.Algorithms
         /// <returns>Array of frequencies</returns>
         public static IEnumerable<double> GetFrequencies(double samplerate, int n)
         {
-            return Dsp.LinSeries(0, samplerate * 0.5, (n >> 1) + 1);
+            return SignalGenerators.LinSeries(0, samplerate * 0.5, (n >> 1) + 1);
         }
 
         /// <summary>
-        ///     Computes the next biggest power of 2 for a given input value.
+        ///     Gets the next biggest integer value that is a efficiently computable FFT length with the current FFT provider.
         /// </summary>
         /// <param name="input">The input value.</param>
         /// <returns>The result.</returns>

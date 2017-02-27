@@ -12,15 +12,15 @@ namespace FilterTests
         //[Test]
         public void TestMls()
         {
-            for (int i = 2; i < Mls.FeedbackTaps.Count; i++)
+            for (int i = 2; i < SignalGenerators.MlsFeedbackTaps.Count; i++)
             {
-                var sequence = Mls.GenerateMls(i);
+                var sequence = SignalGenerators.GenerateMls(i);
 
                 Assert.That(sequence.Count() == Math.Pow(2, i) - 1);
             }
 
-            Assert.Catch<ArgumentOutOfRangeException>(() => Mls.GenerateMls(1).ToReadOnlyList());
-            Assert.Catch<ArgumentOutOfRangeException>(() => Mls.GenerateMls(Mls.FeedbackTaps.Count).ToReadOnlyList());
+            Assert.Catch<ArgumentOutOfRangeException>(() => SignalGenerators.GenerateMls(1).ToReadOnlyList());
+            Assert.Catch<ArgumentOutOfRangeException>(() => SignalGenerators.GenerateMls(SignalGenerators.MlsFeedbackTaps.Count).ToReadOnlyList());
         }
     }
 }

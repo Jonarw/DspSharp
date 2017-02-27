@@ -1,15 +1,21 @@
-using System;
 using System.Runtime.InteropServices;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Contains the Basic Interface FFTW functions for double-precision (double) operations
     /// </summary>
-    public static class FftwInterop
+    public static unsafe class FftwInterop
     {
         public static object FftwLock = new object();
-        public const string FftwLibraryName = "fftw3";
+
+        private const string FftwLibraryName =
+#if x86
+            "fftw3";
+#endif
+#if x64
+            "fftw3x64";
+#endif
 
         /// <summary>
         ///     Clears all memory used by FFTW, resets it to initial state. Does not replace destroy_plan and free
@@ -34,7 +40,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_destroy_plan",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void destroy_plan(IntPtr plan);
+        public static extern void destroy_plan(void* plan);
 
         /// <summary>
         ///     Creates a plan for an n-dimensional complex-to-complex DFT
@@ -49,11 +55,11 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft(
+        public static extern void* dft(
             int rank,
             int[] n,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwDirection direction,
             FftwFlags flags);
 
@@ -69,10 +75,10 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_1d(
+        public static extern void* dft_1d(
             int n,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwDirection direction,
             FftwFlags flags);
 
@@ -89,11 +95,11 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_2d(
+        public static extern void* dft_2d(
             int nx,
             int ny,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwDirection direction,
             FftwFlags flags);
 
@@ -111,12 +117,12 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_3d(
+        public static extern void* dft_3d(
             int nx,
             int ny,
             int nz,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwDirection direction,
             FftwFlags flags);
 
@@ -132,7 +138,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_c2r",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_c2r(int rank, int[] n, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_c2r(int rank, int[] n, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 1-dimensional complex-to-real DFT
@@ -145,7 +151,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_c2r_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_c2r_1d(int n, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_c2r_1d(int n, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 2-dimensional complex-to-real DFT
@@ -159,7 +165,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_c2r_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_c2r_2d(int nx, int ny, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_c2r_2d(int nx, int ny, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 3-dimensional complex-to-real DFT
@@ -174,7 +180,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_c2r_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_c2r_3d(int nx, int ny, int nz, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_c2r_3d(int nx, int ny, int nz, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for an n-dimensional real-to-complex DFT
@@ -188,7 +194,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_r2c",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_r2c(int rank, int[] n, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_r2c(int rank, int[] n, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 1-dimensional real-to-complex DFT
@@ -201,7 +207,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_r2c_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_r2c_1d(int n, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_r2c_1d(int n, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 2-dimensional real-to-complex DFT
@@ -215,7 +221,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_r2c_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_r2c_2d(int nx, int ny, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_r2c_2d(int nx, int ny, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 3-dimensional real-to-complex DFT
@@ -230,7 +236,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_dft_r2c_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr dft_r2c_3d(int nx, int ny, int nz, IntPtr input, IntPtr output, FftwFlags flags);
+        public static extern void* dft_r2c_3d(int nx, int ny, int nz, void* input, void* output, FftwFlags flags);
 
         /// <summary>
         ///     Executes an FFTW plan, provided that the input and output arrays still exist
@@ -241,7 +247,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_execute",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void execute(IntPtr plan);
+        public static extern void execute(void* plan);
 
         /// <summary>
         ///     Executes an FFTW plan using the specified input and output locations.
@@ -254,7 +260,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_execute_dft",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void execute_dft(IntPtr plan, IntPtr input, IntPtr output);
+        public static extern void execute_dft(void* plan, void* input, void* output);
 
         /// <summary>
         ///     Executes an FFTW plan using the specified input and output locations.
@@ -267,7 +273,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_execute_dft_c2r",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void execute_dft_c2r(IntPtr plan, IntPtr input, IntPtr output);
+        public static extern void execute_dft_c2r(void* plan, void* input, void* output);
 
         /// <summary>
         ///     Executes an FFTW plan using the specified input and output locations.
@@ -280,7 +286,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_execute_dft_r2c",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void execute_dft_r2c(IntPtr plan, IntPtr input, IntPtr output);
+        public static extern void execute_dft_r2c(void* plan, void* input, void* output);
 
         /// <summary>
         ///     Exports the accumulated Wisdom to the provided filename
@@ -304,7 +310,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_flops",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void flops(IntPtr plan, ref double add, ref double mul, ref double fma);
+        public static extern void flops(void* plan, ref double add, ref double mul, ref double fma);
 
         /// <summary>
         ///     Deallocates memory allocated by FFTW malloc
@@ -314,7 +320,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_free",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void free(IntPtr mem);
+        public static extern void free(void* mem);
 
         /// <summary>
         ///     Imports Wisdom from provided filename
@@ -335,7 +341,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_malloc",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr malloc(int length);
+        public static extern void* malloc(int length);
 
         /// <summary>
         ///     Outputs a "nerd-readable" version of the specified plan to stdout
@@ -345,7 +351,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_print_plan",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern void print_plan(IntPtr plan);
+        public static extern void print_plan(void* plan);
 
         /// <summary>
         ///     Creates a plan for an n-dimensional real-to-real DFT
@@ -360,11 +366,11 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_r2r",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr r2r(
+        public static extern void* r2r(
             int rank,
             int[] n,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwRealToRealKind[] kind,
             FftwFlags flags);
 
@@ -380,7 +386,7 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_r2r_1d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr r2r_1d(int n, IntPtr input, IntPtr output, FftwRealToRealKind kind, FftwFlags flags);
+        public static extern void* r2r_1d(int n, void* input, void* output, FftwRealToRealKind kind, FftwFlags flags);
 
         /// <summary>
         ///     Creates a plan for a 2-dimensional real-to-real DFT
@@ -396,11 +402,11 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_r2r_2d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr r2r_2d(
+        public static extern void* r2r_2d(
             int nx,
             int ny,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwRealToRealKind kindx,
             FftwRealToRealKind kindy,
             FftwFlags flags);
@@ -421,12 +427,12 @@ namespace Filter.Algorithms
             EntryPoint = "fftw_plan_r2r_3d",
             ExactSpelling = true,
             CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr r2r_3d(
+        public static extern void* r2r_3d(
             int nx,
             int ny,
             int nz,
-            IntPtr input,
-            IntPtr output,
+            void* input,
+            void* output,
             FftwRealToRealKind kindx,
             FftwRealToRealKind kindy,
             FftwRealToRealKind kindz,

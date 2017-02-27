@@ -3,9 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using Filter.Collections;
 
-namespace UmtUtilities.Collections
+namespace Filter.Collections
 {
     public class ObservableSortedDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
         INotifyCollectionChanged

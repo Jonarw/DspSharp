@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Filter.Collections;
 using Filter.Signal;
 using Filter.Signal.Windows;
-using UmtUtilities.Collections;
 
 #pragma warning disable 1591
 // work in progress!

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using Filter.Extensions;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     public class FftwProvider : IFftProvider
     {
@@ -14,9 +13,9 @@ namespace Filter.Algorithms
         /// </summary>
         public FftwProvider()
         {
-            var fi = new FileInfo(WisdomPath);
-            if (fi.Exists)
-            {
+            //var fi = new FileInfo(WisdomPath);
+            //if (fi.Exists)
+            //{
                 try
                 {
                     FftwInterop.import_wisdom_from_filename(WisdomPath);
@@ -25,7 +24,7 @@ namespace Filter.Algorithms
                 {
                     // wisdom file could not be read...
                 }
-            }
+            //}
         }
 
         private static string WisdomPath { get; } = "fftwisdom";
@@ -188,8 +187,8 @@ namespace Filter.Algorithms
         /// </summary>
         public static void ExportWisdom()
         {
-            var fi = new FileInfo(WisdomPath);
-            fi.Directory?.Create();
+            //var fi = new FileInfo(WisdomPath);
+            //fi.Directory?.Create();
             FftwInterop.export_wisdom_to_filename(WisdomPath);
         }
     }

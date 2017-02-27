@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Handles the creating of an fftw plan and the associated memory blocks.
     /// </summary>
-    public class ComplexToComplexFftPlan : FftPlan
+    public unsafe class ComplexToComplexFftPlan : FftPlan
     {
         /// <summary>
         ///     Initializes a new instance of the base class <see cref="ComplexToComplexFftPlan" />.
@@ -29,7 +29,7 @@ namespace Filter.Algorithms
         /// <param name="output">The output array.</param>
         /// <exception cref="ArgumentException">
         /// </exception>
-        public unsafe void Execute(Complex[] input, Complex[] output)
+        public void Execute(Complex[] input, Complex[] output)
         {
             if (input.Length > this.FftLength)
                 throw new ArgumentException();
@@ -37,8 +37,8 @@ namespace Filter.Algorithms
             if (output.Length < this.FftLength)
                 throw new ArgumentException();
 
-            IntPtr pInput = IntPtr.Zero;
-            IntPtr pOutput = IntPtr.Zero;
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
 
             try
             {
@@ -47,7 +47,7 @@ namespace Filter.Algorithms
 
                 fixed (Complex* pinputarray = input)
                 {
-                    Interop.memcpy((void*)pInput, pinputarray, input.Length * 2 * sizeof(double));
+                    Interop.memcpy(pInput, pinputarray, input.Length * 2 * sizeof(double));
 
                     if (input.Length < this.FftLength)
                         Interop.memset((Complex*)pInput + input.Length, 0, (this.FftLength - input.Length) * 2 * sizeof(double));
@@ -59,7 +59,7 @@ namespace Filter.Algorithms
                 {
                     if (this.Direction == FftwDirection.Forward)
                     {
-                        Interop.memcpy(pRet, (void*)pOutput, this.FftLength * 2 * sizeof(double));
+                        Interop.memcpy(pRet, pOutput, this.FftLength * 2 * sizeof(double));
                     }
                     else
                     {
@@ -92,7 +92,7 @@ namespace Filter.Algorithms
             return ret;
         }
 
-        public override unsafe void ExecuteUnsafe(IntPtr pInput, IntPtr pOutput)
+        public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
             FftwInterop.execute_dft(this.Plan, pInput, pOutput);
             if (this.Direction == FftwDirection.Backward)
@@ -104,13 +104,12 @@ namespace Filter.Algorithms
                     *(dpOutput + i) *= this.NormalizationFactor;
                 }
             }
-
         }
 
-        private static IntPtr CreatePlan(int fftLength, FftwDirection direction)
+        private static void* CreatePlan(int fftLength, FftwDirection direction)
         {
-            IntPtr pInput = IntPtr.Zero;
-            IntPtr pOutput = IntPtr.Zero;
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
                 pInput = FftwInterop.malloc(fftLength * 2 * sizeof(double));

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     FFTW planner flags

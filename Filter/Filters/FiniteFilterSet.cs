@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using Filter.Collections;
-using UmtUtilities.Collections;
 
 namespace Filter.Filters
 {

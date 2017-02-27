@@ -19,7 +19,7 @@ namespace Filter.Signal
         /// <param name="sampleRate">The sample rate.</param>
         /// <param name="frequency">The frequency.</param>
         /// <exception cref="System.Exception"></exception>
-        public Sinc(double sampleRate, double frequency) : base(time => Dsp.Sinc(frequency * time / sampleRate), sampleRate)
+        public Sinc(double sampleRate, double frequency) : base(time => Mathematic.Sinc(frequency * time / sampleRate), sampleRate)
         {
             this.Frequency = frequency;
             if ((frequency < 0) || (frequency > sampleRate / 2))

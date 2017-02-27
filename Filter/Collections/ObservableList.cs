@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using UmtUtilities.Collections;
 
 namespace Filter.Collections
 {
@@ -13,7 +12,7 @@ namespace Filter.Collections
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    /// <seealso cref="UmtUtilities.Collections.IObservableList{T}" />
+    /// <seealso cref="IObservableList{T}" />
     public class ObservableList<T> : ObservableCollection<T>, IObservableList<T>
     {
         private bool _suspendUpdates;

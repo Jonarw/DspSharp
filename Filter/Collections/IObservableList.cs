@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace UmtUtilities.Collections
+namespace Filter.Collections
 {
     /// <summary>
     ///     Describes an observable list.

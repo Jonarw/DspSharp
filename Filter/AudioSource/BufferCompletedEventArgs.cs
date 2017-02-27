@@ -5,10 +5,10 @@ namespace Filter.AudioSource
 {
     public class BufferCompletedEventArgs : EventArgs
     {
-        public IReadOnlyList<double[]> Inputs { get; }
-        public IReadOnlyList<double[]> Outputs { get; }
+        public IReadOnlyList<IntPtr> Inputs { get; }
+        public IReadOnlyList<IntPtr> Outputs { get; }
 
-        public BufferCompletedEventArgs(IReadOnlyList<double[]> inputs, IReadOnlyList<double[]> outputs)
+        public BufferCompletedEventArgs(IReadOnlyList<IntPtr> inputs, IReadOnlyList<IntPtr> outputs)
         {
             this.Inputs = inputs;
             this.Outputs = outputs;

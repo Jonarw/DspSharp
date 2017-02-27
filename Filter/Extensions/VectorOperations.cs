@@ -64,29 +64,30 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> AddFull(this IEnumerable<double> input, IEnumerable<double> input2)
         {
-            IEnumerator<double> enumerator = input.GetEnumerator();
-            IEnumerator<double> enumerator2 = input2.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            using (var enumerator = input.GetEnumerator())
+            using (var enumerator2 = input2.GetEnumerator())
             {
-                if (enumerator2.MoveNext())
+                while (enumerator.MoveNext())
                 {
-                    yield return enumerator.Current + enumerator2.Current;
-                }
-                else
-                {
-                    yield return enumerator.Current;
-                    while (enumerator.MoveNext())
+                    if (enumerator2.MoveNext())
+                    {
+                        yield return enumerator.Current + enumerator2.Current;
+                    }
+                    else
                     {
                         yield return enumerator.Current;
+                        while (enumerator.MoveNext())
+                        {
+                            yield return enumerator.Current;
+                        }
+                        yield break;
                     }
-                    yield break;
                 }
-            }
 
-            while (enumerator2.MoveNext())
-            {
-                yield return enumerator2.Current;
+                while (enumerator2.MoveNext())
+                {
+                    yield return enumerator2.Current;
+                }
             }
         }
 
@@ -101,46 +102,48 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> AddFullWithOffset(this IEnumerable<double> input, IEnumerable<double> input2, int offset)
         {
-            IEnumerator<double> enumerator = input.GetEnumerator();
-            IEnumerator<double> enumerator2 = input2.GetEnumerator();
-            int c = offset;
-
-            while (enumerator2.MoveNext() && (c < 0))
+            using (var enumerator = input.GetEnumerator())
+            using (var enumerator2 = input2.GetEnumerator())
             {
-                yield return enumerator2.Current;
-            }
+                int c = offset;
 
-            c = 0;
+                while (enumerator2.MoveNext() && c < 0)
+                {
+                    yield return enumerator2.Current;
+                }
 
-            while (enumerator.MoveNext())
-            {
-                if (c++ < offset)
+                c = 0;
+
+                while (enumerator.MoveNext())
                 {
-                    yield return enumerator.Current;
-                }
-                else if (enumerator2.MoveNext())
-                {
-                    yield return enumerator.Current + enumerator2.Current;
-                }
-                else
-                {
-                    yield return enumerator.Current;
-                    while (enumerator.MoveNext())
+                    if (c++ < offset)
                     {
                         yield return enumerator.Current;
                     }
-                    yield break;
+                    else if (enumerator2.MoveNext())
+                    {
+                        yield return enumerator.Current + enumerator2.Current;
+                    }
+                    else
+                    {
+                        yield return enumerator.Current;
+                        while (enumerator.MoveNext())
+                        {
+                            yield return enumerator.Current;
+                        }
+                        yield break;
+                    }
                 }
-            }
 
-            while (c++ < offset)
-            {
-                yield return 0.0;
-            }
+                while (c++ < offset)
+                {
+                    yield return 0.0;
+                }
 
-            while (enumerator2.MoveNext())
-            {
-                yield return enumerator2.Current;
+                while (enumerator2.MoveNext())
+                {
+                    yield return enumerator2.Current;
+                }
             }
         }
 
@@ -163,7 +166,7 @@ namespace Filter.Extensions
         public static IEnumerable<double> CircularShift(this IEnumerable<double> series, int amount)
         {
             var list = series.ToReadOnlyList();
-            amount = Dsp.Mod(amount, list.Count);
+            amount = Mathematic.Mod(amount, list.Count);
             return list.Skip(amount).Concat(list.Take(amount));
         }
 
@@ -185,7 +188,7 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> Convolve(this IEnumerable<double> input, IReadOnlyList<double> input2)
         {
-            return Dsp.Convolve(input, input2);
+            return TimeDomainOperations.Convolve(input, input2);
         }
 
         /// <summary>
@@ -247,44 +250,41 @@ namespace Filter.Extensions
             int initialLength = 1024,
             int maxLength = 524288)
         {
-            var e = input.GetEnumerator();
             int c = 0;
 
             double currentEnergy = 0.0;
             double previousEnergy = 0.0;
 
-            while (e.MoveNext() && (c < initialLength))
+            using (var e = input.GetEnumerator())
             {
-                previousEnergy += e.Current * e.Current;
-                c++;
-            }
-
-            var currentLength = initialLength * 2;
-
-            while (e.MoveNext())
-            {
-                currentEnergy += e.Current * e.Current;
-                c++;
-
-                if (c == currentLength)
+                while (e.MoveNext() && c < initialLength)
                 {
-                    if (currentEnergy / previousEnergy < threshold)
-                    {
-                        break;
-                    }
-
-                    currentLength *= 2;
-                    if (currentLength >= maxLength)
-                    {
-                        break;
-                    }
-
-                    previousEnergy += currentEnergy;
-                    currentEnergy = 0;
+                    previousEnergy += e.Current * e.Current;
+                    c++;
                 }
-            }
 
-            return c;
+                var currentLength = initialLength * 2;
+
+                while (e.MoveNext())
+                {
+                    currentEnergy += e.Current * e.Current;
+                    c++;
+
+                    if (c == currentLength)
+                    {
+                        if (currentEnergy / previousEnergy < threshold)
+                            break;
+
+                        currentLength *= 2;
+                        if (currentLength >= maxLength)
+                            break;
+
+                        previousEnergy += currentEnergy;
+                        currentEnergy = 0;
+                    }
+                }
+                return c;
+            }
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace Filter.Extensions
         {
             var list = fftResult.ToReadOnlyList();
 
-            start = Dsp.Mod(start, list.Count);
+            start = Mathematic.Mod(start, list.Count);
 
             int stop;
             if (length > list.Count)
@@ -307,12 +307,10 @@ namespace Filter.Extensions
                 return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop)).ZeroPad(length - list.Count);
             }
 
-            stop = Dsp.Mod(start + length, list.Count);
+            stop = Mathematic.Mod(start + length, list.Count);
 
             if (start < stop)
-            {
                 return list.GetRangeOptimized(start, stop);
-            }
 
             return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop));
         }
@@ -328,7 +326,7 @@ namespace Filter.Extensions
         {
             int c = start;
             int i = 0;
-            while ((c < 0) && (i < length))
+            while (c < 0 && i < length)
             {
                 yield return 0.0;
                 i++;
@@ -336,22 +334,24 @@ namespace Filter.Extensions
             }
 
             c = 0;
-            var e = input.GetEnumerator();
-            while ((c < start) && e.MoveNext())
+            using (var e = input.GetEnumerator())
             {
-                c++;
-            }
+                while (c < start && e.MoveNext())
+                {
+                    c++;
+                }
 
-            while (c < start)
-            {
-                c++;
-            }
+                while (c < start)
+                {
+                    c++;
+                }
 
-            while (e.MoveNext() && (i < length))
-            {
-                yield return e.Current;
-                i++;
-                c++;
+                while (e.MoveNext() && i < length)
+                {
+                    yield return e.Current;
+                    i++;
+                    c++;
+                }
             }
 
             while (i < length)
@@ -374,14 +374,15 @@ namespace Filter.Extensions
 
             if (inputlist == null)
             {
-                var e = input.Skip(startindex).GetEnumerator();
                 int c = 0;
 
-                while (e.MoveNext() && (c++ < length))
+                using (var e = input.Skip(startindex).GetEnumerator())
                 {
-                    yield return e.Current;
+                    while (e.MoveNext() && c++ < length)
+                    {
+                        yield return e.Current;
+                    }
                 }
-
                 yield break;
             }
 
@@ -427,12 +428,14 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<T> InterleaveEnumerations<T>(this IEnumerable<T> first, IEnumerable<T> second)
         {
-            IEnumerator<T> enumerator1 = first.GetEnumerator();
-            IEnumerator<T> enumerator2 = second.GetEnumerator();
-            while (enumerator1.MoveNext() && enumerator2.MoveNext())
+            using (var enumerator1 = first.GetEnumerator())
+            using (var enumerator2 = second.GetEnumerator())
             {
-                yield return enumerator1.Current;
-                yield return enumerator2.Current;
+                while (enumerator1.MoveNext() && enumerator2.MoveNext())
+                {
+                    yield return enumerator1.Current;
+                    yield return enumerator2.Current;
+                }
             }
         }
 
@@ -469,9 +472,7 @@ namespace Filter.Extensions
         public static IEnumerable<T> Loop<T>(this IReadOnlyList<T> source, int loops)
         {
             if (loops == 0)
-            {
                 yield break;
-            }
 
             for (int i = 0; i != loops; i++)
             {
@@ -651,18 +652,18 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<Complex> SparseSeries(this IEnumerable<Complex> series, int sparseFactor)
         {
-            var e = series.GetEnumerator();
-            while (true)
+            using (var e = series.GetEnumerator())
             {
-                for (int i = 0; i < sparseFactor; i++)
+                while (true)
                 {
-                    if (!e.MoveNext())
+                    for (int i = 0; i < sparseFactor; i++)
                     {
-                        yield break;
+                        if (!e.MoveNext())
+                            yield break;
                     }
-                }
 
-                yield return e.Current;
+                    yield return e.Current;
+                }
             }
         }
 
@@ -674,9 +675,7 @@ namespace Filter.Extensions
         public static double StandardDeviation(this IEnumerable<double> values)
         {
             if (values == null)
-            {
                 throw new ArgumentNullException(nameof(values));
-            }
 
             var valueslist = values.ToReadOnlyList();
             return StandardDeviation(valueslist, valueslist.Average());
@@ -691,9 +690,7 @@ namespace Filter.Extensions
         public static double StandardDeviation(this IEnumerable<double> values, double mean)
         {
             if (values == null)
-            {
                 throw new ArgumentNullException(nameof(values));
-            }
 
             var valueslist = values.ToReadOnlyList();
             return Math.Sqrt(valueslist.Variance(mean));
@@ -753,29 +750,30 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> SubtractFull(this IEnumerable<double> input, IEnumerable<double> input2)
         {
-            IEnumerator<double> enumerator = input.GetEnumerator();
-            IEnumerator<double> enumerator2 = input2.GetEnumerator();
-
-            while (enumerator.MoveNext())
+            using (var enumerator = input.GetEnumerator())
+            using (var enumerator2 = input2.GetEnumerator())
             {
-                if (enumerator2.MoveNext())
+                while (enumerator.MoveNext())
                 {
-                    yield return enumerator.Current - enumerator2.Current;
-                }
-                else
-                {
-                    yield return enumerator.Current;
-                    while (enumerator.MoveNext())
+                    if (enumerator2.MoveNext())
+                    {
+                        yield return enumerator.Current - enumerator2.Current;
+                    }
+                    else
                     {
                         yield return enumerator.Current;
+                        while (enumerator.MoveNext())
+                        {
+                            yield return enumerator.Current;
+                        }
+                        yield break;
                     }
-                    yield break;
                 }
-            }
 
-            while (enumerator2.MoveNext())
-            {
-                yield return -enumerator2.Current;
+                while (enumerator2.MoveNext())
+                {
+                    yield return -enumerator2.Current;
+                }
             }
         }
 
@@ -787,19 +785,39 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> TakeFull(this IEnumerable<double> input, int length)
         {
-            var e = input.GetEnumerator();
-            int c = 0;
-            while (e.MoveNext() && (c < length))
+            using (var e = input.GetEnumerator())
             {
-                yield return e.Current;
-                c++;
+                int c = 0;
+                while (e.MoveNext() && c < length)
+                {
+                    yield return e.Current;
+                    c++;
+                }
+
+                while (c < length)
+                {
+                    yield return 0.0;
+                    c++;
+                }
+            }
+        }
+
+        public static T[] ToArrayOptimized<T>(this IEnumerable<T> sequence)
+        {
+            var array = sequence as T[];
+
+            if (array != null)
+                return array;
+
+            var list = sequence.ToReadOnlyList();
+            var ret = new T[list.Count];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                ret[i] = list[i];
             }
 
-            while (c < length)
-            {
-                yield return 0.0;
-                c++;
-            }
+            return ret;
         }
 
         /// <summary>
@@ -833,31 +851,9 @@ namespace Filter.Extensions
         {
             var ilist = sequence as IList<T>;
             if (ilist != null)
-            {
                 return new ReadOnlyCollection<T>(ilist);
-            }
 
             return sequence as IReadOnlyList<T> ?? new ReadOnlyCollection<T>(sequence.ToList());
-        }
-
-        public static T[] ToArrayOptimized<T>(this IEnumerable<T> sequence)
-        {
-            var array = sequence as T[];
-
-            if (array != null)
-            {
-                return array;
-            }
-
-            var list = sequence.ToReadOnlyList();
-            var ret = new T[list.Count];
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                ret[i] = list[i];
-            }
-
-            return ret;
         }
 
         /// <summary>
@@ -873,9 +869,7 @@ namespace Filter.Extensions
             if (ilist != null)
             {
                 if (ilist.Count <= maximumLength)
-                {
                     return new ReadOnlyCollection<T>(ilist);
-                }
 
                 return ilist.Take(maximumLength).ToReadOnlyList();
             }
@@ -884,20 +878,20 @@ namespace Filter.Extensions
             if (irolist != null)
             {
                 if (irolist.Count <= maximumLength)
-                {
                     return irolist;
-                }
 
                 return irolist.Take(maximumLength).ToReadOnlyList();
             }
 
-            var e = sequence.GetEnumerator();
             int i = 0;
             var ret = new List<T>();
-            while (e.MoveNext() && (i < maximumLength))
+            using (var e = sequence.GetEnumerator())
             {
-                ret.Add(e.Current);
-                i++;
+                while (e.MoveNext() && i < maximumLength)
+                {
+                    ret.Add(e.Current);
+                    i++;
+                }
             }
 
             return ret.AsReadOnly();
@@ -911,13 +905,15 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<Complex> UnInterleaveComplex(this IEnumerable<double> d)
         {
-            IEnumerator<double> enumerator = d.GetEnumerator();
+            using (var enumerator = d.GetEnumerator())
 
-            while (enumerator.MoveNext())
             {
-                var real = enumerator.Current;
-                enumerator.MoveNext();
-                yield return new Complex(real, enumerator.Current);
+                while (enumerator.MoveNext())
+                {
+                    var real = enumerator.Current;
+                    enumerator.MoveNext();
+                    yield return new Complex(real, enumerator.Current);
+                }
             }
         }
 
@@ -929,9 +925,7 @@ namespace Filter.Extensions
         public static double Variance(this IEnumerable<double> values)
         {
             if (values == null)
-            {
                 throw new ArgumentNullException(nameof(values));
-            }
 
             var valueslist = values.ToReadOnlyList();
             return Variance(valueslist, valueslist.Average());
@@ -946,16 +940,12 @@ namespace Filter.Extensions
         public static double Variance(this IEnumerable<double> values, double mean)
         {
             if (values == null)
-            {
                 throw new ArgumentNullException(nameof(values));
-            }
 
             var valueslist = values.ToReadOnlyList();
 
             if (valueslist.Count == 0)
-            {
                 return 0;
-            }
 
             double variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
             return variance / valueslist.Count;
@@ -969,12 +959,14 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<double> ZeroPad(this IEnumerable<double> d, int n)
         {
-            IEnumerator<double> enumerator = d.GetEnumerator();
             int i = 0;
 
-            while (enumerator.MoveNext() && (i++ < n))
+            using (var enumerator = d.GetEnumerator())
             {
-                yield return enumerator.Current;
+                while (enumerator.MoveNext() && i++ < n)
+                {
+                    yield return enumerator.Current;
+                }
             }
 
             while (i++ < n)
@@ -991,12 +983,14 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static IEnumerable<Complex> ZeroPad(this IEnumerable<Complex> d, int n)
         {
-            IEnumerator<Complex> enumerator = d.GetEnumerator();
             int i = 0;
 
-            while (enumerator.MoveNext() && (i++ < n))
+            using (var enumerator = d.GetEnumerator())
             {
-                yield return enumerator.Current;
+                while (enumerator.MoveNext() && i++ < n)
+                {
+                    yield return enumerator.Current;
+                }
             }
 
             while (i++ < n)

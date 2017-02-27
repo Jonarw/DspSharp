@@ -214,12 +214,12 @@ namespace Filter.Signal.Windows
 
         private static double Kaiser2Window(double value)
         {
-            return Dsp.ModBessel0(Math.PI * 2 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Dsp.ModBessel0(Math.PI * 2);
+            return Mathematic.ModBessel0(Math.PI * 2 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Mathematic.ModBessel0(Math.PI * 2);
         }
 
         private static double Kaiser3Window(double value)
         {
-            return Dsp.ModBessel0(Math.PI * 3 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Dsp.ModBessel0(Math.PI * 3);
+            return Mathematic.ModBessel0(Math.PI * 3 * Math.Sqrt(1 - Math.Pow(value - 1, 2))) / Mathematic.ModBessel0(Math.PI * 3);
         }
 
         private static double TriangularWindow(double value)

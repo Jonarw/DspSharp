@@ -1,14 +1,10 @@
-﻿using System;
-
-namespace Filter.Algorithms
+﻿namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Handles the creating of an fftw plan and the associated memory blocks.
     /// </summary>
-    public abstract class RealFftPlan : FftPlan
+    public abstract unsafe class RealFftPlan : FftPlan
     {
-        protected delegate IntPtr CreateRealPlanDelegate(int fftLength, IntPtr pInput, IntPtr pOutput, FftwFlags flags);
-
         /// <summary>
         ///     Initializes a new instance of the base class <see cref="RealFftPlan" />.
         /// </summary>
@@ -19,12 +15,14 @@ namespace Filter.Algorithms
             this.SpectrumLength = (this.FftLength >> 1) + 1;
         }
 
-        private static IntPtr CreatePlan(int fftLength, CreateRealPlanDelegate createPlanDelegate)
+        public int SpectrumLength { get; }
+
+        private static void* CreatePlan(int fftLength, CreateRealPlanDelegate createPlanDelegate)
         {
             var spectrumLength = (fftLength >> 1) + 1;
 
-            IntPtr pInput = IntPtr.Zero;
-            IntPtr pOutput = IntPtr.Zero;
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
                 // make both memory blocks the same size for simplicity (16 bytes are wasted)
@@ -44,6 +42,6 @@ namespace Filter.Algorithms
             }
         }
 
-        public int SpectrumLength { get; }
+        protected delegate void* CreateRealPlanDelegate(int fftLength, void* pInput, void* pOutput, FftwFlags flags);
     }
 }

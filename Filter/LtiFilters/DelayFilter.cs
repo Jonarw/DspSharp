@@ -36,7 +36,7 @@ namespace Filter.LtiFilters
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return Dsp.GetZeros(this.SampleDelay).Concat(signal);
+            return SignalGenerators.GetZeros(this.SampleDelay).Concat(signal);
         }
 
         /// <summary>

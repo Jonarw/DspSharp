@@ -1,5 +1,5 @@
-﻿using Filter.Signal;
-using UmtUtilities.Collections;
+﻿using Filter.Collections;
+using Filter.Signal;
 
 namespace Filter
 {

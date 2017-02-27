@@ -17,7 +17,7 @@ namespace Filter.Signal
         /// <param name="length">The length in seconds.</param>
         /// <param name="samplerate">The samplerate.</param>
         public LogSweep(double from, double to, double length, double samplerate)
-            : base(Dsp.LogSweep(from, to, length, samplerate).ToReadOnlyList(), samplerate)
+            : base(SignalGenerators.LogSweep(from, to, length, samplerate).ToReadOnlyList(), samplerate)
         {
             this.From = @from;
             this.To = to;

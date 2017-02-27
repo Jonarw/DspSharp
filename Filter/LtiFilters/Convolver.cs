@@ -31,7 +31,7 @@ namespace Filter.LtiFilters
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return Dsp.Convolve(signal, this.ImpulseResponse);
+            return TimeDomainOperations.Convolve(signal, this.ImpulseResponse);
         }
     }
 }

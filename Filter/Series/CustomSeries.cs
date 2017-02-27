@@ -29,9 +29,7 @@ namespace Filter.Series
             get
             {
                 if (this.lengthcache < 0)
-                {
                     this.lengthcache = this.Values.Count();
-                }
                 return this.lengthcache;
             }
         }
@@ -44,19 +42,8 @@ namespace Filter.Series
         public override bool Equals(ISeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             return this.Equals(other as CustomSeries);
-        }
-
-        /// <summary>
-        ///     Computes the Hashcode for the <see cref="CustomSeries" />.
-        /// </summary>
-        /// <returns>The Hashcode.</returns>
-        public override int GetHashCode()
-        {
-            return HashHelper.GetHashCode(this.Values);
         }
 
         /// <summary>
@@ -67,15 +54,20 @@ namespace Filter.Series
         public bool Equals(CustomSeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             if (other == this)
-            {
                 return true;
-            }
 
             return other.Values.SequenceEqual(this.Values);
+        }
+
+        /// <summary>
+        ///     Computes the Hashcode for the <see cref="CustomSeries" />.
+        /// </summary>
+        /// <returns>The Hashcode.</returns>
+        public override int GetHashCode()
+        {
+            return HashHelper.GetHashCode(this.Values);
         }
     }
 }

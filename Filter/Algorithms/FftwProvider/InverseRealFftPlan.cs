@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Plan for a real-valued IFFT.
     /// </summary>
-    public class InverseRealFftPlan : RealFftPlan
+    public unsafe class InverseRealFftPlan : RealFftPlan
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="InverseRealFftPlan" /> class.
@@ -30,31 +30,27 @@ namespace Filter.Algorithms
             if (output.Length < this.FftLength)
                 throw new ArgumentException();
 
-            IntPtr pInput = IntPtr.Zero;
-            IntPtr pOutput = IntPtr.Zero;
-
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
                 pInput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
                 pOutput = FftwInterop.malloc(this.FftLength * sizeof(double));
 
-                unsafe
+                fixed (Complex* pinputarray = input)
                 {
-                    fixed (Complex* pinputarray = input)
+                    Interop.memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
+                }
+
+                FftwInterop.execute_dft_c2r(this.Plan, pInput, pOutput);
+
+                fixed (double* pRet = output)
+                {
+                    var dpOutput = (double*)pOutput;
+
+                    for (int i = 0; i < this.FftLength; i++)
                     {
-                        Interop.memcpy((void*)pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
-                    }
-
-                    FftwInterop.execute_dft_c2r(this.Plan, pInput, pOutput);
-
-                    fixed (double* pRet = output)
-                    {
-                        var dpOutput = (double*)pOutput;
-
-                        for (int i = 0; i < this.FftLength; i++)
-                        {
-                            *(pRet + i) = *(dpOutput + i) * this.NormalizationFactor;
-                        }
+                        *(pRet + i) = *(dpOutput + i) * this.NormalizationFactor;
                     }
                 }
             }
@@ -72,7 +68,7 @@ namespace Filter.Algorithms
             return ret;
         }
 
-        public override unsafe void ExecuteUnsafe(IntPtr pInput, IntPtr pOutput)
+        public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
             FftwInterop.execute_dft_c2r(this.Plan, pInput, pOutput);
             var dpOutput = (double*)pOutput;

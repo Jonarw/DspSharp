@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Filter
+namespace Filter.CircularBuffers
 {
     public class CircularArray<T>
     {
@@ -14,9 +14,7 @@ namespace Filter
 
         public int Position { get; private set; }
         private T[] Items { get; }
-        private int Length { get; }
-
-        public event EventHandler Wrap;
+        public int Length { get; }
 
         public T[] GetRange(int count)
         {
@@ -31,13 +29,13 @@ namespace Filter
             {
                 var tmp = this.Length - this.Position;
                 Array.Copy(this.Items, this.Position, ret, 0, tmp);
-                this.Wrap?.Invoke(this, EventArgs.Empty);
+                this.PeriodCompleted?.Invoke(this, EventArgs.Empty);
 
                 while (count - tmp > this.Length)
                 {
                     Array.Copy(this.Items, 0, ret, tmp, this.Length);
                     tmp += this.Length;
-                    this.Wrap?.Invoke(this, EventArgs.Empty);
+                    this.PeriodCompleted?.Invoke(this, EventArgs.Empty);
                 }
 
                 Array.Copy(this.Items, 0, ret, tmp, count - tmp);
@@ -54,10 +52,12 @@ namespace Filter
             if (this.Position > this.Items.Length)
             {
                 this.Position -= this.Items.Length;
-                this.Wrap?.Invoke(this, EventArgs.Empty);
+                this.PeriodCompleted?.Invoke(this, EventArgs.Empty);
             }
 
             return ret;
         }
+
+        public event EventHandler PeriodCompleted;
     }
 }

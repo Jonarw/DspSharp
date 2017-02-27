@@ -230,13 +230,13 @@ namespace FilterPlot
 
                 var fnew = this.CustomFrequencies.Values.ToReadOnlyList();
 
-                values = Dsp.AdaptiveInterpolation(frequencies, values, fnew, this.Logarithmic).ToReadOnlyList();
+                values = DataInterpolation.AdaptiveInterpolation(frequencies, values, fnew, this.Logarithmic).ToReadOnlyList();
                 frequencies = fnew;
             }
 
             if (this.Smoothing > 0)
             {
-                values = Dsp.Smooth(frequencies, values, this.Smoothing, this.Logarithmic).ToReadOnlyList();
+                values = DataInterpolation.Smooth(frequencies, values, this.Smoothing, this.Logarithmic).ToReadOnlyList();
             }
 
             ret.Points.AddRange(values.Zip(frequencies, (m, f) => new DataPoint(f, m)));

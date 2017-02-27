@@ -1,4 +1,4 @@
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Kinds of real-to-real transforms

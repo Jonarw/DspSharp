@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Filter.Extensions;
+﻿using System.Collections.Generic;
 
 namespace Filter.Series
 {
@@ -12,11 +10,12 @@ namespace Filter.Series
             this.IsLogarithmic = logarithmic;
         }
 
+        public abstract bool Equals(ISeries other);
+
         public bool IsLogarithmic { get; }
 
-        public IEnumerable<double> Values { get; }
-
         public abstract int Length { get; }
-        public abstract bool Equals(ISeries other);
+
+        public IEnumerable<double> Values { get; }
     }
 }

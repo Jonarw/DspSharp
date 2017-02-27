@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Filter.Collections;
 
-namespace UmtUtilities.Collections
+namespace Filter.Collections
 {
     public static class Extensions
     {

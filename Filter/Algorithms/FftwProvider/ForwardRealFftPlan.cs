@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
     /// <summary>
     ///     Plan for a real-valued forward FFT.
     /// </summary>
-    public class ForwardRealFftPlan : RealFftPlan
+    public unsafe class ForwardRealFftPlan : RealFftPlan
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
@@ -27,30 +27,26 @@ namespace Filter.Algorithms
             if (output.Length < this.SpectrumLength)
                 throw new ArgumentException();
 
-            IntPtr pInput = IntPtr.Zero;
-            IntPtr pOutput = IntPtr.Zero;
-
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
                 pInput = FftwInterop.malloc(this.FftLength * sizeof(double));
                 pOutput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
 
-                unsafe
+                fixed (double* pinputarray = input)
                 {
-                    fixed (double* pinputarray = input)
-                    {
-                        Interop.memcpy((void*)pInput, pinputarray, input.Length * sizeof(double));
+                    Interop.memcpy(pInput, pinputarray, input.Length * sizeof(double));
 
-                        if (input.Length < this.FftLength)
-                            Interop.memset((double*)pInput + input.Length, 0, (this.FftLength - input.Length) * sizeof(double));
-                    }
+                    if (input.Length < this.FftLength)
+                        Interop.memset((double*)pInput + input.Length, 0, (this.FftLength - input.Length) * sizeof(double));
+                }
 
-                    FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
+                FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
 
-                    fixed (Complex* poutputarray = output)
-                    {
-                        Interop.memcpy(poutputarray, (void*)pOutput, this.SpectrumLength * 2 * sizeof(double));
-                    }
+                fixed (Complex* poutputarray = output)
+                {
+                    Interop.memcpy(poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
                 }
             }
             finally
@@ -67,7 +63,7 @@ namespace Filter.Algorithms
             return ret;
         }
 
-        public override void ExecuteUnsafe(IntPtr pInput, IntPtr pOutput)
+        public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
             FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
         }

@@ -27,7 +27,7 @@
 
 using System;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.CubicSpline
 {
     /// <summary>
     ///     Cubic spline interpolation.
@@ -49,8 +49,7 @@ namespace Filter.Algorithms
     /// </remarks>
     public class CubicSpline
     {
-        #region Fields
-
+        private int _lastIndex;
         // N-1 spline coefficients for N points
         private double[] a;
         private double[] b;
@@ -58,10 +57,6 @@ namespace Filter.Algorithms
         // Save the original x and y for Eval
         private double[] xOrig;
         private double[] yOrig;
-
-        #endregion
-
-        #region Ctor
 
         /// <summary>
         ///     Default ctor.
@@ -83,66 +78,8 @@ namespace Filter.Algorithms
             this.Fit(x, y, startSlope, endSlope, debug);
         }
 
-        #endregion
-
-        #region Private Methods
-
         /// <summary>
-        ///     Throws if Fit has not been called.
-        /// </summary>
-        private void CheckAlreadyFitted()
-        {
-            if (this.a == null)
-            {
-                throw new Exception("Fit must be called before you can evaluate.");
-            }
-        }
-
-        private int _lastIndex;
-
-        /// <summary>
-        ///     Find where in xOrig the specified x falls, by simultaneous traverse.
-        ///     This allows xs to be less than x[0] and/or greater than x[n-1]. So allows extrapolation.
-        ///     This keeps state, so requires that x be sorted and xs called in ascending order, and is not multi-thread safe.
-        /// </summary>
-        private int GetNextXIndex(double x)
-        {
-            if ((x < this.xOrig[this._lastIndex]) && (this._lastIndex > 0))
-            {
-                throw new ArgumentException("The X values to evaluate must be sorted.");
-            }
-
-            while ((this._lastIndex < this.xOrig.Length - 2) && (x > this.xOrig[this._lastIndex + 1]))
-            {
-                this._lastIndex++;
-            }
-
-            return this._lastIndex;
-        }
-
-        /// <summary>
-        ///     Evaluate the specified x value using the specified spline.
-        /// </summary>
-        /// <param name="x">The x value.</param>
-        /// <param name="j">Which spline to use.</param>
-        /// <returns>The y value.</returns>
-        private double EvalSpline(double x, int j)
-        {
-            double dx = this.xOrig[j + 1] - this.xOrig[j];
-            double t = (x - this.xOrig[j]) / dx;
-            double y = (1 - t) * this.yOrig[j] + t * this.yOrig[j + 1] + t * (1 - t) * (this.a[j] * (1 - t) + this.b[j] * t); // equation 9
-            return y;
-        }
-
-        #endregion
-
-        #region Fit*
-
-        /// <summary>
-        ///     Fit x,y and then eval at points xs and return the corresponding y's.
-        ///     This does the "natural spline" style for ends.
-        ///     This can extrapolate off the ends of the splines.
-        ///     You must provide points in X sort order.
+        ///     Static all-in-one method to fit the splines and evaluate at X coordinates.
         /// </summary>
         /// <param name="x">Input. X coordinates to fit.</param>
         /// <param name="y">Input. Y coordinates to fit.</param>
@@ -150,15 +87,81 @@ namespace Filter.Algorithms
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public double[] FitAndEval(
+        public static double[] Compute(
             double[] x,
             double[] y,
             double[] xs,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
-            this.Fit(x, y, startSlope, endSlope);
-            return this.Eval(xs);
+            CubicSpline spline = new CubicSpline();
+            return spline.FitAndEval(x, y, xs, startSlope, endSlope);
+        }
+
+        /// <summary>
+        ///     Evaluate the spline at the specified x coordinates.
+        ///     This can extrapolate off the ends of the splines.
+        ///     You must provide X's in ascending order.
+        ///     The spline must already be computed before calling this, meaning you must have already called Fit() or
+        ///     FitAndEval().
+        /// </summary>
+        /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
+        /// <returns>The computed y values for each x.</returns>
+        public double[] Eval(double[] x)
+        {
+            this.CheckAlreadyFitted();
+
+            int n = x.Length;
+            double[] y = new double[n];
+            this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
+
+            for (int i = 0; i < n; i++)
+            {
+                // Find which spline can be used to compute this x (by simultaneous traverse)
+                int j = this.GetNextXIndex(x[i]);
+
+                // Evaluate using j'th spline
+                y[i] = this.EvalSpline(x[i], j);
+            }
+
+            return y;
+        }
+
+        /// <summary>
+        ///     Evaluate (compute) the slope of the spline at the specified x coordinates.
+        ///     This can extrapolate off the ends of the splines.
+        ///     You must provide X's in ascending order.
+        ///     The spline must already be computed before calling this, meaning you must have already called Fit() or
+        ///     FitAndEval().
+        /// </summary>
+        /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
+        /// <param name="debug">Turn on console output. Default is false.</param>
+        /// <returns>The computed y values for each x.</returns>
+        public double[] EvalSlope(double[] x, bool debug = false)
+        {
+            this.CheckAlreadyFitted();
+
+            int n = x.Length;
+            double[] qPrime = new double[n];
+            this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
+
+            for (int i = 0; i < n; i++)
+            {
+                // Find which spline can be used to compute this x (by simultaneous traverse)
+                int j = this.GetNextXIndex(x[i]);
+
+                // Evaluate using j'th spline
+                double dx = this.xOrig[j + 1] - this.xOrig[j];
+                double dy = this.yOrig[j + 1] - this.yOrig[j];
+                double t = (x[i] - this.xOrig[j]) / dx;
+
+                // From equation 5 we could also compute q' (qp) which is the slope at this x
+                qPrime[i] = dy / dx
+                            + (1 - 2 * t) * (this.a[j] * (1 - t) + this.b[j] * t) / dx
+                            + t * (1 - t) * (this.b[j] - this.a[j]) / dx;
+            }
+
+            return qPrime;
         }
 
         /// <summary>
@@ -175,9 +178,7 @@ namespace Filter.Algorithms
         public void Fit(double[] x, double[] y, double startSlope = double.NaN, double endSlope = double.NaN, bool debug = false)
         {
             if (double.IsInfinity(startSlope) || double.IsInfinity(endSlope))
-            {
                 throw new Exception("startSlope and endSlope cannot be infinity.");
-            }
 
             // Save x and y for eval
             this.xOrig = x;
@@ -249,82 +250,11 @@ namespace Filter.Algorithms
             }
         }
 
-        #endregion
-
-        #region Eval*
-
         /// <summary>
-        ///     Evaluate the spline at the specified x coordinates.
+        ///     Fit x,y and then eval at points xs and return the corresponding y's.
+        ///     This does the "natural spline" style for ends.
         ///     This can extrapolate off the ends of the splines.
-        ///     You must provide X's in ascending order.
-        ///     The spline must already be computed before calling this, meaning you must have already called Fit() or
-        ///     FitAndEval().
-        /// </summary>
-        /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
-        /// <returns>The computed y values for each x.</returns>
-        public double[] Eval(double[] x)
-        {
-            this.CheckAlreadyFitted();
-
-            int n = x.Length;
-            double[] y = new double[n];
-            this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
-
-            for (int i = 0; i < n; i++)
-            {
-                // Find which spline can be used to compute this x (by simultaneous traverse)
-                int j = this.GetNextXIndex(x[i]);
-
-                // Evaluate using j'th spline
-                y[i] = this.EvalSpline(x[i], j);
-            }
-
-            return y;
-        }
-
-        /// <summary>
-        ///     Evaluate (compute) the slope of the spline at the specified x coordinates.
-        ///     This can extrapolate off the ends of the splines.
-        ///     You must provide X's in ascending order.
-        ///     The spline must already be computed before calling this, meaning you must have already called Fit() or
-        ///     FitAndEval().
-        /// </summary>
-        /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
-        /// <param name="debug">Turn on console output. Default is false.</param>
-        /// <returns>The computed y values for each x.</returns>
-        public double[] EvalSlope(double[] x, bool debug = false)
-        {
-            this.CheckAlreadyFitted();
-
-            int n = x.Length;
-            double[] qPrime = new double[n];
-            this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
-
-            for (int i = 0; i < n; i++)
-            {
-                // Find which spline can be used to compute this x (by simultaneous traverse)
-                int j = this.GetNextXIndex(x[i]);
-
-                // Evaluate using j'th spline
-                double dx = this.xOrig[j + 1] - this.xOrig[j];
-                double dy = this.yOrig[j + 1] - this.yOrig[j];
-                double t = (x[i] - this.xOrig[j]) / dx;
-
-                // From equation 5 we could also compute q' (qp) which is the slope at this x
-                qPrime[i] = dy / dx
-                            + (1 - 2 * t) * (this.a[j] * (1 - t) + this.b[j] * t) / dx
-                            + t * (1 - t) * (this.b[j] - this.a[j]) / dx;
-            }
-
-            return qPrime;
-        }
-
-        #endregion
-
-        #region Static Methods
-
-        /// <summary>
-        ///     Static all-in-one method to fit the splines and evaluate at X coordinates.
+        ///     You must provide points in X sort order.
         /// </summary>
         /// <param name="x">Input. X coordinates to fit.</param>
         /// <param name="y">Input. Y coordinates to fit.</param>
@@ -332,15 +262,15 @@ namespace Filter.Algorithms
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public static double[] Compute(
+        public double[] FitAndEval(
             double[] x,
             double[] y,
             double[] xs,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
-            CubicSpline spline = new CubicSpline();
-            return spline.FitAndEval(x, y, xs, startSlope, endSlope);
+            this.Fit(x, y, startSlope, endSlope);
+            return this.Eval(xs);
         }
 
         /// <summary>
@@ -412,6 +342,47 @@ namespace Filter.Algorithms
             ys = ySpline.FitAndEval(dists, y, times, firstDy / dt, lastDy / dt);
         }
 
+        /// <summary>
+        ///     Throws if Fit has not been called.
+        /// </summary>
+        private void CheckAlreadyFitted()
+        {
+            if (this.a == null)
+                throw new Exception("Fit must be called before you can evaluate.");
+        }
+
+        /// <summary>
+        ///     Evaluate the specified x value using the specified spline.
+        /// </summary>
+        /// <param name="x">The x value.</param>
+        /// <param name="j">Which spline to use.</param>
+        /// <returns>The y value.</returns>
+        private double EvalSpline(double x, int j)
+        {
+            double dx = this.xOrig[j + 1] - this.xOrig[j];
+            double t = (x - this.xOrig[j]) / dx;
+            double y = (1 - t) * this.yOrig[j] + t * this.yOrig[j + 1] + t * (1 - t) * (this.a[j] * (1 - t) + this.b[j] * t); // equation 9
+            return y;
+        }
+
+        /// <summary>
+        ///     Find where in xOrig the specified x falls, by simultaneous traverse.
+        ///     This allows xs to be less than x[0] and/or greater than x[n-1]. So allows extrapolation.
+        ///     This keeps state, so requires that x be sorted and xs called in ascending order, and is not multi-thread safe.
+        /// </summary>
+        private int GetNextXIndex(double x)
+        {
+            if (x < this.xOrig[this._lastIndex] && this._lastIndex > 0)
+                throw new ArgumentException("The X values to evaluate must be sorted.");
+
+            while (this._lastIndex < this.xOrig.Length - 2 && x > this.xOrig[this._lastIndex + 1])
+            {
+                this._lastIndex++;
+            }
+
+            return this._lastIndex;
+        }
+
         private static void NormalizeVector(ref double dx, ref double dy)
         {
             if (!double.IsNaN(dx) && !double.IsNaN(dy))
@@ -434,7 +405,5 @@ namespace Filter.Algorithms
                 dx = dy = double.NaN;
             }
         }
-
-        #endregion
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Filter.Algorithms;
 
 namespace Filter.Series
@@ -19,15 +18,17 @@ namespace Filter.Series
             this.N = n;
         }
 
-        /// <summary>
-        ///     The Samplerate used for computing the frequency values.
-        /// </summary>
-        public double SampleRate { get; }
+        public override int Length => (this.N >> 1) + 1;
 
         /// <summary>
         ///     The FFT length N (in time domain) used for computing the frequency values.
         /// </summary>
         public int N { get; }
+
+        /// <summary>
+        ///     The Samplerate used for computing the frequency values.
+        /// </summary>
+        public double SampleRate { get; }
 
         /// <summary>
         ///     Compares the <see cref="FftSeries" /> to an other <see cref="ISeries" /> for equality.
@@ -37,22 +38,9 @@ namespace Filter.Series
         public override bool Equals(ISeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             return this.Equals(other as FftSeries);
         }
-
-        /// <summary>
-        ///     Computes the Hashcode for the <see cref="FftSeries" />.
-        /// </summary>
-        /// <returns>The Hashcode.</returns>
-        public override int GetHashCode()
-        {
-            return HashHelper.GetHashCode(this.N, this.SampleRate);
-        }
-
-        public override int Length => (this.N >> 1) + 1;
 
         /// <summary>
         ///     Compares the <see cref="FftSeries" /> to an other <see cref="FftSeries" /> for equality.
@@ -62,14 +50,19 @@ namespace Filter.Series
         public bool Equals(FftSeries other)
         {
             if (other?.N != this.N)
-            {
                 return false;
-            }
             if (other.SampleRate != this.SampleRate)
-            {
                 return false;
-            }
             return true;
+        }
+
+        /// <summary>
+        ///     Computes the Hashcode for the <see cref="FftSeries" />.
+        /// </summary>
+        /// <returns>The Hashcode.</returns>
+        public override int GetHashCode()
+        {
+            return HashHelper.GetHashCode(this.N, this.SampleRate);
         }
     }
 }

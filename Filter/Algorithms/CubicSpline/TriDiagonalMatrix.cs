@@ -27,7 +27,7 @@
 
 using System;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.CubicSpline
 {
     /// <summary>
     ///     A tri-diagonal matrix has non-zero entries only on the main diagonal, the diagonal above the main (super), and the
@@ -82,17 +82,11 @@ namespace Filter.Algorithms
                 int di = row - col;
 
                 if (di == 0)
-                {
                     return this.B[row];
-                }
                 if (di == -1)
-                {
                     return this.C[row];
-                }
                 if (di == 1)
-                {
                     return this.A[row];
-                }
                 return 0;
             }
             set
@@ -100,21 +94,13 @@ namespace Filter.Algorithms
                 int di = row - col;
 
                 if (di == 0)
-                {
                     this.B[row] = value;
-                }
                 else if (di == -1)
-                {
                     this.C[row] = value;
-                }
                 else if (di == 1)
-                {
                     this.A[row] = value;
-                }
                 else
-                {
                     throw new ArgumentException("Only the main, super, and sub diagonals can be set.");
-                }
             }
         }
 
@@ -140,9 +126,7 @@ namespace Filter.Algorithms
             int n = this.N;
 
             if (d.Length != n)
-            {
                 throw new ArgumentException("The input d is not the same size as this matrix.");
-            }
 
             // cPrime
             double[] cPrime = new double[n];

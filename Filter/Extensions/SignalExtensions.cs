@@ -22,11 +22,11 @@ namespace Filter.Extensions
         public static ISignal Add(this ISignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
-            return new InfiniteSignal((start, length) => s1.GetWindowedSamples(start, length).Add(s2.GetWindowedSamples(start, length)), s1.SampleRate)
+            return new InfiniteSignal(
+                (start, length) => s1.GetWindowedSamples(start, length).Add(s2.GetWindowedSamples(start, length)),
+                s1.SampleRate)
             {
                 DisplayName = "addition result"
             };
@@ -42,9 +42,7 @@ namespace Filter.Extensions
         public static IFiniteSignal Add(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
             return new FiniteSignal(
                 s1.Signal.AddFullWithOffset(s2.Signal, s2.Start - s1.Start).ToReadOnlyList(),
@@ -62,11 +60,12 @@ namespace Filter.Extensions
         public static IFiniteSignal Convolve(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
-            return new FiniteSignal(Dsp.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start) {DisplayName = "convolution result"};
+            return new FiniteSignal(TimeDomainOperations.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start)
+            {
+                DisplayName = "convolution result"
+            };
         }
 
         /// <summary>
@@ -79,11 +78,12 @@ namespace Filter.Extensions
         public static IEnumerableSignal Convolve(this IFiniteSignal s1, IEnumerableSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
-            return new EnumerableSignal(Dsp.Convolve(s2.Signal, s1.Signal), s1.SampleRate, s1.Start + s2.Start) {DisplayName = "convolution result"};
+            return new EnumerableSignal(TimeDomainOperations.Convolve(s2.Signal, s1.Signal), s1.SampleRate, s1.Start + s2.Start)
+            {
+                DisplayName = "convolution result"
+            };
         }
 
         /// <summary>
@@ -96,9 +96,7 @@ namespace Filter.Extensions
         public static ISignal Convolve(this IFiniteSignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
             return new InfiniteSignal(
                 (start, length) =>
@@ -136,11 +134,12 @@ namespace Filter.Extensions
         public static IFiniteSignal CrossCorrelate(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
-            return new FiniteSignal(Dsp.CrossCorrelate(s1.Signal, s2.Signal), s1.SampleRate, s1.Start - s2.Start) {DisplayName = "cross correlation"};
+            return new FiniteSignal(TimeDomainOperations.CrossCorrelate(s1.Signal, s2.Signal), s1.SampleRate, s1.Start - s2.Start)
+            {
+                DisplayName = "cross correlation"
+            };
         }
 
         /// <summary>
@@ -153,11 +152,9 @@ namespace Filter.Extensions
         public static IEnumerableSignal CrossCorrelate(this IFiniteSignal s1, IEnumerableSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
-            return new EnumerableSignal(Dsp.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
+            return new EnumerableSignal(TimeDomainOperations.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
             };
@@ -174,14 +171,10 @@ namespace Filter.Extensions
         public static IFiniteSignal GetWindowedSignal(this ISignal signal, int start, int length)
         {
             if (signal == null)
-            {
                 throw new ArgumentNullException(nameof(signal));
-            }
 
             if (length < 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(length));
-            }
 
             return new FiniteSignal(signal.GetWindowedSamples(start, length).ToReadOnlyList(), signal.SampleRate, start);
         }
@@ -196,9 +189,7 @@ namespace Filter.Extensions
         public static IFiniteSignal Multiply(this IFiniteSignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
             return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
             {
@@ -228,9 +219,7 @@ namespace Filter.Extensions
         public static IFiniteSignal Multiply(this IFiniteSignal s1, IFiniteSignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
             int start;
             IReadOnlyList<double> signal;
@@ -258,9 +247,7 @@ namespace Filter.Extensions
         public static ISignal Multiply(this ISignal s1, ISignal s2)
         {
             if (s1.SampleRate != s2.SampleRate)
-            {
                 throw new SamplerateMismatchException();
-            }
 
             return new InfiniteSignal(
                 (start, length) => s1.GetWindowedSamples(start, length).Multiply(s2.GetWindowedSamples(start, length)),
@@ -297,14 +284,10 @@ namespace Filter.Extensions
         public static IEnumerableSignal Process(this IEnumerableSignal signal, Func<IEnumerable<double>, IEnumerable<double>> function)
         {
             if (signal == null)
-            {
                 throw new ArgumentNullException(nameof(signal));
-            }
 
             if (function == null)
-            {
                 throw new ArgumentNullException(nameof(function));
-            }
 
             return new EnumerableSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
         }
@@ -319,14 +302,10 @@ namespace Filter.Extensions
         public static IFiniteSignal Process(this IFiniteSignal signal, IFiniteFilter filter)
         {
             if (signal == null)
-            {
                 throw new ArgumentNullException(nameof(signal));
-            }
 
             if (filter == null)
-            {
                 throw new ArgumentNullException(nameof(filter));
-            }
 
             return signal.Process(filter.Process);
         }
@@ -341,14 +320,10 @@ namespace Filter.Extensions
         public static IEnumerableSignal Process(this IEnumerableSignal signal, IFilter filter)
         {
             if (signal == null)
-            {
                 throw new ArgumentNullException(nameof(signal));
-            }
 
             if (filter == null)
-            {
                 throw new ArgumentNullException(nameof(filter));
-            }
 
             return signal.Process(filter.Process);
         }
@@ -363,14 +338,10 @@ namespace Filter.Extensions
         public static IFiniteSignal Process(this IFiniteSignal signal, Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
         {
             if (signal == null)
-            {
                 throw new ArgumentNullException(nameof(signal));
-            }
 
             if (function == null)
-            {
                 throw new ArgumentNullException(nameof(function));
-            }
 
             return new FiniteSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
         }

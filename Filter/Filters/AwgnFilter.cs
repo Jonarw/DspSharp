@@ -61,7 +61,7 @@ namespace Filter.Filters
         /// <returns></returns>
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
         {
-            return input.Add(Dsp.WhiteNoise().Multiply(this.Sigma));
+            return input.Add(SignalGenerators.WhiteNoise().Multiply(this.Sigma));
         }
     }
 }

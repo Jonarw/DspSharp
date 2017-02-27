@@ -17,9 +17,7 @@ namespace Filter.Series
         public static ISeries Merge(ISeries s1, ISeries s2)
         {
             if (s1.Equals(s2))
-            {
                 return s1;
-            }
             var values = s1.Values.Union(s2.Values).OrderBy(m => m);
 
             return new CustomSeries(values, s1.IsLogarithmic && s2.IsLogarithmic);

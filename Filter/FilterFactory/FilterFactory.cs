@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using Filter.Collections;
 using Filter.Filters;
 using Filter.LtiFilters;
 using Filter.Signal;
-using UmtUtilities.Collections;
 
 namespace Filter
 {

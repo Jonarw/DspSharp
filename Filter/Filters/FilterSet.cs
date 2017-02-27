@@ -2,7 +2,6 @@
 using System.Collections.Specialized;
 using System.Linq;
 using Filter.Collections;
-using UmtUtilities.Collections;
 
 namespace Filter.Filters
 {

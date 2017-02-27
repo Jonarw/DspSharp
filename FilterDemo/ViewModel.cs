@@ -5,12 +5,13 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Filter;
 using Filter.Algorithms;
+using Filter.Algorithms.FftwProvider;
+using Filter.Collections;
 using Filter.Extensions;
 using Filter.LtiFilters;
 using Filter.Signal;
 using FilterPlot;
 using FilterTest.SignalFactory;
-using UmtUtilities.Collections;
 
 namespace FilterTest
 {
@@ -29,7 +30,6 @@ namespace FilterTest
 
         public ViewModel()
         {
-            return;
             this.ImpulseResponsePlot = new ImpulseResponsePlot();
             this.MagnitudePlot = new MagnitudePlot();
             this.PhasePlot = new PhasePlot();
@@ -216,7 +216,7 @@ namespace FilterTest
                     var filteredsignal = esignal;
                     foreach (var filter in this.SelectedFilters)
                     {
-                        filteredsignal = filter.Process(filteredsignal);
+                        filteredsignal = filteredsignal.Process(filter);
                     }
 
                     if (filteredsignal != signal)

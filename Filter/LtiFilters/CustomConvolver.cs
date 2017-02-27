@@ -6,7 +6,6 @@ using Filter.Collections;
 using Filter.Extensions;
 using Filter.Signal;
 using PropertyTools.DataAnnotations;
-using UmtUtilities.Collections;
 
 namespace Filter.LtiFilters
 {

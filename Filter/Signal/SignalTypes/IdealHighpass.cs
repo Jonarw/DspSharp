@@ -20,7 +20,7 @@ namespace Filter.Signal
         /// <param name="fc">The corner frequency.</param>
         /// <exception cref="System.Exception"></exception>
         public IdealHighpass(double sampleRate, double fc)
-            : base(time => (time == 0 ? 1.0 : 0.0) - Dsp.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate)
+            : base(time => (time == 0 ? 1.0 : 0.0) - Mathematic.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate)
         {
             if ((fc < 0) || (fc > sampleRate / 2))
             {

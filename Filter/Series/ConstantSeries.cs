@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Filter.Extensions;
 
 namespace Filter.Series
@@ -25,15 +22,6 @@ namespace Filter.Series
         /// </summary>
         public double Frequency { get; }
 
-        /// <summary>
-        ///     Computes the Hashcode for the <see cref="ConstantSeries" />.
-        /// </summary>
-        /// <returns>The Hashcode.</returns>
-        public override int GetHashCode()
-        {
-            return this.Frequency.GetHashCode();
-        }
-
         public override int Length => 1;
 
         /// <summary>
@@ -44,9 +32,7 @@ namespace Filter.Series
         public override bool Equals(ISeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             return this.Equals(other as ConstantSeries);
         }
 
@@ -58,16 +44,21 @@ namespace Filter.Series
         public bool Equals(ConstantSeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
 
             if (other.Frequency != this.Frequency)
-            {
                 return false;
-            }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Computes the Hashcode for the <see cref="ConstantSeries" />.
+        /// </summary>
+        /// <returns>The Hashcode.</returns>
+        public override int GetHashCode()
+        {
+            return this.Frequency.GetHashCode();
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Filter.Algorithms;
 
-namespace Filter
+namespace Filter.CircularBuffers
 {
     /// <summary>
     ///     Represents a circular buffer.
@@ -10,7 +11,7 @@ namespace Filter
     /// <typeparam name="T"></typeparam>
     public class CircularBuffer<T>
     {
-        private T[] storage;
+        private readonly T[] storage;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CircularBuffer{T}" /> class.
@@ -24,62 +25,18 @@ namespace Filter
         /// <summary>
         ///     Gets or sets the length.
         /// </summary>
-        public int Length
-        {
-            get { return this.storage.Length; }
-            set
-            {
-                if (value != this.Length)
-                {
-                    this.storage = this.PeekRange(value).ToArray();
-                    this.Position = 0;
-                }
-            }
-        }
+        public int Length => this.storage.Length;
 
         private int Position { get; set; }
 
         /// <summary>
         ///     Retrieves an item without changing the current position.
         /// </summary>
-        /// <param name="position">The position of the item where 0 is the current item, 1 the item before that and so on.</param>
+        /// <param name="position">The position of the item where 0 is the current item, -1 the item before that and +1 the next item to come.</param>
         /// <returns></returns>
         public T Peek(int position)
         {
-            return this.storage[(this.Position - position + this.Length * 1000) % this.Length];
-        }
-
-        /// <summary>
-        ///     Retrieves a range of the last items, stopping at the item before the current item, without changing the current
-        ///     position.
-        /// </summary>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
-        public T[] PeekRange(int length)
-        {
-            var ret = new T[length];
-
-            int actualLength = length % this.Length;
-
-            if (this.Position < actualLength - 1)
-            {
-                int remaining = actualLength - this.Position - 1;
-                Array.Copy(this.storage, 0, ret, remaining, this.Position + 1);
-                Array.Copy(this.storage, this.Length - remaining - 1, ret, 0, remaining);
-            }
-            else
-            {
-                if (actualLength == 0)
-                {
-                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, this.Length);
-                }
-                else
-                {
-                    Array.Copy(this.storage, this.Position - actualLength, ret, 0, actualLength);
-                }
-            }
-
-            return ret;
+            return this.storage[Mathematic.Mod(this.Position + position, this.Length)];
         }
 
         /// <summary>
@@ -121,9 +78,7 @@ namespace Filter
                 Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
 
                 if (remaining < this.Length)
-                {
                     Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
-                }
             }
 
             this.Position = (this.Position + itemarray.Length) % this.Length;

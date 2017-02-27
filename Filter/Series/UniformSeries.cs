@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 
 namespace Filter.Series
 {
@@ -19,8 +17,8 @@ namespace Filter.Series
         /// <param name="logarithmic">Determines whether the series should be on a linear or a logarithmic scale.</param>
         public UniformSeries(double from, double to, int length, bool logarithmic = false) :
             base(logarithmic
-                ? Dsp.LogSeries(from, to, length)
-                : Dsp.LinSeries(from, to, length),
+                    ? SignalGenerators.LogSeries(from, to, length)
+                    : SignalGenerators.LinSeries(from, to, length),
                 logarithmic)
         {
             this.From = from;
@@ -33,11 +31,12 @@ namespace Filter.Series
         /// </summary>
         public double From { get; }
 
+        public override int Length { get; }
+
         /// <summary>
         ///     The last value of the series.
         /// </summary>
         public double To { get; }
-        public override int Length { get; }
 
         /// <summary>
         ///     Compares the <see cref="UniformSeries" /> to an other <see cref="ISeries" /> for equality.
@@ -47,19 +46,8 @@ namespace Filter.Series
         public override bool Equals(ISeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             return this.Equals(other as UniformSeries);
-        }
-
-        /// <summary>
-        ///     Computes the Hashcode for the <see cref="UniformSeries" />.
-        /// </summary>
-        /// <returns>The Hashcode.</returns>
-        public override int GetHashCode()
-        {
-            return HashHelper.GetHashCode(this.From, this.To, this.Length, this.IsLogarithmic);
         }
 
         /// <summary>
@@ -70,27 +58,26 @@ namespace Filter.Series
         public bool Equals(UniformSeries other)
         {
             if (other == null)
-            {
                 return false;
-            }
             if (other.Length != this.Length)
-            {
                 return false;
-            }
             if (Math.Abs(other.From - this.From) > 1e-9)
-            {
                 return false;
-            }
             if (Math.Abs(other.To - this.To) > 1e-9)
-            {
                 return false;
-            }
             if (other.IsLogarithmic != this.IsLogarithmic)
-            {
                 return false;
-            }
 
             return true;
+        }
+
+        /// <summary>
+        ///     Computes the Hashcode for the <see cref="UniformSeries" />.
+        /// </summary>
+        /// <returns>The Hashcode.</returns>
+        public override int GetHashCode()
+        {
+            return HashHelper.GetHashCode(this.From, this.To, this.Length, this.IsLogarithmic);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Filter.Signal
         /// <param name="sampleRate">The sample rate.</param>
         /// <param name="fc">The corner frequency.</param>
         /// <exception cref="System.Exception"></exception>
-        public IdealLowpass(double sampleRate, double fc) : base(time => Dsp.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate)
+        public IdealLowpass(double sampleRate, double fc) : base(time => Mathematic.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate)
         {
             if ((fc < 0) || (fc > sampleRate / 2))
             {

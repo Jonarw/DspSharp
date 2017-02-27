@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Filter.Algorithms
+namespace Filter.Algorithms.FftwProvider
 {
-    public abstract class FftPlan
+    public abstract unsafe class FftPlan
     {
-        protected FftPlan(int fftLength, IntPtr plan)
+        protected FftPlan(int fftLength, void* plan)
         {
             this.FftLength = fftLength;
             this.Plan = plan;
@@ -12,9 +12,9 @@ namespace Filter.Algorithms
         }
 
         public int FftLength { get; }
-        public IntPtr Plan { get; }
+        public void* Plan { get; }
 
-        public abstract void ExecuteUnsafe(IntPtr input, IntPtr output);
+        public abstract void ExecuteUnsafe(void* input, void* output);
 
         ~FftPlan()
         {
