@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Filter.Algorithms;
 using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Filter.Algorithms;
 using Filter.Extensions;
 
 namespace Filter.AudioSource

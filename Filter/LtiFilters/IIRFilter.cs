@@ -67,7 +67,7 @@ namespace Filter.LtiFilters
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return TimeDomainOperations.IirFilter(signal, this.A, this.B);
+            return TimeDomain.IirFilter(signal, this.A, this.B);
         }
 
         protected void SetCoefficients(IEnumerable<double> a, IEnumerable<double> b)

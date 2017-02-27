@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Filter.Algorithms
+namespace Filter.Helpers
 {
     /// <summary>
     ///     Provides a quick way to generate hash codes for implementing the .GetHashCode() method.

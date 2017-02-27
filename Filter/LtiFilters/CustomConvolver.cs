@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using Filter.Algorithms;
 using Filter.Collections;
 using Filter.Extensions;
 using Filter.Signal;

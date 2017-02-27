@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Controls;
+using Filter.Algorithms;
 using Filter.Extensions;
 
 namespace FilterTest

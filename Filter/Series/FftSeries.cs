@@ -1,4 +1,5 @@
 using Filter.Algorithms;
+using Filter.Helpers;
 
 namespace Filter.Series
 {

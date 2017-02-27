@@ -1,3 +1,4 @@
+using Filter.Algorithms;
 using Filter.Extensions;
 
 namespace Filter.Series

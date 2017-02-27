@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Filter.Algorithms;
 using Filter.Algorithms.FftwProvider;
 using Filter.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

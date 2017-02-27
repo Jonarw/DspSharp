@@ -6,7 +6,7 @@ using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
-    public static class DataInterpolation
+    public static class Interpolation
     {
         /// <summary>
         ///     Interpolates a data series with x and y values to a new series with the specified x values.
@@ -161,12 +161,12 @@ namespace Filter.Algorithms
 
             var magnitude = y.Magitude().ToReadOnlyList();
             var phase = y.Phase().ToReadOnlyList();
-            phase = FrequencyDomainOperations.UnwrapPhase(phase).ToReadOnlyList();
+            phase = FrequencyDomain.UnwrapPhase(phase).ToReadOnlyList();
 
             var smagnitude = AdaptiveInterpolation(x, magnitude, targetX, logX);
             var sphase = AdaptiveInterpolation(x, phase, targetX, logX);
 
-            return FrequencyDomainOperations.PolarToComplex(smagnitude, sphase);
+            return FrequencyDomain.PolarToComplex(smagnitude, sphase);
         }
 
         /// <summary>
@@ -214,12 +214,12 @@ namespace Filter.Algorithms
 
             var magnitude = y.Magitude();
             var phase = y.Phase();
-            phase = FrequencyDomainOperations.UnwrapPhase(phase);
+            phase = FrequencyDomain.UnwrapPhase(phase);
 
             var mspline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), magnitude.ToArray(), actualTargetX.ToArray());
             var pspline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), phase.ToArray(), actualTargetX.ToArray());
 
-            return FrequencyDomainOperations.PolarToComplex(mspline, pspline);
+            return FrequencyDomain.PolarToComplex(mspline, pspline);
         }
 
         /// <summary>

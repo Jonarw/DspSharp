@@ -1,4 +1,5 @@
-﻿using Filter.CircularBuffers;
+﻿using Filter.Algorithms;
+using Filter.CircularBuffers;
 using Filter.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -118,12 +119,12 @@ namespace FilterTest
 
         private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, byte* buffer)
         {
-            FilterAssert.ListsAreReasonablyClose(UnsafeConversions.ToManagedArray((double*)buffer, 8), new[] { .1, .2, .3, .4, .5, .6, .7, .8 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] { .1, .2, .3, .4, .5, .6, .7, .8 });
         }
 
         private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, byte* buffer)
         {
-            FilterAssert.ListsAreReasonablyClose(UnsafeConversions.ToManagedArray((double*)buffer, 8), new[] { .9, .10, .11, .12, .13, .14, .15, .16 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] { .9, .10, .11, .12, .13, .14, .15, .16 });
         }
     }
 }

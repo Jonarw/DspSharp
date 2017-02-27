@@ -6,7 +6,7 @@ using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
-    public static class FrequencyDomainOperations
+    public static class FrequencyDomain
     {
         /// <summary>
         ///     Applies a time delay to a complex frequency spectrum by representing the constant group delay in the complex phase

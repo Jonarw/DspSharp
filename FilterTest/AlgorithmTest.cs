@@ -20,7 +20,7 @@ namespace FilterTest
             var y = new[] {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
             var x2 = new[] {0.0, 1.0, 2.0, 3, 4, 5, 6, 7, 8, 9, 10};
 
-            var y2 = DataInterpolation.AdaptiveInterpolation(x, y, x2).ToReadOnlyList();
+            var y2 = Interpolation.AdaptiveInterpolation(x, y, x2).ToReadOnlyList();
 
             Assert.IsTrue(y2.Count == x2.Length);
             Assert.IsTrue(y2[0] == y[0]);
@@ -28,13 +28,13 @@ namespace FilterTest
             Assert.IsTrue(y2[y2.Count - 1] < 9.0);
             Assert.IsTrue(y2[y2.Count - 1] > 8.0);
 
-            Assert.IsTrue(DataInterpolation.AdaptiveInterpolation(x, y, new List<double>()).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(Interpolation.AdaptiveInterpolation(x, y, new List<double>()).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(x, y, null).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(x, (IReadOnlyList<double>)null, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(null, y, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.AdaptiveInterpolation(x2, y, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.AdaptiveInterpolation(new List<double>(), new List<double>(), x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(x, y, null).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(x, (IReadOnlyList<double>)null, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(null, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.AdaptiveInterpolation(x2, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.AdaptiveInterpolation(new List<double>(), new List<double>(), x2).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace FilterTest
 
             var y = m.Zip(p, Complex.FromPolarCoordinates).ToReadOnlyList();
 
-            var y2 = DataInterpolation.AdaptiveInterpolation(x, y, x2).ToReadOnlyList();
+            var y2 = Interpolation.AdaptiveInterpolation(x, y, x2).ToReadOnlyList();
 
             Assert.IsTrue(y2.Count == x2.Length);
             Assert.IsTrue(y2[0] == y[0]);
@@ -68,13 +68,13 @@ namespace FilterTest
             Assert.IsTrue(y2[y2.Count - 1].Magnitude < 9.0);
             Assert.IsTrue(y2[y2.Count - 1].Magnitude > 8.0);
 
-            Assert.IsTrue(DataInterpolation.AdaptiveInterpolation(x, y, new List<double>()).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(Interpolation.AdaptiveInterpolation(x, y, new List<double>()).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(x, y, null).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(x, (IReadOnlyList<Complex>)null, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.AdaptiveInterpolation(null, y, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.AdaptiveInterpolation(x2, y, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.AdaptiveInterpolation(new List<double>(), new List<Complex>(), x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(x, y, null).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(x, (IReadOnlyList<Complex>)null, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.AdaptiveInterpolation(null, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.AdaptiveInterpolation(x2, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.AdaptiveInterpolation(new List<double>(), new List<Complex>(), x2).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -102,18 +102,18 @@ namespace FilterTest
             var y = new[] {Complex.One, Complex.One, Complex.One, Complex.One};
             Complex[] target = {Complex.ImaginaryOne, -Complex.One, Complex.One, Complex.One};
 
-            var output = FrequencyDomainOperations.ApplyDelayToSpectrum(x, y, 0.001).ToReadOnlyList();
+            var output = FrequencyDomain.ApplyDelayToSpectrum(x, y, 0.001).ToReadOnlyList();
 
             FilterAssert.ListsAreReasonablyClose(target, output);
 
             var y2 = new[] {4.0 * Complex.One, 5, 6, 7};
-            output = FrequencyDomainOperations.ApplyDelayToSpectrum(x, y2, 2).ToReadOnlyList();
+            output = FrequencyDomain.ApplyDelayToSpectrum(x, y2, 2).ToReadOnlyList();
             Assert.IsTrue(output.Count == x.Length);
 
-            Assert.IsTrue(FrequencyDomainOperations.ApplyDelayToSpectrum(new List<double>(), y, 1).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.ApplyDelayToSpectrum(new List<double>(), y, 1).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.ApplyDelayToSpectrum(null, y, 2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.ApplyDelayToSpectrum(x, null, 2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.ApplyDelayToSpectrum(null, y, 2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.ApplyDelayToSpectrum(x, null, 2).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -194,18 +194,18 @@ namespace FilterTest
                 -197.237014407641e-006
             };
 
-            var result = FrequencyDomainOperations.CalculateGroupDelay(frequencies, phase).ToReadOnlyList();
+            var result = FrequencyDomain.CalculateGroupDelay(frequencies, phase).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result, 1e-4);
 
             var p2 = new[] {4.0, 5, 6, 7};
-            result = FrequencyDomainOperations.CalculateGroupDelay(frequencies, p2).ToReadOnlyList();
+            result = FrequencyDomain.CalculateGroupDelay(frequencies, p2).ToReadOnlyList();
             Assert.IsTrue(result.Count == p2.Length);
 
-            Assert.IsTrue(FrequencyDomainOperations.CalculateGroupDelay(new List<double>(), phase).ToReadOnlyList().Count == 0);
-            Assert.IsTrue(FrequencyDomainOperations.CalculateGroupDelay(frequencies, new List<double>()).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.CalculateGroupDelay(new List<double>(), phase).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.CalculateGroupDelay(frequencies, new List<double>()).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.CalculateGroupDelay(frequencies, null).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.CalculateGroupDelay(null, phase).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.CalculateGroupDelay(frequencies, null).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.CalculateGroupDelay(null, phase).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -213,17 +213,17 @@ namespace FilterTest
         {
             var x = new[] {1.0, 2, 3, 4, 5, 6, 7, 8};
 
-            var output = TimeDomainOperations.CircularShift(x, 0).ToReadOnlyList();
+            var output = TimeDomain.CircularShift(x, 0).ToReadOnlyList();
             FilterAssert.ListsAreEqual(x, output);
 
-            output = TimeDomainOperations.CircularShift(x, -2).ToReadOnlyList();
+            output = TimeDomain.CircularShift(x, -2).ToReadOnlyList();
             FilterAssert.ListsAreEqual(new[] {7, 8, 1.0, 2, 3, 4, 5, 6}, output);
 
-            output = TimeDomainOperations.CircularShift(x, 2).ToReadOnlyList();
+            output = TimeDomain.CircularShift(x, 2).ToReadOnlyList();
             FilterAssert.ListsAreEqual(new[] {3, 4, 5, 6, 7, 8, 1.0, 2}, output);
 
-            Assert.IsTrue(TimeDomainOperations.CircularShift(new List<double>(), 2).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.CircularShift<double>(null, 2).ToReadOnlyList());
+            Assert.IsTrue(TimeDomain.CircularShift(new List<double>(), 2).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.CircularShift<double>(null, 2).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -231,19 +231,19 @@ namespace FilterTest
         {
             bool integer;
 
-            var result = TimeDomainOperations.ConvertTimeToSamples(1, 44100, out integer);
+            var result = TimeDomain.ConvertTimeToSamples(1, 44100, out integer);
             Assert.IsTrue(integer);
             Assert.IsTrue(result == 44100);
 
-            result = TimeDomainOperations.ConvertTimeToSamples(44100.6 / 44100, 44100, out integer);
+            result = TimeDomain.ConvertTimeToSamples(44100.6 / 44100, 44100, out integer);
             Assert.IsTrue(!integer);
             Assert.IsTrue(result == 44101);
 
-            result = TimeDomainOperations.ConvertTimeToSamples(-1, 44100, out integer);
+            result = TimeDomain.ConvertTimeToSamples(-1, 44100, out integer);
             Assert.IsTrue(integer);
             Assert.IsTrue(result == -44100);
 
-            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => TimeDomainOperations.ConvertTimeToSamples(1, -1, out integer));
+            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => TimeDomain.ConvertTimeToSamples(1, -1, out integer));
         }
 
         [TestMethod]
@@ -302,14 +302,14 @@ namespace FilterTest
                 0.025995998202038
             };
 
-            var result = TimeDomainOperations.Convolve(x, y);
+            var result = TimeDomain.Convolve(x, y);
 
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            Assert.IsTrue(TimeDomainOperations.Convolve(new List<double>(), y).Count == 0);
-            Assert.IsTrue(TimeDomainOperations.Convolve(x, new List<double>()).Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.Convolve(null, y));
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.Convolve(x, null));
+            Assert.IsTrue(TimeDomain.Convolve(new List<double>(), y).Count == 0);
+            Assert.IsTrue(TimeDomain.Convolve(x, new List<double>()).Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.Convolve(null, y));
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.Convolve(x, null));
         }
 
         [TestMethod]
@@ -406,22 +406,22 @@ namespace FilterTest
                 0.037485314888463
             };
 
-            var result = TimeDomainOperations.Convolve(y, x).ToReadOnlyList();
+            var result = TimeDomain.Convolve(y, x).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            result = TimeDomainOperations.Convolve(y, x2).ToReadOnlyList();
+            result = TimeDomain.Convolve(y, x2).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target2, result);
 
-            result = TimeDomainOperations.Convolve((IEnumerable<double>)x, y.ToReadOnlyList()).ToReadOnlyList();
+            result = TimeDomain.Convolve((IEnumerable<double>)x, y.ToReadOnlyList()).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            result = TimeDomainOperations.Convolve((IEnumerable<double>)x2, y.ToReadOnlyList()).ToReadOnlyList();
+            result = TimeDomain.Convolve((IEnumerable<double>)x2, y.ToReadOnlyList()).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target2, result);
 
-            Assert.IsTrue(TimeDomainOperations.Convolve(Enumerable.Empty<double>(), x).ToReadOnlyList().Count == 0);
-            Assert.IsTrue(TimeDomainOperations.Convolve(y, new List<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.Convolve(null, x).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.Convolve(y, null).ToReadOnlyList());
+            Assert.IsTrue(TimeDomain.Convolve(Enumerable.Empty<double>(), x).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(TimeDomain.Convolve(y, new List<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.Convolve(null, x).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.Convolve(y, null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -480,14 +480,14 @@ namespace FilterTest
                 0.286753103662751
             };
 
-            var result = TimeDomainOperations.CrossCorrelate(x, y);
+            var result = TimeDomain.CrossCorrelate(x, y);
 
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            Assert.IsTrue(TimeDomainOperations.CrossCorrelate(new List<double>(), y).Count == 0);
-            Assert.IsTrue(TimeDomainOperations.CrossCorrelate(x, new List<double>()).Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.CrossCorrelate(null, y));
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.CrossCorrelate(x, null));
+            Assert.IsTrue(TimeDomain.CrossCorrelate(new List<double>(), y).Count == 0);
+            Assert.IsTrue(TimeDomain.CrossCorrelate(x, new List<double>()).Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.CrossCorrelate(null, y));
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.CrossCorrelate(x, null));
         }
 
         [TestMethod]
@@ -546,14 +546,14 @@ namespace FilterTest
                 0.286753103662751
             };
 
-            var result = TimeDomainOperations.CrossCorrelate((IEnumerable<double>)x, y).ToReadOnlyList();
+            var result = TimeDomain.CrossCorrelate((IEnumerable<double>)x, y).ToReadOnlyList();
 
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            Assert.IsTrue(TimeDomainOperations.CrossCorrelate(Enumerable.Empty<double>(), y).ToReadOnlyList().Count == 0);
-            Assert.IsTrue(TimeDomainOperations.CrossCorrelate((IEnumerable<double>)x, new List<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.CrossCorrelate((IEnumerable<double>)null, y).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.CrossCorrelate((IEnumerable<double>)x, null).ToReadOnlyList());
+            Assert.IsTrue(TimeDomain.CrossCorrelate(Enumerable.Empty<double>(), y).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(TimeDomain.CrossCorrelate((IEnumerable<double>)x, new List<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.CrossCorrelate((IEnumerable<double>)null, y).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.CrossCorrelate((IEnumerable<double>)x, null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -562,10 +562,10 @@ namespace FilterTest
             var input = new[] {0, 20, 6.020599913279624};
             var target = new[] {1.0, 10, 2};
 
-            var result = FrequencyDomainOperations.DbToLinear(input).ToReadOnlyList();
+            var result = FrequencyDomain.DbToLinear(input).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
-            Assert.IsTrue(FrequencyDomainOperations.DbToLinear(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.DbToLinear(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.DbToLinear(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.DbToLinear(null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -574,10 +574,10 @@ namespace FilterTest
             var input = new[] {0.0, -90, 180, 270};
             var target = new[] {0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI};
 
-            var result = FrequencyDomainOperations.DegToRad(input).ToReadOnlyList();
+            var result = FrequencyDomain.DegToRad(input).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
-            Assert.IsTrue(FrequencyDomainOperations.DegToRad(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.DegToRad(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.DegToRad(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.DegToRad(null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -603,18 +603,18 @@ namespace FilterTest
         {
             var x = new[] {1.0, 2, 3, 4, 5, 6, 7, 8};
 
-            var output = SignalGenerators.GenerateSlope(x, 2, 7, -10, 20).ToReadOnlyList();
+            var output = SignalGenerators.Slope(x, 2, 7, -10, 20).ToReadOnlyList();
 
             Assert.IsTrue(output.Count == x.Length);
             Assert.IsTrue(output[0] == -10);
             Assert.IsTrue(output[output.Count - 1] == 20);
             FilterAssert.ListIsMonotonouslyRising(output);
 
-            var output2 = SignalGenerators.GenerateSlope(x, 7, 2, 20, -10).ToReadOnlyList();
+            var output2 = SignalGenerators.Slope(x, 7, 2, 20, -10).ToReadOnlyList();
             FilterAssert.ListsAreEqual(output, output2);
 
-            Assert.IsTrue(SignalGenerators.GenerateSlope(new List<double>(), 2, 7, 10, 20).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => SignalGenerators.GenerateSlope(null, 2, 7, 10, 20).ToReadOnlyList());
+            Assert.IsTrue(SignalGenerators.Slope(new List<double>(), 2, 7, 10, 20).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => SignalGenerators.Slope(null, 2, 7, 10, 20).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -696,20 +696,20 @@ namespace FilterTest
                 -0.011180689296962
             };
 
-            var result = TimeDomainOperations.IirFilter(input, a, b).Take(20).ToReadOnlyList();
+            var result = TimeDomain.IirFilter(input, a, b).Take(20).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            FilterAssert.ListContainsPlausibleValues(TimeDomainOperations.IirFilter(input, new[] {1.0}, b).Take(20).ToReadOnlyList());
+            FilterAssert.ListContainsPlausibleValues(TimeDomain.IirFilter(input, new[] {1.0}, b).Take(20).ToReadOnlyList());
 
-            FilterAssert.ListContainsOnlyZeroes(TimeDomainOperations.IirFilter(Enumerable.Empty<double>(), a, b).Take(10).ToReadOnlyList());
-            FilterAssert.ListContainsOnlyZeroes(TimeDomainOperations.IirFilter(input, a, Enumerable.Empty<double>().ToReadOnlyList()).Take(10).ToReadOnlyList());
+            FilterAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(Enumerable.Empty<double>(), a, b).Take(10).ToReadOnlyList());
+            FilterAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(input, a, Enumerable.Empty<double>().ToReadOnlyList()).Take(10).ToReadOnlyList());
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.IirFilter(null, a, b).Take(20).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.IirFilter(input, null, b).Take(20).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomainOperations.IirFilter(input, a, null).Take(20).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.IirFilter(null, a, b).Take(20).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.IirFilter(input, null, b).Take(20).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.IirFilter(input, a, null).Take(20).ToReadOnlyList());
 
-            ThrowsAssert.Throws<Exception>(() => TimeDomainOperations.IirFilter(input, Enumerable.Empty<double>().ToReadOnlyList(), b).Take(20).ToReadOnlyList());
-            ThrowsAssert.Throws<Exception>(() => TimeDomainOperations.IirFilter(input, new[] {0.0}, b).Take(20).ToReadOnlyList());
+            ThrowsAssert.Throws<Exception>(() => TimeDomain.IirFilter(input, Enumerable.Empty<double>().ToReadOnlyList(), b).Take(20).ToReadOnlyList());
+            ThrowsAssert.Throws<Exception>(() => TimeDomain.IirFilter(input, new[] {0.0}, b).Take(20).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -747,19 +747,19 @@ namespace FilterTest
                 new Complex(1.00000048223708e+000, 612.629540369582e-006)
             };
 
-            var result = FrequencyDomainOperations.IirFrequencyResponse(a, b, frequencies, 44100).ToReadOnlyList();
+            var result = FrequencyDomain.IirFrequencyResponse(a, b, frequencies, 44100).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(result, target);
 
-            Assert.IsTrue(FrequencyDomainOperations.IirFrequencyResponse(a, b, Enumerable.Empty<double>().ToReadOnlyList(), 44100).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.IirFrequencyResponse(a, b, Enumerable.Empty<double>().ToReadOnlyList(), 44100).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.IirFrequencyResponse(null, b, frequencies, 44100).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.IirFrequencyResponse(a, null, frequencies, 44100).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.IirFrequencyResponse(a, b, null, 44100).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => FrequencyDomainOperations.IirFrequencyResponse(a, b, frequencies, -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.IirFrequencyResponse(null, b, frequencies, 44100).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.IirFrequencyResponse(a, null, frequencies, 44100).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.IirFrequencyResponse(a, b, null, 44100).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => FrequencyDomain.IirFrequencyResponse(a, b, frequencies, -1).ToReadOnlyList());
 
             ThrowsAssert.Throws<Exception>(
-                () => FrequencyDomainOperations.IirFrequencyResponse(Enumerable.Empty<double>().ToReadOnlyList(), b, frequencies, 44100).ToReadOnlyList());
-            ThrowsAssert.Throws<Exception>(() => FrequencyDomainOperations.IirFrequencyResponse(new[] {0.0}, b, frequencies, 44100).ToReadOnlyList());
+                () => FrequencyDomain.IirFrequencyResponse(Enumerable.Empty<double>().ToReadOnlyList(), b, frequencies, 44100).ToReadOnlyList());
+            ThrowsAssert.Throws<Exception>(() => FrequencyDomain.IirFrequencyResponse(new[] {0.0}, b, frequencies, 44100).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -777,7 +777,7 @@ namespace FilterTest
 
             double[] x2 = {0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5};
 
-            var result = DataInterpolation.InterpolateComplex(x, y, x2).ToReadOnlyList();
+            var result = Interpolation.InterpolateComplex(x, y, x2).ToReadOnlyList();
 
             Assert.IsTrue(result.Count == x2.Length);
             FilterAssert.ListIsMonotonouslyRising(result.Select(c => c.Magnitude));
@@ -786,10 +786,10 @@ namespace FilterTest
             Assert.IsTrue(result[0].Magnitude <= 1);
             Assert.IsTrue(result[result.Count - 1].Magnitude <= 5);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.InterpolateComplex(null, y, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.InterpolateComplex(x, null, x2).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.InterpolateComplex(x, y, null).ToReadOnlyList());
-            ThrowsAssert.Throws<Exception>(() => DataInterpolation.InterpolateComplex(x2, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.InterpolateComplex(null, y, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.InterpolateComplex(x, null, x2).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.InterpolateComplex(x, y, null).ToReadOnlyList());
+            ThrowsAssert.Throws<Exception>(() => Interpolation.InterpolateComplex(x2, y, x2).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -824,10 +824,10 @@ namespace FilterTest
             var input = new[] {1.0, 10, 2, 0};
             var target = new[] {0, 20, 6.020599913279624, -100};
 
-            var result = FrequencyDomainOperations.LinearToDb(input, -100).ToReadOnlyList();
+            var result = FrequencyDomain.LinearToDb(input, -100).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
-            Assert.IsTrue(FrequencyDomainOperations.LinearToDb(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.LinearToDb(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.LinearToDb(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.LinearToDb(null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -956,14 +956,14 @@ namespace FilterTest
                 new Complex(5, 0)
             };
 
-            var result = FrequencyDomainOperations.PolarToComplex(amp, phase).ToReadOnlyList();
+            var result = FrequencyDomain.PolarToComplex(amp, phase).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(result, target);
 
-            Assert.IsTrue(FrequencyDomainOperations.PolarToComplex(Enumerable.Empty<double>(), phase).ToReadOnlyList().Count == 0);
-            Assert.IsTrue(FrequencyDomainOperations.PolarToComplex(amp, Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.PolarToComplex(Enumerable.Empty<double>(), phase).ToReadOnlyList().Count == 0);
+            Assert.IsTrue(FrequencyDomain.PolarToComplex(amp, Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.PolarToComplex(null, phase));
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.PolarToComplex(amp, null));
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.PolarToComplex(null, phase));
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.PolarToComplex(amp, null));
         }
 
         [TestMethod]
@@ -972,11 +972,11 @@ namespace FilterTest
             var target = new[] {0.0, -90, 180, 270};
             var input = new[] {0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI};
 
-            var result = FrequencyDomainOperations.RadToDeg(input).ToReadOnlyList();
+            var result = FrequencyDomain.RadToDeg(input).ToReadOnlyList();
             FilterAssert.ListsAreReasonablyClose(target, result);
 
-            Assert.IsTrue(FrequencyDomainOperations.RadToDeg(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.RadToDeg(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.RadToDeg(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.RadToDeg(null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -985,20 +985,20 @@ namespace FilterTest
             double[] x = {1, 2, 3, 4, 5, 6, 7, 8, 9};
             double[] y = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-            var result = DataInterpolation.Smooth(x, y, 1).ToReadOnlyList();
+            var result = Interpolation.Smooth(x, y, 1).ToReadOnlyList();
 
             Assert.IsTrue(result.Count == x.Length);
             Assert.IsTrue(result[0] >= 1);
             Assert.IsTrue(result[result.Count - 1] <= 9);
             FilterAssert.ListIsMonotonouslyRising(result);
 
-            FilterAssert.ListsAreReasonablyClose(DataInterpolation.Smooth(x, y, 0).ToReadOnlyList(), y);
+            FilterAssert.ListsAreReasonablyClose(Interpolation.Smooth(x, y, 0).ToReadOnlyList(), y);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.Smooth(null, y, 1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => DataInterpolation.Smooth(x, null, 1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => DataInterpolation.Smooth(x, y, -1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.Smooth(new List<double> {1}, y, -1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => DataInterpolation.Smooth(new List<double>(), new List<double>(), -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(null, y, 1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(x, null, 1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => Interpolation.Smooth(x, y, -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.Smooth(new List<double> {1}, y, -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.Smooth(new List<double>(), new List<double>(), -1).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -1007,16 +1007,16 @@ namespace FilterTest
             double[] input = {170, 179, -175, 0, 170, -90, 170, 10, -150, 150, 0};
             double[] target = {170, 179, 185, 360, 530, 630, 530, 370, 210, 150, 0};
 
-            var input2 = FrequencyDomainOperations.DegToRad(input).ToReadOnlyList();
+            var input2 = FrequencyDomain.DegToRad(input).ToReadOnlyList();
 
-            var result = FrequencyDomainOperations.UnwrapPhase(input, true).ToReadOnlyList();
-            var result2 = FrequencyDomainOperations.UnwrapPhase(input2, false).ToReadOnlyList();
+            var result = FrequencyDomain.UnwrapPhase(input, true).ToReadOnlyList();
+            var result2 = FrequencyDomain.UnwrapPhase(input2, false).ToReadOnlyList();
 
             FilterAssert.ListsAreReasonablyClose(result, target);
-            FilterAssert.ListsAreReasonablyClose(FrequencyDomainOperations.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
+            FilterAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
 
-            Assert.IsTrue(FrequencyDomainOperations.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.UnwrapPhase(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.UnwrapPhase(null).ToReadOnlyList());
         }
 
         [TestMethod]
@@ -1074,16 +1074,16 @@ namespace FilterTest
             double[] input = {170, 179, 185, 360, 530, 630, 530, 370, 210, 150, 0};
             double[] target = {170, 179, -175, 0, 170, -90, 170, 10, -150, 150, 0};
 
-            var input2 = FrequencyDomainOperations.DegToRad(input).ToReadOnlyList();
+            var input2 = FrequencyDomain.DegToRad(input).ToReadOnlyList();
 
-            var result = FrequencyDomainOperations.WrapPhase(input, true).ToReadOnlyList();
-            var result2 = FrequencyDomainOperations.WrapPhase(input2, false).ToReadOnlyList();
+            var result = FrequencyDomain.WrapPhase(input, true).ToReadOnlyList();
+            var result2 = FrequencyDomain.WrapPhase(input2, false).ToReadOnlyList();
 
             FilterAssert.ListsAreReasonablyClose(result, target);
-            FilterAssert.ListsAreReasonablyClose(FrequencyDomainOperations.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
+            FilterAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
 
-            Assert.IsTrue(FrequencyDomainOperations.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
-            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomainOperations.UnwrapPhase(null).ToReadOnlyList());
+            Assert.IsTrue(FrequencyDomain.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
+            ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.UnwrapPhase(null).ToReadOnlyList());
         }
     }
 }

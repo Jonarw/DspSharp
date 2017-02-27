@@ -84,6 +84,7 @@
     <Compile Include="FilterAssert.cs" />
     <Compile Include="MlsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnsafeAlgorithmsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Filter\Filter.csproj">

@@ -60,12 +60,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\ComplexVectors.cs" />
     <Compile Include="Algorithms\CubicSpline\CubicSpline.cs" />
-    <Compile Include="Algorithms\DataInterpolation.cs" />
-    <Compile Include="Algorithms\FrequencyDomainOperations.cs" />
+    <Compile Include="Algorithms\Experimental.cs" />
+    <Compile Include="Algorithms\Interpolation.cs" />
+    <Compile Include="Algorithms\FrequencyDomain.cs" />
     <Compile Include="Algorithms\Mathematic.cs" />
     <Compile Include="Algorithms\SignalGenerators.cs" />
-    <Compile Include="Algorithms\TimeDomainOperations.cs" />
+    <Compile Include="Algorithms\Statistics.cs" />
+    <Compile Include="Algorithms\TimeDomain.cs" />
     <Compile Include="Algorithms\Transformations.cs" />
     <Compile Include="Algorithms\FftwProvider\ComplexFftPlan.cs" />
     <Compile Include="Algorithms\Fft.cs" />
@@ -79,7 +82,11 @@
     <Compile Include="Algorithms\FftwProvider\IFftProvider.cs" />
     <Compile Include="Algorithms\FftwProvider\InverseRealFftPlan.cs" />
     <Compile Include="Algorithms\FftwProvider\RealFftPlan.cs" />
-    <Compile Include="Algorithms\HashHelper.cs" />
+    <Compile Include="Algorithms\VectorArithmeticD.cs" />
+    <Compile Include="Algorithms\VectorConversions.cs" />
+    <Compile Include="Algorithms\VectorFunctions.cs" />
+    <Compile Include="Algorithms\VectorOperations.cs" />
+    <Compile Include="Helpers\HashHelper.cs" />
     <Compile Include="Algorithms\CubicSpline\TriDiagonalMatrix.cs" />
     <Compile Include="AudioSource\BufferCompletedEventArgs.cs" />
     <Compile Include="AudioSource\BufferCompletedEventHandler.cs" />
@@ -97,7 +104,7 @@
     <Compile Include="Collections\ReadOnlyObservableList.cs" />
     <Compile Include="Exceptions\SamplerateMismatchException.cs" />
     <Compile Include="Extensions\FilterExtensions.cs" />
-    <Compile Include="Extensions\UnsafeExtensions.cs" />
+    <Compile Include="Algorithms\Unsafe.cs" />
     <Compile Include="Extensions\Utilities.cs" />
     <Compile Include="FilterChangedEventArgs.cs" />
     <Compile Include="FilterFactory\FilterTypes.cs" />
@@ -117,7 +124,6 @@
     <Compile Include="Signal\Interfaces\ISyntheticSignal.cs" />
     <Compile Include="Signal\Windows\Window.cs" />
     <Compile Include="CircularBuffers\CircularBuffer.cs" />
-    <Compile Include="Extensions\VectorOperations.cs" />
     <Compile Include="FilterBase.cs" />
     <Compile Include="FilterFactory\FilterFactory.cs" />
     <Compile Include="Filters\DistortionFilter.cs" />
@@ -159,9 +165,9 @@
     <Compile Include="Spectrum\IFftSpectrum.cs" />
     <Compile Include="Spectrum\ISpectrum.cs" />
     <Compile Include="Spectrum\Spectrum.cs" />
+    <Compile Include="Algorithms\VectorArithmeticC.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="isignal diagram.cd" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

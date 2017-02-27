@@ -8,7 +8,7 @@ using Filter.Signal.Windows;
 
 namespace Filter.Algorithms
 {
-    public static class TimeDomainOperations
+    public static class TimeDomain
     {
         /// <summary>
         ///     Convolves the specified finite signals.

@@ -156,161 +156,6 @@ namespace Filter.Algorithms
             return LogSweep(actualfrom, actualto, length, samplerate);
         }
 
-        public static void GenerateLogSweepAndInverse(
-            double from,
-            double to,
-            int length,
-            double samplerate,
-            out IReadOnlyList<double> sweep,
-            out IReadOnlyList<double> inverse)
-        {
-            var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
-            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
-
-            sweep = sw.Multiply(win).ToReadOnlyList();
-            var c = sweep.Count;
-
-            //var fftsw = Fft.RealFft(sweep.Reverse());
-            inverse = sweep.Reverse().Select(
-                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
-
-            //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
-            //var fftinv = fftsw.Zip(frequencies,
-            //    (c, f) =>
-            //    {
-            //        return c;
-
-            //        if (f < from)
-            //        {
-            //            return c;
-            //        }
-
-            //        if (f > to)
-            //        {
-            //            return c * to / from;
-            //        }
-
-            //        return c * f / from;
-            //    });
-
-            //inverse = Fft.RealIfft(fftinv);
-        }
-
-        /// <summary>
-        ///     Generates a maximum length sequence of the specified order.
-        /// </summary>
-        /// <param name="order">The order.</param>
-        /// <returns>The maximum length sequence.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public static IEnumerable<double> GenerateMls(int order)
-        {
-            if (order < 2 || order > MlsFeedbackTaps.Count - 1)
-                throw new ArgumentOutOfRangeException(nameof(order));
-
-            var taps = MlsFeedbackTaps[order];
-            const uint startState = 1 << 1;
-            uint state = startState;
-
-            do
-            {
-                uint lsb = 1 & state;
-                state >>= 1;
-
-                if (lsb > 0)
-                {
-                    state ^= taps;
-                    yield return 1;
-                }
-                else
-                {
-                    yield return -1;
-                }
-            }
-            while (state != startState);
-        }
-
-        /// <summary>
-        ///     Generates a slope.
-        /// </summary>
-        /// <param name="x">The x values where the slope is evaluated.</param>
-        /// <param name="startX">The start x value.</param>
-        /// <param name="stopX">The stop x value.</param>
-        /// <param name="startValue">The start slope value.</param>
-        /// <param name="stopValue">The stop slope value.</param>
-        /// <param name="mode">The slope mode.</param>
-        /// <param name="logarithmicX">If set to <c>true</c> the generation is done on a logarithmic x scale.</param>
-        /// <returns>The result.</returns>
-        public static IEnumerable<double> GenerateSlope(
-            IEnumerable<double> x,
-            double startX,
-            double stopX,
-            double startValue,
-            double stopValue,
-            SlopeModes mode = SlopeModes.Smooth,
-            bool logarithmicX = true)
-        {
-            if (x == null)
-                throw new ArgumentNullException(nameof(x));
-
-            IReadOnlyList<double> actualX;
-            double actualStartX, actualStopX;
-
-            if (startX > stopX)
-            {
-                var tmp = stopX;
-                stopX = startX;
-                startX = tmp;
-                tmp = stopValue;
-                stopValue = startValue;
-                startValue = tmp;
-            }
-
-            if (logarithmicX)
-            {
-                actualX = x.Log(10).ToReadOnlyList();
-                actualStartX = Math.Log10(startX);
-                actualStopX = Math.Log10(stopX);
-            }
-            else
-            {
-                actualX = x.ToReadOnlyList();
-                actualStartX = startX;
-                actualStopX = stopX;
-            }
-
-            if (actualX.Count == 0)
-                yield break;
-
-            Func<double, double> smoothSlope = input => -0.5 * (Math.Cos(Math.PI * input) - 1);
-
-            var deltaF = actualStopX - actualStartX;
-            var deltaV = stopValue - startValue;
-
-            foreach (var f in actualX)
-            {
-                double actualGain;
-                if (f <= actualStartX)
-                {
-                    actualGain = startValue;
-                }
-                else if (f >= actualStopX)
-                {
-                    actualGain = stopValue;
-                }
-                else
-                {
-                    var tmpgain = (f - actualStartX) / deltaF;
-                    if (mode == SlopeModes.Smooth)
-                        tmpgain = smoothSlope(tmpgain);
-
-                    tmpgain = deltaV * tmpgain + startValue;
-                    actualGain = tmpgain;
-                }
-
-                yield return actualGain;
-            }
-        }
-
         /// <summary>
         ///     Generates a sequence of zeros.
         /// </summary>
@@ -467,6 +312,161 @@ namespace Filter.Algorithms
                 logCurrentFrequency += logStep;
                 var currentFrequency = Math.Pow(Math.E, logCurrentFrequency);
                 currentPhase += currentFrequency;
+            }
+        }
+
+        public static void LogSweepAndInverse(
+            double from,
+            double to,
+            int length,
+            double samplerate,
+            out IReadOnlyList<double> sweep,
+            out IReadOnlyList<double> inverse)
+        {
+            var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
+            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
+
+            sweep = sw.Multiply(win).ToReadOnlyList();
+            var c = sweep.Count;
+
+            //var fftsw = Fft.RealFft(sweep.Reverse());
+            inverse = sweep.Reverse().Select(
+                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
+
+            //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
+            //var fftinv = fftsw.Zip(frequencies,
+            //    (c, f) =>
+            //    {
+            //        return c;
+
+            //        if (f < from)
+            //        {
+            //            return c;
+            //        }
+
+            //        if (f > to)
+            //        {
+            //            return c * to / from;
+            //        }
+
+            //        return c * f / from;
+            //    });
+
+            //inverse = Fft.RealIfft(fftinv);
+        }
+
+        /// <summary>
+        ///     Generates a maximum length sequence of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The maximum length sequence.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public static IEnumerable<double> Mls(int order)
+        {
+            if (order < 2 || order > MlsFeedbackTaps.Count - 1)
+                throw new ArgumentOutOfRangeException(nameof(order));
+
+            var taps = MlsFeedbackTaps[order];
+            const uint startState = 1 << 1;
+            uint state = startState;
+
+            do
+            {
+                uint lsb = 1 & state;
+                state >>= 1;
+
+                if (lsb > 0)
+                {
+                    state ^= taps;
+                    yield return 1;
+                }
+                else
+                {
+                    yield return -1;
+                }
+            }
+            while (state != startState);
+        }
+
+        /// <summary>
+        ///     Generates a slope.
+        /// </summary>
+        /// <param name="x">The x values where the slope is evaluated.</param>
+        /// <param name="startX">The start x value.</param>
+        /// <param name="stopX">The stop x value.</param>
+        /// <param name="startValue">The start slope value.</param>
+        /// <param name="stopValue">The stop slope value.</param>
+        /// <param name="mode">The slope mode.</param>
+        /// <param name="logarithmicX">If set to <c>true</c> the generation is done on a logarithmic x scale.</param>
+        /// <returns>The result.</returns>
+        public static IEnumerable<double> Slope(
+            IEnumerable<double> x,
+            double startX,
+            double stopX,
+            double startValue,
+            double stopValue,
+            SlopeModes mode = SlopeModes.Smooth,
+            bool logarithmicX = true)
+        {
+            if (x == null)
+                throw new ArgumentNullException(nameof(x));
+
+            IReadOnlyList<double> actualX;
+            double actualStartX, actualStopX;
+
+            if (startX > stopX)
+            {
+                var tmp = stopX;
+                stopX = startX;
+                startX = tmp;
+                tmp = stopValue;
+                stopValue = startValue;
+                startValue = tmp;
+            }
+
+            if (logarithmicX)
+            {
+                actualX = x.Log(10).ToReadOnlyList();
+                actualStartX = Math.Log10(startX);
+                actualStopX = Math.Log10(stopX);
+            }
+            else
+            {
+                actualX = x.ToReadOnlyList();
+                actualStartX = startX;
+                actualStopX = stopX;
+            }
+
+            if (actualX.Count == 0)
+                yield break;
+
+            Func<double, double> smoothSlope = input => -0.5 * (Math.Cos(Math.PI * input) - 1);
+
+            var deltaF = actualStopX - actualStartX;
+            var deltaV = stopValue - startValue;
+
+            foreach (var f in actualX)
+            {
+                double actualGain;
+                if (f <= actualStartX)
+                {
+                    actualGain = startValue;
+                }
+                else if (f >= actualStopX)
+                {
+                    actualGain = stopValue;
+                }
+                else
+                {
+                    var tmpgain = (f - actualStartX) / deltaF;
+                    if (mode == SlopeModes.Smooth)
+                        tmpgain = smoothSlope(tmpgain);
+
+                    tmpgain = deltaV * tmpgain + startValue;
+                    actualGain = tmpgain;
+                }
+
+                yield return actualGain;
             }
         }
 

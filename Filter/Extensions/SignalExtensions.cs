@@ -62,7 +62,7 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new FiniteSignal(TimeDomainOperations.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start)
+            return new FiniteSignal(TimeDomain.Convolve(s1.Signal, s2.Signal), s1.SampleRate, s1.Start + s2.Start)
             {
                 DisplayName = "convolution result"
             };
@@ -80,7 +80,7 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new EnumerableSignal(TimeDomainOperations.Convolve(s2.Signal, s1.Signal), s1.SampleRate, s1.Start + s2.Start)
+            return new EnumerableSignal(TimeDomain.Convolve(s2.Signal, s1.Signal), s1.SampleRate, s1.Start + s2.Start)
             {
                 DisplayName = "convolution result"
             };
@@ -136,7 +136,7 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new FiniteSignal(TimeDomainOperations.CrossCorrelate(s1.Signal, s2.Signal), s1.SampleRate, s1.Start - s2.Start)
+            return new FiniteSignal(TimeDomain.CrossCorrelate(s1.Signal, s2.Signal), s1.SampleRate, s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
             };
@@ -154,7 +154,7 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new EnumerableSignal(TimeDomainOperations.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
+            return new EnumerableSignal(TimeDomain.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
             };
