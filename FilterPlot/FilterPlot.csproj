@@ -146,7 +146,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Filter_Win\FilterWin.csproj">
+    <ProjectReference Include="..\FilterWin\FilterWin.csproj">
       <Project>{8420c3e2-ca65-44a1-bbc7-f259751fae9c}</Project>
       <Name>FilterWin</Name>
     </ProjectReference>
