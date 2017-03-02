@@ -15,14 +15,14 @@ namespace Filter
         double Samplerate { get; }
 
         /// <summary>
+        ///     Gets a value indicating whether this instance has an infinite impulse response.
+        /// </summary>
+        bool HasInfiniteImpulseResponse { get; }
+
+        /// <summary>
         ///     Processes the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
         IEnumerable<double> Process(IEnumerable<double> input);
-
-        /// <summary>
-        ///     Gets a value indicating whether this instance has an infinite impulse response.
-        /// </summary>
-        bool HasInfiniteImpulseResponse { get; }
     }
-}   
+}

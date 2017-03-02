@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Filter.CircularBuffers;
-using Filter.Extensions;
 using Filter.Signal.Windows;
 
 namespace Filter.Algorithms
@@ -16,7 +15,8 @@ namespace Filter.Algorithms
         /// <param name="signal1">The first signal.</param>
         /// <param name="signal2">The second signal.</param>
         /// <returns>The convolution of the two signals.</returns>
-        public static IReadOnlyList<double> CircularConvolve(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
+        public static IReadOnlyList<double> CircularConvolve(IReadOnlyList<double> signal1,
+            IReadOnlyList<double> signal2)
         {
             if (signal1 == null)
                 throw new ArgumentNullException(nameof(signal1));
@@ -24,14 +24,12 @@ namespace Filter.Algorithms
             if (signal2 == null)
                 throw new ArgumentNullException(nameof(signal2));
 
-            if (signal1.Count == 0 || signal2.Count == 0)
+            if ((signal1.Count == 0) || (signal2.Count == 0))
                 return new List<double>().AsReadOnly();
 
-            if (signal1.Count != signal2.Count)
-                throw new NotImplementedException();
-
-            var spectrum1 = Fft.RealFft(signal1);
-            var spectrum2 = Fft.RealFft(signal2);
+            var n = Math.Max(signal1.Count, signal2.Count);
+            var spectrum1 = Fft.RealFft(signal1, n);
+            var spectrum2 = Fft.RealFft(signal2, n);
             var spectrum = spectrum2.Multiply(spectrum1);
             return Fft.RealIfft(spectrum).ToReadOnlyList();
         }
@@ -42,7 +40,8 @@ namespace Filter.Algorithms
         /// <param name="signal1">The first signal.</param>
         /// <param name="signal2">The second signal.</param>
         /// <returns>The result of the computation.</returns>
-        public static IReadOnlyList<double> CircularCrossCorrelate(IReadOnlyList<double> signal1, IReadOnlyList<double> signal2)
+        public static IReadOnlyList<double> CircularCrossCorrelate(IReadOnlyList<double> signal1,
+            IReadOnlyList<double> signal2)
         {
             if (signal1 == null)
                 throw new ArgumentNullException(nameof(signal1));
@@ -51,28 +50,6 @@ namespace Filter.Algorithms
                 throw new ArgumentNullException(nameof(signal2));
 
             return CircularConvolve(signal2.Reverse().ToReadOnlyList(), signal1);
-        }
-
-        /// <summary>
-        ///     Performs a circular shift on an array.
-        /// </summary>
-        /// <param name="input">The array to be circularly shifted.</param>
-        /// <param name="offset">
-        ///     The amount of samples the array should be shifted. Positive offsets are used for left-shifts while negative
-        ///     offsets are used for right-shifts.
-        /// </param>
-        /// <returns>An array of the same length as <paramref name="input" /> containing the result.</returns>
-        public static IEnumerable<T> CircularShift<T>(IReadOnlyList<T> input, int offset)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (input.Count == 0)
-                return Enumerable.Empty<T>();
-
-            offset = Mathematic.Mod(offset, input.Count);
-
-            return input.Skip(offset).Concat(input.Take(offset));
         }
 
         /// <summary>
@@ -87,14 +64,14 @@ namespace Filter.Algorithms
             if (sampleRate <= 0)
                 throw new ArgumentOutOfRangeException(nameof(sampleRate));
 
-            var mod = Math.Abs(delay % (1 / sampleRate));
+            var mod = Math.Abs(delay%(1/sampleRate));
 
-            if (mod > 1e-13 && mod < 1 / sampleRate - 1e-13)
+            if ((mod > 1e-13) && (mod < 1/sampleRate - 1e-13))
                 integer = false;
             else
                 integer = true;
 
-            return Convert.ToInt32(delay * sampleRate);
+            return Convert.ToInt32(delay*sampleRate);
         }
 
         /// <summary>
@@ -111,7 +88,7 @@ namespace Filter.Algorithms
             if (signal2 == null)
                 throw new ArgumentNullException(nameof(signal2));
 
-            if (signal1.Count == 0 || signal2.Count == 0)
+            if ((signal1.Count == 0) || (signal2.Count == 0))
                 return new List<double>().AsReadOnly();
 
             var l = signal1.Count + signal2.Count - 1;
@@ -141,8 +118,7 @@ namespace Filter.Algorithms
 
             using (var e1 = signal1.GetEnumerator())
             {
-
-                var n = 2 * Fft.GetOptimalFftLength(signal2.Count);
+                var n = 2*Fft.GetOptimalFftLength(signal2.Count);
                 var blockSize = n - signal2.Count + 1;
                 var sig2Fft = Fft.RealFft(signal2, n);
                 IReadOnlyList<double> buffer = null;
@@ -151,7 +127,7 @@ namespace Filter.Algorithms
                 while (true)
                 {
                     var c = 0;
-                    while (c < blockSize && e1.MoveNext())
+                    while ((c < blockSize) && e1.MoveNext())
                     {
                         sig1Buffer.Add(e1.Current);
                         c++;
@@ -248,16 +224,16 @@ namespace Filter.Algorithms
                 frequencies,
                 (c, f) =>
                 {
-                    if (f <= fc1 || f >= fc2)
+                    if ((f <= fc1) || (f >= fc2))
                         return 0;
 
-                    if (f >= fc1 + windowBwL && f <= fc2 - windowBwH)
+                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
                         return c;
 
                     if (f < fc1 + windowBwL)
-                        return c * winfunc((f - fc1) / windowBwL);
+                        return c*winfunc((f - fc1)/windowBwL);
 
-                    return c * winfunc((fc2 - f) / windowBwH);
+                    return c*winfunc((fc2 - f)/windowBwH);
                 });
 
             return Fft.RealIfft(spec);
@@ -273,7 +249,9 @@ namespace Filter.Algorithms
             double windowBwH,
             WindowTypes windowType)
         {
-            return Fft.RealIfft(FrequencyWindowedInversionSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH, windowType));
+            return
+                Fft.RealIfft(FrequencyWindowedInversionSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH,
+                    windowType));
         }
 
         //TODO: unit test
@@ -294,16 +272,16 @@ namespace Filter.Algorithms
                 frequencies,
                 (c, f) =>
                 {
-                    if (f <= fc1 || f >= fc2)
+                    if ((f <= fc1) || (f >= fc2))
                         return 0;
 
-                    if (f >= fc1 + windowBwL && f <= fc2 - windowBwH)
-                        return 1 / c;
+                    if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
+                        return 1/c;
 
                     if (f < fc1 + windowBwL)
-                        return 1 / c * winfunc((f - fc1) / windowBwL);
+                        return 1/c*winfunc((f - fc1)/windowBwL);
 
-                    return 1 / c * winfunc((fc2 - f) / windowBwH);
+                    return 1/c*winfunc((fc2 - f)/windowBwH);
                 });
 
             return spec.ToReadOnlyList();
@@ -340,11 +318,14 @@ namespace Filter.Algorithms
                 throw new ArgumentNullException(nameof(b));
 
             if (a.Count < b.Count)
-                a = a.ZeroPad(b.Count - a.Count).ToReadOnlyList();
-            else if (b.Count < a.Count)
-                b = b.ZeroPad(a.Count - b.Count).ToReadOnlyList();
+                a = a.PadRight(b.Count - a.Count).ToReadOnlyList();
+            else
+            {
+                if (b.Count < a.Count)
+                    b = b.PadRight(a.Count - b.Count).ToReadOnlyList();
+            }
 
-            if (a.Count == 0 || a[0] == 0)
+            if ((a.Count == 0) || (a[0] == 0))
                 throw new Exception("a0 cannot be 0.");
 
             var n = a.Count - 1;
@@ -352,28 +333,29 @@ namespace Filter.Algorithms
             if (n < 0)
                 yield break;
 
-            if (inputbuffer == null || outputbuffer == null)
+            if ((inputbuffer == null) || (outputbuffer == null))
             {
                 inputbuffer = new CircularBuffer<double>(n);
                 outputbuffer = new CircularBuffer<double>(n);
             }
-            else if (inputbuffer.Length != n || outputbuffer.Length != n)
+            else
             {
-                throw new ArgumentException();
+                if ((inputbuffer.Length != n) || (outputbuffer.Length != n))
+                    throw new ArgumentException();
             }
 
-            var an = a.Multiply(1 / a[0]).ToReadOnlyList();
-            var bn = b.Multiply(1 / a[0]).ToReadOnlyList();
+            var an = a.Multiply(1/a[0]).ToReadOnlyList();
+            var bn = b.Multiply(1/a[0]).ToReadOnlyList();
             using (var e = input.GetEnumerator())
             {
                 while (e.MoveNext())
                 {
-                    double currentY = e.Current * bn[0];
+                    var currentY = e.Current*bn[0];
 
-                    for (int i = 1; i <= n; i++)
+                    for (var i = 1; i <= n; i++)
                     {
-                        currentY += inputbuffer.Peek(-i) * bn[i];
-                        currentY -= outputbuffer.Peek(-i) * an[i];
+                        currentY += inputbuffer.Peek(-i)*bn[i];
+                        currentY -= outputbuffer.Peek(-i)*an[i];
                     }
 
                     inputbuffer.Store(e.Current);
@@ -386,14 +368,14 @@ namespace Filter.Algorithms
             if (clip)
                 yield break;
 
-            for (int i2 = 0; i2 < inputbuffer.Length; i2++)
+            for (var i2 = 0; i2 < inputbuffer.Length; i2++)
             {
-                double currentY = 0.0;
+                var currentY = 0.0;
 
-                for (int i = 1; i <= n; i++)
+                for (var i = 1; i <= n; i++)
                 {
-                    currentY += inputbuffer.Peek(-i) * bn[i];
-                    currentY -= outputbuffer.Peek(-i) * an[i];
+                    currentY += inputbuffer.Peek(-i)*bn[i];
+                    currentY -= outputbuffer.Peek(-i)*an[i];
                 }
 
                 inputbuffer.Store(0.0);
@@ -404,10 +386,10 @@ namespace Filter.Algorithms
 
             while (true)
             {
-                double currentY = 0.0;
-                for (int i = 1; i <= n; i++)
+                var currentY = 0.0;
+                for (var i = 1; i <= n; i++)
                 {
-                    currentY -= outputbuffer.Peek(-i) * an[i];
+                    currentY -= outputbuffer.Peek(-i)*an[i];
                 }
 
                 outputbuffer.Store(currentY);

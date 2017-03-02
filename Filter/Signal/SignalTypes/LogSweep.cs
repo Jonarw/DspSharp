@@ -1,5 +1,4 @@
 ﻿using Filter.Algorithms;
-using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal
@@ -19,7 +18,7 @@ namespace Filter.Signal
         public LogSweep(double from, double to, double length, double samplerate)
             : base(SignalGenerators.LogSweep(from, to, length, samplerate).ToReadOnlyList(), samplerate)
         {
-            this.From = @from;
+            this.From = from;
             this.To = to;
             this.DisplayName = "logarithmic sweep";
         }

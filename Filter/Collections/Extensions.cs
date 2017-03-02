@@ -7,14 +7,12 @@ namespace Filter.Collections
     {
         public static int IndexOf<T>(this IEnumerable<T> enumerable, T element, IEqualityComparer<T> comparer = null)
         {
-            int i = 0;
+            var i = 0;
             comparer = comparer ?? EqualityComparer<T>.Default;
             foreach (var currentElement in enumerable)
             {
                 if (comparer.Equals(currentElement, element))
-                {
                     return i;
-                }
 
                 i++;
             }
@@ -29,7 +27,7 @@ namespace Filter.Collections
 
         public static IReadOnlyObservableList<T> ToReadOnlyObservableList<T>(this IObservableList<T> input)
         {
-            return new ReadOnlyObservableList<T>((ObservableCollection<T>)input);
+            return new ReadOnlyObservableList<T>((ObservableCollection<T>) input);
         }
 
         public static IReadOnlyObservableList<T> ToReadOnlyObservableList<T>(this ObservableList<T> input)

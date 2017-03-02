@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Filter.Collections;
 using Filter.Signal;
 using Filter.Signal.Windows;
@@ -10,11 +9,54 @@ using Filter.Signal.Windows;
 
 namespace Filter.LtiFilters
 {
-
     public class CorrectingFilter : Convolver, ISignalBasedFilter
     {
-        private FilterBase _targetLocal;
+        public enum PhaseTypes
+        {
+            LinearFilter,
+            LinearResult,
+            MinimumFilter
+        }
+
+        public enum UpdateModes
+        {
+            Automatic,
+            Manual
+        }
+
+        private int _FilterLength;
+
+        private double _MaxBoost = 6;
+
+        private double _MinBoost = -20;
+
+        private double _NegativeRatio = 0.5;
+
+        private double _NegativeThreshold = -10;
+        private FilterBase _Original;
+
+        private FilterBase _originalLocal;
+
+        private int _Oversampling;
+
+        private PhaseTypes _PhaseType = PhaseTypes.LinearResult;
+
+        private double _PositiveRatio = 0.5;
+
+        private double _PositiveThreshold = 3;
         private FilterBase _Target;
+        private FilterBase _targetLocal;
+
+        private UpdateModes _UpdateMode;
+
+        private Window _window;
+        private WindowTypes _WindowType = WindowTypes.Hann;
+
+        public CorrectingFilter(double samplerate) : base(samplerate)
+        {
+            this.Name = "correcting filter";
+        }
+
         public FilterBase Target
         {
             get { return this._Target; }
@@ -30,8 +72,6 @@ namespace Filter.LtiFilters
             }
         }
 
-        private FilterBase _originalLocal;
-        private FilterBase _Original;
         public FilterBase Original
         {
             get { return this._Original; }
@@ -47,111 +87,70 @@ namespace Filter.LtiFilters
             }
         }
 
-        private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
-        {
-            if (this._UpdateMode == UpdateModes.Automatic) this.RaiseChangedEvent();
-        }
-
-        private UpdateModes _UpdateMode;
         public UpdateModes UpdateMode
         {
             get { return this._UpdateMode; }
             set { this.SetField(ref this._UpdateMode, value); }
         }
 
-        private int _Oversampling;
         public int Oversampling
         {
             get { return this._Oversampling; }
             set { this.SetField(ref this._Oversampling, value); }
         }
 
-        private int _FilterLength;
         public int FilterLength
         {
             get { return this._FilterLength; }
             set { this.SetField(ref this._FilterLength, value); }
         }
 
-        public void UpdateFilter()
-        {
-            if (this._UpdateMode == UpdateModes.Manual)
-            {
-                //this._originalLocal = this._Original.FixedCopy();
-                //this._targetLocal = this._Target.FixedCopy();
-            }
-        }
-
-        public enum UpdateModes
-        {
-            Automatic,
-            Manual
-        }
-
-        private Window _window;
-        private WindowTypes _WindowType = WindowTypes.Hann;
         public WindowTypes WindowType
         {
             get { return this._WindowType; }
             set
             {
                 if (this.SetField(ref this._WindowType, value))
-                {
                     this._window = null;
-                }
             }
         }
 
-        public enum PhaseTypes
-        {
-            LinearFilter,
-            LinearResult,
-            MinimumFilter
-        }
-
-        private PhaseTypes _PhaseType = PhaseTypes.LinearResult;
         public PhaseTypes PhaseType
         {
             get { return this._PhaseType; }
             set { this.SetField(ref this._PhaseType, value); }
         }
 
-        private double _MaxBoost = 6;
         public double MaxBoost
         {
             get { return this._MaxBoost; }
             set { this.SetField(ref this._MaxBoost, value); }
         }
 
-        private double _MinBoost = -20;
         public double MinBoost
         {
             get { return this._MinBoost; }
             set { this.SetField(ref this._MinBoost, value); }
         }
 
-        private double _PositiveRatio = 0.5;
         public double PositiveRatio
         {
             get { return this._PositiveRatio; }
             set { this.SetField(ref this._PositiveRatio, value); }
         }
 
-        private double _NegativeRatio = 0.5;
         public double NegativeRatio
         {
             get { return this._NegativeRatio; }
             set { this.SetField(ref this._NegativeRatio, value); }
         }
 
-        private double _PositiveThreshold = 3;
         public double PositiveThreshold
         {
             get { return this._PositiveThreshold; }
             set { this.SetField(ref this._PositiveThreshold, value); }
         }
 
-        private double _NegativeThreshold = -10;
         public double NegativeThreshold
         {
             get { return this._NegativeThreshold; }
@@ -167,6 +166,22 @@ namespace Filter.LtiFilters
                 if ((this._targetLocal == null) || (this._originalLocal == null))
                     return false;
                 return true;
+            }
+        }
+
+        public IReadOnlyObservableList<ISignal> AvailableSignals { get; set; }
+
+        private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
+        {
+            if (this._UpdateMode == UpdateModes.Automatic) this.RaiseChangedEvent();
+        }
+
+        public void UpdateFilter()
+        {
+            if (this._UpdateMode == UpdateModes.Manual)
+            {
+                //this._originalLocal = this._Original.FixedCopy();
+                //this._targetLocal = this._Target.FixedCopy();
             }
         }
 
@@ -219,12 +234,5 @@ namespace Filter.LtiFilters
 
             //return imp * this._window;
         }
-
-        public CorrectingFilter(double samplerate) : base(samplerate)
-        {
-            this.Name = "correcting filter";
-        }
-
-        public IReadOnlyObservableList<ISignal> AvailableSignals { get; set; }
     }
 }

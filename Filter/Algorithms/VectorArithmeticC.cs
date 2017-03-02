@@ -8,7 +8,8 @@ namespace Filter.Algorithms
     public static class VectorArithmeticC
     {
         /// <summary>
-        ///     Adds two complex-valued sequences element-wise. The longer sequence is truncated to the length of the shorter sequence.
+        ///     Adds two complex-valued sequences element-wise. The longer sequence is truncated to the length of the shorter
+        ///     sequence.
         /// </summary>
         /// <param name="input">The first sequence.</param>
         /// <param name="input2">The second sequence.</param>
@@ -51,7 +52,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d / d1);
+            return input.Zip(input2, (d, d1) => d/d1);
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => scalar / c);
+            return input.Select(c => scalar/c);
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d * d1);
+            return input.Zip(input2, (d, d1) => d*d1);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => c * scalar);
+            return input.Select(c => c*scalar);
         }
 
         /// <summary>

@@ -69,7 +69,6 @@
     <Compile Include="Algorithms\SignalGenerators.cs" />
     <Compile Include="Algorithms\Statistics.cs" />
     <Compile Include="Algorithms\TimeDomain.cs" />
-    <Compile Include="Algorithms\Transformations.cs" />
     <Compile Include="Algorithms\FftwProvider\ComplexFftPlan.cs" />
     <Compile Include="Algorithms\Fft.cs" />
     <Compile Include="Algorithms\FftwProvider\FftPlan.cs" />
@@ -171,7 +170,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="fftw3.dll">
+    <Content Include="fftw3x86.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="fftw3x64.dll">
@@ -181,6 +180,9 @@
   <ItemGroup>
     <Reference Include="Filter.Interop">
       <HintPath>.\Filter.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="PropertyTools">
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\portable-net45+win8+wpa81+wp8\PropertyTools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

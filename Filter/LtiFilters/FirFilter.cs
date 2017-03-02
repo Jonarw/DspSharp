@@ -48,13 +48,9 @@ namespace Filter.LtiFilters
 
                     ISignal coef;
                     if (this.FilterType == Types.Highpass)
-                    {
                         coef = new IdealHighpass(this.Samplerate, this.Fc);
-                    }
                     else
-                    {
                         coef = new IdealLowpass(this.Samplerate, this.Fc);
-                    }
 
                     this.Coefficients = coef.Multiply(win).Signal;
                 }
@@ -71,9 +67,7 @@ namespace Filter.LtiFilters
             get
             {
                 if ((this.Fc <= 0) || (this.FilterLength <= 0))
-                {
                     return false;
-                }
                 return true;
             }
         }

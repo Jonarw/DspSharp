@@ -1,5 +1,4 @@
 ﻿using Filter.Algorithms;
-using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal
@@ -10,7 +9,7 @@ namespace Filter.Signal
     public class Dirac : FiniteSignal
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Dirac"/> class.
+        ///     Initializes a new instance of the <see cref="Dirac" /> class.
         /// </summary>
         /// <param name="sampleRate">The sample rate.</param>
         /// <param name="gain">The gain.</param>

@@ -32,7 +32,10 @@ namespace Filter.CircularBuffers
         /// <summary>
         ///     Retrieves an item without changing the current position.
         /// </summary>
-        /// <param name="position">The position of the item where 0 is the current item, -1 the item before that and +1 the next item to come.</param>
+        /// <param name="position">
+        ///     The position of the item where 0 is the current item, -1 the item before that and +1 the next
+        ///     item to come.
+        /// </param>
         /// <returns></returns>
         public T Peek(int position)
         {
@@ -46,7 +49,7 @@ namespace Filter.CircularBuffers
         public void Store(T item)
         {
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1) % this.Length;
+            this.Position = (this.Position + 1)%this.Length;
         }
 
         /// <summary>
@@ -59,29 +62,30 @@ namespace Filter.CircularBuffers
             var itemarray = items.ToArray();
 
             if (itemarray.Length + this.Position <= this.Length)
-            {
                 Array.Copy(itemarray, 0, this.storage, this.Position, itemarray.Length);
-            }
-            else if (itemarray.Length <= this.Length)
-            {
-                int remaining = this.Length - this.Position;
-
-                Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
-
-                Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
-            }
             else
             {
-                int remaining = this.Length - this.Position;
-                int difference = itemarray.Length - this.Length;
+                if (itemarray.Length <= this.Length)
+                {
+                    var remaining = this.Length - this.Position;
 
-                Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
+                    Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
 
-                if (remaining < this.Length)
-                    Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
+                    Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
+                }
+                else
+                {
+                    var remaining = this.Length - this.Position;
+                    var difference = itemarray.Length - this.Length;
+
+                    Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
+
+                    if (remaining < this.Length)
+                        Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
+                }
             }
 
-            this.Position = (this.Position + itemarray.Length) % this.Length;
+            this.Position = (this.Position + itemarray.Length)%this.Length;
         }
 
         /// <summary>
@@ -91,9 +95,9 @@ namespace Filter.CircularBuffers
         /// <returns></returns>
         public T StoreAndRetrieve(T item)
         {
-            T ret = this.storage[this.Position];
+            var ret = this.storage[this.Position];
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1) % this.Length;
+            this.Position = (this.Position + 1)%this.Length;
             return ret;
         }
 
@@ -107,41 +111,44 @@ namespace Filter.CircularBuffers
         {
             var itemarray = items.ToArray();
 
-            T[] ret = new T[itemarray.Length];
+            var ret = new T[itemarray.Length];
 
             if (itemarray.Length + this.Position <= this.Length)
             {
                 Array.Copy(this.storage, this.Position, ret, 0, itemarray.Length);
                 Array.Copy(itemarray, 0, this.storage, this.Position, itemarray.Length);
             }
-            else if (itemarray.Length <= this.Length)
-            {
-                int remaining = this.Length - this.Position;
-
-                Array.Copy(this.storage, this.Position, ret, 0, remaining);
-                Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
-
-                Array.Copy(this.storage, 0, ret, remaining, itemarray.Length - remaining);
-                Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
-            }
             else
             {
-                int remaining = this.Length - this.Position;
-                int difference = itemarray.Length - this.Length;
-
-                Array.Copy(this.storage, this.Position, ret, 0, remaining);
-                Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
-
-                if (remaining < this.Length)
+                if (itemarray.Length <= this.Length)
                 {
-                    Array.Copy(this.storage, 0, ret, remaining, this.Length - remaining);
-                    Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
-                }
+                    var remaining = this.Length - this.Position;
 
-                Array.Copy(itemarray, 0, ret, this.Length, difference);
+                    Array.Copy(this.storage, this.Position, ret, 0, remaining);
+                    Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
+
+                    Array.Copy(this.storage, 0, ret, remaining, itemarray.Length - remaining);
+                    Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
+                }
+                else
+                {
+                    var remaining = this.Length - this.Position;
+                    var difference = itemarray.Length - this.Length;
+
+                    Array.Copy(this.storage, this.Position, ret, 0, remaining);
+                    Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
+
+                    if (remaining < this.Length)
+                    {
+                        Array.Copy(this.storage, 0, ret, remaining, this.Length - remaining);
+                        Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
+                    }
+
+                    Array.Copy(itemarray, 0, ret, this.Length, difference);
+                }
             }
 
-            this.Position = (this.Position + itemarray.Length) % this.Length;
+            this.Position = (this.Position + itemarray.Length)%this.Length;
 
             return ret;
         }

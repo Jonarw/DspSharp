@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Filter.Algorithms.FftwProvider
+﻿namespace Filter.Algorithms.FftwProvider
 {
     public abstract unsafe class FftPlan
     {

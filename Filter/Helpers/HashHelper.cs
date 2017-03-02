@@ -17,7 +17,7 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                return 31 * hashCode + arg.GetHashCode();
+                return 31*hashCode + arg.GetHashCode();
             }
         }
 
@@ -33,7 +33,7 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                return 31 * arg1.GetHashCode() + arg2.GetHashCode();
+                return 31*arg1.GetHashCode() + arg2.GetHashCode();
             }
         }
 
@@ -51,9 +51,9 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                int hash = arg1.GetHashCode();
-                hash = 31 * hash + arg2.GetHashCode();
-                return 31 * hash + arg3.GetHashCode();
+                var hash = arg1.GetHashCode();
+                hash = 31*hash + arg2.GetHashCode();
+                return 31*hash + arg3.GetHashCode();
             }
         }
 
@@ -73,10 +73,10 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                int hash = arg1.GetHashCode();
-                hash = 31 * hash + arg2.GetHashCode();
-                hash = 31 * hash + arg3.GetHashCode();
-                return 31 * hash + arg4.GetHashCode();
+                var hash = arg1.GetHashCode();
+                hash = 31*hash + arg2.GetHashCode();
+                hash = 31*hash + arg3.GetHashCode();
+                return 31*hash + arg4.GetHashCode();
             }
         }
 
@@ -90,10 +90,10 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                int hash = 0;
+                var hash = 0;
                 foreach (var item in list)
                 {
-                    hash = 31 * hash + item.GetHashCode();
+                    hash = 31*hash + item.GetHashCode();
                 }
                 return hash;
             }
@@ -109,10 +109,10 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                int hash = 0;
+                var hash = 0;
                 foreach (var item in list)
                 {
-                    hash = 31 * hash + item.GetHashCode();
+                    hash = 31*hash + item.GetHashCode();
                 }
                 return hash;
             }
@@ -127,14 +127,14 @@ namespace Filter.Helpers
         {
             unchecked
             {
-                int hash = 0;
-                int count = 0;
+                var hash = 0;
+                var count = 0;
                 foreach (var item in list)
                 {
                     hash += item.GetHashCode();
                     count++;
                 }
-                return 31 * hash + count.GetHashCode();
+                return 31*hash + count.GetHashCode();
             }
         }
     }

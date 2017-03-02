@@ -7,15 +7,14 @@ namespace Filter.Algorithms.FftwProvider
     /// </summary>
     public static unsafe class FftwInterop
     {
-        public static object FftwLock = new object();
-
         private const string FftwLibraryName =
 #if x86
-            "fftw3";
+                                               "fftw3x86";
 #endif
 #if x64
             "fftw3x64";
 #endif
+        public static object FftwLock = new object();
 
         /// <summary>
         ///     Clears all memory used by FFTW, resets it to initial state. Does not replace destroy_plan and free

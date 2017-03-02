@@ -1,12 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
     public static class Statistics
     {
+        /// <summary>
+        ///     Calculates the mean of the specified sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <returns>The mean of the sequence.</returns>
+        /// <exception cref="System.ArgumentNullException"></exception>
+        public static double Mean(this IEnumerable<double> input)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return input.Average();
+        }
+
         /// <summary>
         ///     Calculates the standard deviation of a sequence.
         /// </summary>
@@ -66,8 +79,8 @@ namespace Filter.Algorithms
             if (valueslist.Count == 0)
                 return 0;
 
-            double variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
-            return variance / valueslist.Count;
+            var variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
+            return variance/valueslist.Count;
         }
     }
 }

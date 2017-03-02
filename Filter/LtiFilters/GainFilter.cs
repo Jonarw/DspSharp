@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.LtiFilters
@@ -25,17 +24,10 @@ namespace Filter.LtiFilters
             get
             {
                 if (this.Gain == 1)
-                {
                     return false;
-                }
 
                 return true;
             }
-        }
-
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
-        {
-            return signal.Multiply(this.Gain);
         }
 
         /// <summary>
@@ -47,6 +39,11 @@ namespace Filter.LtiFilters
         {
             get { return this._Gain; }
             set { this.SetField(ref this._Gain, value); }
+        }
+
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        {
+            return signal.Multiply(this.Gain);
         }
     }
 }

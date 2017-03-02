@@ -6,6 +6,7 @@ namespace Filter.CircularBuffers
     public unsafe class DoubleBlockBuffer
     {
         public delegate void BufferSwitchEventHandler(DoubleBlockBuffer sender, byte* buffer);
+
         private byte* inputbuffer;
         private byte* workbuffer;
 
@@ -21,8 +22,8 @@ namespace Filter.CircularBuffers
             this.BufferSize = bufferSize;
             this.InputBufferSize = inputBufferSize;
 
-            this.workbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
-            this.inputbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
+            this.workbuffer = (byte*) FftwInterop.malloc(this.BufferSize);
+            this.inputbuffer = (byte*) FftwInterop.malloc(this.BufferSize);
         }
 
         public int BufferPosition { get; set; }

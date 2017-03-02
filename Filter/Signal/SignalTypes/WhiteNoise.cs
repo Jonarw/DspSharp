@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.Signal
@@ -32,6 +31,13 @@ namespace Filter.Signal
         private int CacheStart { get; set; }
         private IEnumerator<double> NoiseSource { get; }
         private double Sigma { get; }
+
+        [Category("white noise")]
+        [DisplayName("mean")]
+        public double Mean { get; }
+
+        [DisplayName("variance")]
+        public double Variance { get; }
 
         /// <summary>
         ///     Gets a section of the signal in time domain.
@@ -70,20 +76,13 @@ namespace Filter.Signal
         private List<double> GenerateNoise(int length)
         {
             var ret = new List<double>(length);
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 this.NoiseSource.MoveNext();
-                ret.Add(this.NoiseSource.Current * this.Sigma + this.Mean);
+                ret.Add(this.NoiseSource.Current*this.Sigma + this.Mean);
             }
 
             return ret;
         }
-
-        [Category("white noise")]
-        [DisplayName("mean")]
-        public double Mean { get; }
-
-        [DisplayName("variance")]
-        public double Variance { get; }
     }
 }

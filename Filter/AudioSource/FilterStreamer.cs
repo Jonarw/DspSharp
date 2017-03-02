@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Filter.Algorithms;
-using Filter.Extensions;
 
 namespace Filter.AudioSource
 {
@@ -43,9 +41,7 @@ namespace Filter.AudioSource
         public double[] OutputBlock()
         {
             if (this.CurrentBlock == null)
-            {
                 throw new InvalidOperationException();
-            }
 
             return this.GetBlock();
         }
@@ -62,7 +58,7 @@ namespace Filter.AudioSource
             {
                 var ret = new double[this.CurrentBlock.Count];
 
-                for (int i = 0; i < this.CurrentBlock.Count; i++)
+                for (var i = 0; i < this.CurrentBlock.Count; i++)
                 {
                     this.StreamEnumerator.MoveNext();
                     ret[i] = this.StreamEnumerator.Current;

@@ -80,10 +80,21 @@
   <ItemGroup>
     <Compile Include="AlgorithmTest.cs" />
     <Compile Include="CircularBuffersTest.cs" />
+    <Compile Include="ComplexVectorTests.cs" />
     <Compile Include="FftTest.cs" />
     <Compile Include="FilterAssert.cs" />
     <Compile Include="MlsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFrequencyDomainAlgorithms.cs" />
+    <Compile Include="TestInterpolation.cs" />
+    <Compile Include="TestMathematicAlgorithms.cs" />
+    <Compile Include="TestSignalGenerators.cs" />
+    <Compile Include="TestStatistics.cs" />
+    <Compile Include="TestTimeDomainAlgorithms.cs" />
+    <Compile Include="TestVectorArithmeticC.cs" />
+    <Compile Include="TestVectorArithmeticD.cs" />
+    <Compile Include="TestVectorFunctions.cs" />
+    <Compile Include="TestVectorOperations.cs" />
     <Compile Include="UnsafeAlgorithmsTest.cs" />
   </ItemGroup>
   <ItemGroup>

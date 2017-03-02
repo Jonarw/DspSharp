@@ -2,7 +2,7 @@
 {
     public interface IAudioSource
     {
-        event BufferCompletedEventHandler BufferCompleted;
         int BlockSize { get; }
+        event BufferCompletedEventHandler BufferCompleted;
     }
 }

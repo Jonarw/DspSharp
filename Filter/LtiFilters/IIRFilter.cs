@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 
 namespace Filter.LtiFilters
 {
@@ -54,13 +53,9 @@ namespace Filter.LtiFilters
             get
             {
                 if ((this.A == null) || (this.B == null))
-                {
                     return false;
-                }
                 if (this.Order == 0)
-                {
                     return false;
-                }
                 return true;
             }
         }
@@ -78,9 +73,7 @@ namespace Filter.LtiFilters
             var n = this.A.Count;
 
             if (n != this.B.Count)
-            {
                 throw new ArgumentException();
-            }
 
             this.Order = n - 1;
         }

@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Filter.Algorithms;
 using Filter.Collections;
-using Filter.Extensions;
 using Filter.Signal;
 using PropertyTools.DataAnnotations;
 
@@ -26,9 +24,7 @@ namespace Filter.LtiFilters
             get
             {
                 if (this.Source != null)
-                {
                     return this.Source.Signal;
-                }
 
                 return 1.0.ToEnumerable().ToReadOnlyList();
             }
@@ -39,22 +35,27 @@ namespace Filter.LtiFilters
             get { return this.Source != null; }
         }
 
+        [DisplayName("source impulse response")]
+        [ItemsSourceProperty(nameof(AvailableFiniteSignals))]
+        [DisplayMemberPath(nameof(IFiniteSignal.DisplayName))]
+        public IFiniteSignal Source
+        {
+            get { return this._Source; }
+            set { this.SetField(ref this._Source, value); }
+        }
+
         public IReadOnlyObservableList<ISignal> AvailableSignals
         {
             get { return this._availableSignals; }
             set
             {
                 if (this.AvailableSignals != null)
-                {
                     this.AvailableSignals.CollectionChanged -= this.AvailableSignalsChanged;
-                }
 
                 this._availableSignals = value;
 
                 if (this.AvailableSignals != null)
-                {
                     this.AvailableSignals.CollectionChanged += this.AvailableSignalsChanged;
-                }
                 this.UpdateFiniteSignals();
             }
         }
@@ -67,18 +68,7 @@ namespace Filter.LtiFilters
         private void UpdateFiniteSignals()
         {
             if (this.AvailableSignals != null)
-            {
                 this.AvailableFiniteSignals.Reset(this.AvailableSignals.OfType<FiniteSignal>());
-            }
-        }
-
-        [DisplayName("source impulse response")]
-        [ItemsSourceProperty(nameof(AvailableFiniteSignals))]
-        [DisplayMemberPath(nameof(IFiniteSignal.DisplayName))]
-        public IFiniteSignal Source
-        {
-            get { return this._Source; }
-            set { this.SetField(ref this._Source, value); }
         }
     }
 }

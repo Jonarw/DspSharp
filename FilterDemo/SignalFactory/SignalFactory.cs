@@ -12,7 +12,7 @@ namespace FilterTest.SignalFactory
         private int _TimeOffset;
 
         [Browsable(false)]
-        public IList<double> AvailableSampleRates { get; } = FilterBase.AvailableSampleRates;
+        public IReadOnlyList<double> AvailableSampleRates { get; } = FilterBase.DefaultSampleRates;
 
         [ItemsSourceProperty(nameof(AvailableSampleRates))]
         //[DisplayName("sample rate")]

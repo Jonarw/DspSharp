@@ -71,13 +71,11 @@ namespace Filter.Collections
         public void AddRange(IEnumerable<T> items)
         {
             if (items == null)
-            {
                 throw new ArgumentNullException(nameof(items));
-            }
 
             var rangelist = items.ToList();
 
-            foreach (T item in rangelist)
+            foreach (var item in rangelist)
             {
                 this.Items.Add(item);
             }
@@ -94,13 +92,11 @@ namespace Filter.Collections
         public void RemoveRange(IEnumerable<T> items)
         {
             if (items == null)
-            {
                 throw new ArgumentNullException(nameof(items));
-            }
 
             var rangelist = items.ToList();
 
-            foreach (T item in rangelist)
+            foreach (var item in rangelist)
             {
                 this.Items.Remove(item);
             }
@@ -119,9 +115,7 @@ namespace Filter.Collections
             this.Items.Clear();
 
             if (newItems != null)
-            {
                 this.AddRange(newItems);
-            }
         }
 
         /// <summary>
@@ -132,9 +126,7 @@ namespace Filter.Collections
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             if (!this.SuspendUpdates)
-            {
                 base.OnCollectionChanged(e);
-            }
         }
 
         /// <summary>
@@ -145,9 +137,7 @@ namespace Filter.Collections
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
         {
             if (!this.SuspendUpdates)
-            {
                 base.OnPropertyChanged(e);
-            }
         }
     }
 }

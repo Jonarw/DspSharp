@@ -14,7 +14,8 @@ namespace Filter.Filters
         /// </summary>
         /// <param name="samplerate">The samplerate.</param>
         /// <param name="filterFunction">The filter function.</param>
-        public CustomFiniteFilter(double samplerate, Func<IEnumerable<double>, IEnumerable<double>> filterFunction) : base(samplerate)
+        public CustomFiniteFilter(double samplerate, Func<IEnumerable<double>, IEnumerable<double>> filterFunction)
+            : base(samplerate)
         {
             this.FilterFunction = filterFunction;
         }

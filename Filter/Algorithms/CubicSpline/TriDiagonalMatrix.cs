@@ -79,7 +79,7 @@ namespace Filter.Algorithms.CubicSpline
         {
             get
             {
-                int di = row - col;
+                var di = row - col;
 
                 if (di == 0)
                     return this.B[row];
@@ -91,16 +91,22 @@ namespace Filter.Algorithms.CubicSpline
             }
             set
             {
-                int di = row - col;
+                var di = row - col;
 
                 if (di == 0)
                     this.B[row] = value;
-                else if (di == -1)
-                    this.C[row] = value;
-                else if (di == 1)
-                    this.A[row] = value;
                 else
-                    throw new ArgumentException("Only the main, super, and sub diagonals can be set.");
+                {
+                    if (di == -1)
+                        this.C[row] = value;
+                    else
+                    {
+                        if (di == 1)
+                            this.A[row] = value;
+                        else
+                            throw new ArgumentException("Only the main, super, and sub diagonals can be set.");
+                    }
+                }
             }
         }
 
@@ -123,36 +129,36 @@ namespace Filter.Algorithms.CubicSpline
         /// <param name="d">Right side of the equation.</param>
         public double[] Solve(double[] d)
         {
-            int n = this.N;
+            var n = this.N;
 
             if (d.Length != n)
                 throw new ArgumentException("The input d is not the same size as this matrix.");
 
             // cPrime
-            double[] cPrime = new double[n];
-            cPrime[0] = this.C[0] / this.B[0];
+            var cPrime = new double[n];
+            cPrime[0] = this.C[0]/this.B[0];
 
-            for (int i = 1; i < n; i++)
+            for (var i = 1; i < n; i++)
             {
-                cPrime[i] = this.C[i] / (this.B[i] - cPrime[i - 1] * this.A[i]);
+                cPrime[i] = this.C[i]/(this.B[i] - cPrime[i - 1]*this.A[i]);
             }
 
             // dPrime
-            double[] dPrime = new double[n];
-            dPrime[0] = d[0] / this.B[0];
+            var dPrime = new double[n];
+            dPrime[0] = d[0]/this.B[0];
 
-            for (int i = 1; i < n; i++)
+            for (var i = 1; i < n; i++)
             {
-                dPrime[i] = (d[i] - dPrime[i - 1] * this.A[i]) / (this.B[i] - cPrime[i - 1] * this.A[i]);
+                dPrime[i] = (d[i] - dPrime[i - 1]*this.A[i])/(this.B[i] - cPrime[i - 1]*this.A[i]);
             }
 
             // Back substitution
-            double[] x = new double[n];
+            var x = new double[n];
             x[n - 1] = dPrime[n - 1];
 
-            for (int i = n - 2; i >= 0; i--)
+            for (var i = n - 2; i >= 0; i--)
             {
-                x[i] = dPrime[i] - cPrime[i] * x[i + 1];
+                x[i] = dPrime[i] - cPrime[i]*x[i + 1];
             }
 
             return x;

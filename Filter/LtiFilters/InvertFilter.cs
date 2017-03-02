@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 
 namespace Filter.LtiFilters
 {

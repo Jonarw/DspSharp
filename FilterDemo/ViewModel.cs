@@ -54,7 +54,7 @@ namespace FilterTest
 
         public ICommand AddFilterCommand => this._AddFilterCommand ?? (this._AddFilterCommand = new RelayCommand(param => this.AddFilter()));
         public ICommand AddSignalCommand => this._AddSignalCommand ?? (this._AddSignalCommand = new RelayCommand(param => this.AddSignal()));
-        public IEnumerable<double> AvailableSamplerates { get; } = FilterBase.AvailableSampleRates;
+        public IEnumerable<double> AvailableSamplerates { get; } = FilterBase.DefaultSampleRates;
         public ObservableCollection<IFilter> Filters { get; } = new ObservableCollection<IFilter>();
         public ImpulseResponsePlot ImpulseResponsePlot { get; set; }
         public MagnitudePlot MagnitudePlot { get; set; }

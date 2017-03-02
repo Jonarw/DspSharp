@@ -1,5 +1,4 @@
 ﻿using Filter.Algorithms;
-using Filter.Exceptions;
 using Filter.Signal;
 
 namespace Filter.Extensions

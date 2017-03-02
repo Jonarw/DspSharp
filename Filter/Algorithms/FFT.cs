@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Filter.Algorithms.FftwProvider;
-using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
@@ -13,7 +12,7 @@ namespace Filter.Algorithms
     public static class Fft
     {
         /// <summary>
-        /// Gets or sets the FFT provider used for all FFT calculations. Defaults to a FftwProvider.
+        ///     Gets or sets the FFT provider used for all FFT calculations. Defaults to a FftwProvider.
         /// </summary>
         public static IFftProvider FftProvider { get; set; } = new FftwProvider.FftwProvider();
 
@@ -27,7 +26,7 @@ namespace Filter.Algorithms
         /// <returns>Array of frequencies</returns>
         public static IEnumerable<double> GetFrequencies(double samplerate, int n)
         {
-            return SignalGenerators.LinSeries(0, samplerate * 0.5, (n >> 1) + 1);
+            return SignalGenerators.LinSeries(0, samplerate*0.5, (n >> 1) + 1);
         }
 
         /// <summary>
@@ -50,26 +49,20 @@ namespace Filter.Algorithms
         public static IReadOnlyList<Complex> RealFft(IEnumerable<double> input, int n = -1)
         {
             if (input == null)
-            {
                 throw new ArgumentNullException(nameof(input));
-            }
 
             IReadOnlyList<double> inputlist;
 
-            if (n < 0 )
+            if (n < 0)
             {
                 inputlist = input.ToReadOnlyList();
                 n = inputlist.Count;
             }
             else
-            {
                 inputlist = input.ToReadOnlyList(n);
-            }
 
             if (n == 0)
-            {
                 return Enumerable.Empty<Complex>().ToReadOnlyList();
-            }
 
             return FftProvider.RealFft(inputlist, n);
         }
@@ -82,16 +75,12 @@ namespace Filter.Algorithms
         public static IReadOnlyList<double> RealIfft(IEnumerable<Complex> input)
         {
             if (input == null)
-            {
                 throw new ArgumentNullException(nameof(input));
-            }
 
             var inputlist = input.ToReadOnlyList();
 
             if (inputlist.Count == 0)
-            {
                 return Enumerable.Empty<double>().ToReadOnlyList();
-            }
 
             return FftProvider.RealIfft(inputlist);
         }
@@ -105,26 +94,20 @@ namespace Filter.Algorithms
         public static IReadOnlyList<Complex> ComplexFft(IEnumerable<Complex> input, int n = -1)
         {
             if (input == null)
-            {
                 throw new ArgumentNullException(nameof(input));
-            }
 
             IReadOnlyList<Complex> inputlist;
 
-            if (n < 0 )
+            if (n < 0)
             {
                 inputlist = input.ToReadOnlyList();
                 n = inputlist.Count;
             }
             else
-            {
                 inputlist = input.ToReadOnlyList(n);
-            }
 
             if (n == 0)
-            {
                 return Enumerable.Empty<Complex>().ToReadOnlyList();
-            }
 
             return FftProvider.ComplexFft(inputlist, n);
         }
@@ -137,16 +120,12 @@ namespace Filter.Algorithms
         public static IReadOnlyList<Complex> ComplexIfft(IEnumerable<Complex> input)
         {
             if (input == null)
-            {
                 throw new ArgumentNullException(nameof(input));
-            }
 
             var inputlist = input.ToReadOnlyList();
 
             if (inputlist.Count == 0)
-            {
                 return Enumerable.Empty<Complex>().ToReadOnlyList();
-            }
 
             return FftProvider.ComplexIfft(inputlist);
         }

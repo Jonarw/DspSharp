@@ -24,7 +24,8 @@ namespace Filter.Signal
         /// </summary>
         /// <param name="timeDomainFunction">The time domain range function.</param>
         /// <param name="sampleRate">The sample rate.</param>
-        protected SyntheticSignal(TimeDomainRangeFunc timeDomainFunction, double sampleRate) : base(timeDomainFunction, sampleRate)
+        protected SyntheticSignal(TimeDomainRangeFunc timeDomainFunction, double sampleRate)
+            : base(timeDomainFunction, sampleRate)
         {
             this.DisplayName = "synthetic signal";
         }

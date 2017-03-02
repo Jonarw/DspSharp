@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 using Filter.Series;
 using Filter.Spectrum;
 using PropertyTools.DataAnnotations;
@@ -85,9 +84,7 @@ namespace Filter.Signal
         public double GetSample(int time)
         {
             if ((time < this.Start) || (time >= this.Stop))
-            {
                 return 0.0;
-            }
 
             return this.Signal[time - this.Start];
         }
@@ -100,9 +97,7 @@ namespace Filter.Signal
             get
             {
                 if (this._signal == null)
-                {
                     this._signal = this.Spectrum.GetTimeDomainSignal();
-                }
 
                 return this._signal;
             }
@@ -118,9 +113,8 @@ namespace Filter.Signal
             get
             {
                 if (this._spectrum == null)
-                {
-                    this._spectrum = new FftSpectrum(this.Signal, Math.Max(this.Length, this.MinFftLength), this.SampleRate, this.Start);
-                }
+                    this._spectrum = new FftSpectrum(this.Signal, Math.Max(this.Length, this.MinFftLength),
+                        this.SampleRate, this.Start);
 
                 return this._spectrum;
             }

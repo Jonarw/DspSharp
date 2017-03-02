@@ -15,12 +15,13 @@ namespace Filter.Algorithms.FftwProvider
         /// <param name="fftLength">The FFT length the plan is used for.</param>
         public InverseRealFftPlan(int fftLength) : base(fftLength, FftwInterop.dft_c2r_1d)
         {
-            this.NormalizationFactor = 1D / fftLength;
+            this.NormalizationFactor = 1D/fftLength;
         }
 
         private double NormalizationFactor { get; }
 
-        private static Dictionary<int, InverseRealFftPlan> PlanCache { get; } = new Dictionary<int, InverseRealFftPlan>();
+        private static Dictionary<int, InverseRealFftPlan> PlanCache { get; } =
+            new Dictionary<int, InverseRealFftPlan>();
 
         public void Execute(Complex[] input, double[] output)
         {
@@ -30,27 +31,27 @@ namespace Filter.Algorithms.FftwProvider
             if (output.Length < this.FftLength)
                 throw new ArgumentException();
 
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (void*) 0;
+            var pOutput = (void*) 0;
             try
             {
-                pInput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(this.FftLength * sizeof(double));
+                pInput = FftwInterop.malloc(this.SpectrumLength*2*sizeof(double));
+                pOutput = FftwInterop.malloc(this.FftLength*sizeof(double));
 
                 fixed (Complex* pinputarray = input)
                 {
-                    Interop.memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
+                    Interop.memcpy(pInput, pinputarray, this.SpectrumLength*2*sizeof(double));
                 }
 
                 FftwInterop.execute_dft_c2r(this.Plan, pInput, pOutput);
 
                 fixed (double* pRet = output)
                 {
-                    var dpOutput = (double*)pOutput;
+                    var dpOutput = (double*) pOutput;
 
-                    for (int i = 0; i < this.FftLength; i++)
+                    for (var i = 0; i < this.FftLength; i++)
                     {
-                        *(pRet + i) = *(dpOutput + i) * this.NormalizationFactor;
+                        *(pRet + i) = *(dpOutput + i)*this.NormalizationFactor;
                     }
                 }
             }
@@ -71,9 +72,9 @@ namespace Filter.Algorithms.FftwProvider
         public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
             FftwInterop.execute_dft_c2r(this.Plan, pInput, pOutput);
-            var dpOutput = (double*)pOutput;
+            var dpOutput = (double*) pOutput;
 
-            for (int i = 0; i < this.FftLength; i++)
+            for (var i = 0; i < this.FftLength; i++)
             {
                 *(dpOutput + i) *= this.NormalizationFactor;
             }

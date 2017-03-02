@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
@@ -21,7 +20,8 @@ namespace Filter.Algorithms
         ///     A new array containing the result. If <paramref name="frequencies" /> and <paramref name="amplitudes" /> are not
         ///     the same length, the longer one is truncated.
         /// </returns>
-        public static IEnumerable<Complex> ApplyDelayToSpectrum(IEnumerable<double> frequencies, IEnumerable<Complex> amplitudes, double delay)
+        public static IEnumerable<Complex> ApplyDelayToSpectrum(IEnumerable<double> frequencies,
+            IEnumerable<Complex> amplitudes, double delay)
         {
             if (frequencies == null)
                 throw new ArgumentNullException(nameof(frequencies));
@@ -29,8 +29,8 @@ namespace Filter.Algorithms
             if (amplitudes == null)
                 throw new ArgumentNullException(nameof(amplitudes));
 
-            var factor = Complex.ImaginaryOne * 2 * Math.PI * delay;
-            return frequencies.Zip(amplitudes, (f, a) => Complex.Exp(factor * f) * a);
+            var factor = Complex.ImaginaryOne*2*Math.PI*delay;
+            return frequencies.Zip(amplitudes, (f, a) => Complex.Exp(factor*f)*a);
         }
 
         /// <summary>
@@ -60,14 +60,15 @@ namespace Filter.Algorithms
             if (n == 0)
                 yield break;
 
-            yield return (phaselist[0] - phaselist[1]) / (2 * Math.PI * (frequencylist[1] - frequencylist[0]));
+            yield return (phaselist[0] - phaselist[1])/(2*Math.PI*(frequencylist[1] - frequencylist[0]));
             for (var c = 1; c < n - 1; c++)
             {
-                yield return (phaselist[c - 1] - phaselist[c + 1]) / (2 * Math.PI * (frequencylist[c + 1] - frequencylist[c - 1]));
+                yield return
+                    (phaselist[c - 1] - phaselist[c + 1])/(2*Math.PI*(frequencylist[c + 1] - frequencylist[c - 1]));
             }
 
-            yield return (phaselist[phaselist.Count - 2] - phaselist[phaselist.Count - 1]) /
-                         (2 * Math.PI * (frequencylist[frequencylist.Count - 1] - frequencylist[frequencylist.Count - 2]));
+            yield return (phaselist[phaselist.Count - 2] - phaselist[phaselist.Count - 1])/
+                         (2*Math.PI*(frequencylist[frequencylist.Count - 1] - frequencylist[frequencylist.Count - 2]));
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Filter.Algorithms
         /// <returns>The value in linear scale.</returns>
         public static double DbToLinear(double dB)
         {
-            return Math.Pow(10, dB / 20);
+            return Math.Pow(10, dB/20);
         }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace Filter.Algorithms
         /// <returns>The value in rad.</returns>
         public static double DegToRad(double deg)
         {
-            return deg * Math.PI / 180;
+            return deg*Math.PI/180;
         }
 
         /// <summary>
@@ -144,28 +145,31 @@ namespace Filter.Algorithms
                 throw new ArgumentOutOfRangeException(nameof(samplerate));
 
             if (a.Count < b.Count)
-                a = a.ZeroPad(b.Count - a.Count).ToReadOnlyList();
-            else if (b.Count < a.Count)
-                b = b.ZeroPad(a.Count - b.Count).ToReadOnlyList();
+                a = a.PadRight(b.Count - a.Count).ToReadOnlyList();
+            else
+            {
+                if (b.Count < a.Count)
+                    b = b.PadRight(a.Count - b.Count).ToReadOnlyList();
+            }
 
-            if (a.Count == 0 || a[0] == 0)
+            if ((a.Count == 0) || (a[0] == 0))
                 throw new Exception("a0 cannot be 0.");
 
             var n = a.Count;
-            double factor = 2 * Math.PI / samplerate;
+            var factor = 2*Math.PI/samplerate;
 
-            foreach (double d in frequencies)
+            foreach (var d in frequencies)
             {
-                var w = d * factor;
+                var w = d*factor;
                 Complex nom = 0;
                 Complex den = 0;
                 for (var c1 = 0; c1 < n; c1++)
                 {
-                    nom += b[c1] * Complex.Exp(-(n - c1) * Complex.ImaginaryOne * w);
-                    den += a[c1] * Complex.Exp(-(n - c1) * Complex.ImaginaryOne * w);
+                    nom += b[c1]*Complex.Exp(-(n - c1)*Complex.ImaginaryOne*w);
+                    den += a[c1]*Complex.Exp(-(n - c1)*Complex.ImaginaryOne*w);
                 }
 
-                yield return nom / den;
+                yield return nom/den;
             }
         }
 
@@ -180,7 +184,7 @@ namespace Filter.Algorithms
             if (linear <= 0)
                 return minValue;
 
-            return Math.Max(20 * Math.Log10(linear), minValue);
+            return Math.Max(20*Math.Log10(linear), minValue);
         }
 
         /// <summary>
@@ -189,7 +193,8 @@ namespace Filter.Algorithms
         /// <param name="linear">The array in linear scale.</param>
         /// <param name="minValue">The minimum return value.</param>
         /// <returns>A new array of the same length as <paramref name="linear" /> containing the result.</returns>
-        public static IEnumerable<double> LinearToDb(IEnumerable<double> linear, double minValue = double.NegativeInfinity)
+        public static IEnumerable<double> LinearToDb(IEnumerable<double> linear,
+            double minValue = double.NegativeInfinity)
         {
             if (linear == null)
                 throw new ArgumentNullException(nameof(linear));
@@ -224,7 +229,7 @@ namespace Filter.Algorithms
         /// <returns>The value in degree.</returns>
         public static double RadToDeg(double rad)
         {
-            return rad * 180 / Math.PI;
+            return rad*180/Math.PI;
         }
 
         /// <summary>
@@ -260,7 +265,7 @@ namespace Filter.Algorithms
             }
             else
             {
-                fullPeriod = 2 * Math.PI;
+                fullPeriod = 2*Math.PI;
                 halfPeriod = Math.PI;
             }
 
@@ -278,8 +283,11 @@ namespace Filter.Algorithms
                 {
                     if (previousPhase - e.Current > halfPeriod)
                         offset += fullPeriod;
-                    else if (previousPhase - e.Current < -halfPeriod)
-                        offset -= fullPeriod;
+                    else
+                    {
+                        if (previousPhase - e.Current < -halfPeriod)
+                            offset -= fullPeriod;
+                    }
 
                     previousPhase = e.Current;
                     yield return e.Current + offset;
@@ -308,18 +316,21 @@ namespace Filter.Algorithms
             }
             else
             {
-                fullPeriod = 2 * Math.PI;
+                fullPeriod = 2*Math.PI;
                 halfPeriod = Math.PI;
             }
 
             return input.Select(
                 d =>
                 {
-                    var tmp = d % fullPeriod;
+                    var tmp = d%fullPeriod;
                     if (tmp > halfPeriod)
                         tmp -= fullPeriod;
-                    else if (tmp < -halfPeriod)
-                        tmp += fullPeriod;
+                    else
+                    {
+                        if (tmp < -halfPeriod)
+                            tmp += fullPeriod;
+                    }
 
                     return tmp;
                 });

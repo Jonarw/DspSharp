@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
@@ -87,10 +86,10 @@ namespace Filter.Algorithms
                 if (c == actualTargetX.Count - 1)
                     xlim = actualTargetX[c];
                 else
-                    xlim = (actualTargetX[c + 1] + actualTargetX[c]) / 2;
+                    xlim = (actualTargetX[c + 1] + actualTargetX[c])/2;
 
                 var pointCounter = 0;
-                while (xCurrent < xMax && actualX[xCurrent] < xlim)
+                while ((xCurrent < xMax) && (actualX[xCurrent] < xlim))
                 {
                     pointCounter += 1;
                     xCurrent += 1;
@@ -99,30 +98,30 @@ namespace Filter.Algorithms
                 if (pointCounter < 2) // spline
                 {
                     if (spline == null)
-                    {
                         spline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
-                    }
 
                     yield return spline[c];
                 }
                 else
-                if (pointCounter < 3) // linear interpolation
                 {
-                    var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
-                    tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
-                    tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
-                    yield return tmp;
-                }
-                else // average
-                {
-                    double tmp = 0;
-                    for (var c2 = 1; c2 <= pointCounter; c2++)
+                    if (pointCounter < 3) // linear interpolation
                     {
-                        tmp += y[xCurrent - c2];
+                        var tmp = (actualTargetX[c] - actualX[xCurrent - 1])*y[xCurrent];
+                        tmp += (actualX[xCurrent] - actualTargetX[c])*y[xCurrent - 1];
+                        tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
+                        yield return tmp;
                     }
+                    else // average
+                    {
+                        double tmp = 0;
+                        for (var c2 = 1; c2 <= pointCounter; c2++)
+                        {
+                            tmp += y[xCurrent - c2];
+                        }
 
-                    tmp /= pointCounter;
-                    yield return tmp;
+                        tmp /= pointCounter;
+                        yield return tmp;
+                    }
                 }
             }
         }
@@ -216,7 +215,8 @@ namespace Filter.Algorithms
             var phase = y.Phase();
             phase = FrequencyDomain.UnwrapPhase(phase);
 
-            var mspline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), magnitude.ToArray(), actualTargetX.ToArray());
+            var mspline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), magnitude.ToArray(),
+                actualTargetX.ToArray());
             var pspline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), phase.ToArray(), actualTargetX.ToArray());
 
             return FrequencyDomain.PolarToComplex(mspline, pspline);
@@ -233,7 +233,8 @@ namespace Filter.Algorithms
         ///     A sequence of the same length as <paramref name="x" /> and <paramref name="y" /> containing the
         ///     result.
         /// </returns>
-        public static IEnumerable<double> Smooth(IReadOnlyList<double> x, IReadOnlyList<double> y, int resolution, bool logX = true)
+        public static IEnumerable<double> Smooth(IReadOnlyList<double> x, IReadOnlyList<double> y, int resolution,
+            bool logX = true)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));
@@ -262,11 +263,11 @@ namespace Filter.Algorithms
 
             Func<double, double, double, double> smoothWindow = (logF, logF0, bw) =>
             {
-                var argument = (logF - logF0) / bw * Math.PI;
+                var argument = (logF - logF0)/bw*Math.PI;
                 if (Math.Abs(argument) >= Math.PI)
                     return 0;
 
-                return 0.5 * (1.0 + Math.Cos(argument));
+                return 0.5*(1.0 + Math.Cos(argument));
             };
 
             double bandwidth;
@@ -275,12 +276,12 @@ namespace Filter.Algorithms
             if (logX)
             {
                 actualX = x.Log(10).ToReadOnlyList();
-                bandwidth = Math.Log(Math.Pow(2.0, 1.0 / resolution));
+                bandwidth = Math.Log(Math.Pow(2.0, 1.0/resolution));
             }
             else
             {
                 actualX = x;
-                bandwidth = Math.Pow(2.0, 1.0 / resolution);
+                bandwidth = Math.Pow(2.0, 1.0/resolution);
             }
 
             for (var fc = 0; fc < y.Count; fc++)
@@ -296,7 +297,7 @@ namespace Filter.Algorithms
 
                     factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
-                    sum += factor * y[fc2];
+                    sum += factor*y[fc2];
                     fc2 -= 1;
                 }
 
@@ -308,11 +309,11 @@ namespace Filter.Algorithms
 
                     factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
-                    sum += factor * y[fc2];
+                    sum += factor*y[fc2];
                     fc2 += 1;
                 }
 
-                yield return sum / factorSum;
+                yield return sum/factorSum;
             }
         }
     }

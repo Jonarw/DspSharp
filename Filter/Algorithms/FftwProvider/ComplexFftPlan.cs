@@ -13,9 +13,10 @@ namespace Filter.Algorithms.FftwProvider
         /// </summary>
         /// <param name="fftLength">The FFT lenght the plan is used for.</param>
         /// <param name="direction">The FFT direction.</param>
-        public ComplexToComplexFftPlan(int fftLength, FftwDirection direction) : base(fftLength, CreatePlan(fftLength, direction))
+        public ComplexToComplexFftPlan(int fftLength, FftwDirection direction)
+            : base(fftLength, CreatePlan(fftLength, direction))
         {
-            this.NormalizationFactor = 1D / this.FftLength;
+            this.NormalizationFactor = 1D/this.FftLength;
             this.Direction = direction;
         }
 
@@ -37,20 +38,21 @@ namespace Filter.Algorithms.FftwProvider
             if (output.Length < this.FftLength)
                 throw new ArgumentException();
 
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (void*) 0;
+            var pOutput = (void*) 0;
 
             try
             {
-                pInput = FftwInterop.malloc(this.FftLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(this.FftLength * 2 * sizeof(double));
+                pInput = FftwInterop.malloc(this.FftLength*2*sizeof(double));
+                pOutput = FftwInterop.malloc(this.FftLength*2*sizeof(double));
 
                 fixed (Complex* pinputarray = input)
                 {
-                    Interop.memcpy(pInput, pinputarray, input.Length * 2 * sizeof(double));
+                    Interop.memcpy(pInput, pinputarray, input.Length*2*sizeof(double));
 
                     if (input.Length < this.FftLength)
-                        Interop.memset((Complex*)pInput + input.Length, 0, (this.FftLength - input.Length) * 2 * sizeof(double));
+                        Interop.memset((Complex*) pInput + input.Length, 0,
+                            (this.FftLength - input.Length)*2*sizeof(double));
                 }
 
                 FftwInterop.execute_dft(this.Plan, pInput, pOutput);
@@ -58,17 +60,15 @@ namespace Filter.Algorithms.FftwProvider
                 fixed (Complex* pRet = output)
                 {
                     if (this.Direction == FftwDirection.Forward)
-                    {
-                        Interop.memcpy(pRet, pOutput, this.FftLength * 2 * sizeof(double));
-                    }
+                        Interop.memcpy(pRet, pOutput, this.FftLength*2*sizeof(double));
                     else
                     {
-                        var dpOutput = (double*)pOutput;
-                        var dpRet = (double*)pRet;
+                        var dpOutput = (double*) pOutput;
+                        var dpRet = (double*) pRet;
 
-                        for (int i = 0; i < this.FftLength * 2; i++)
+                        for (var i = 0; i < this.FftLength*2; i++)
                         {
-                            *(dpRet + i) = *(dpOutput + i) * this.NormalizationFactor;
+                            *(dpRet + i) = *(dpOutput + i)*this.NormalizationFactor;
                         }
                     }
                 }
@@ -97,9 +97,9 @@ namespace Filter.Algorithms.FftwProvider
             FftwInterop.execute_dft(this.Plan, pInput, pOutput);
             if (this.Direction == FftwDirection.Backward)
             {
-                var dpOutput = (double*)pOutput;
+                var dpOutput = (double*) pOutput;
 
-                for (int i = 0; i < this.FftLength * 2; i++)
+                for (var i = 0; i < this.FftLength*2; i++)
                 {
                     *(dpOutput + i) *= this.NormalizationFactor;
                 }
@@ -108,16 +108,17 @@ namespace Filter.Algorithms.FftwProvider
 
         private static void* CreatePlan(int fftLength, FftwDirection direction)
         {
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (void*) 0;
+            var pOutput = (void*) 0;
             try
             {
-                pInput = FftwInterop.malloc(fftLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(fftLength * 2 * sizeof(double));
+                pInput = FftwInterop.malloc(fftLength*2*sizeof(double));
+                pOutput = FftwInterop.malloc(fftLength*2*sizeof(double));
 
                 lock (FftwInterop.FftwLock)
                 {
-                    return FftwInterop.dft_1d(fftLength, pInput, pOutput, direction, FftwFlags.Measure | FftwFlags.DestroyInput);
+                    return FftwInterop.dft_1d(fftLength, pInput, pOutput, direction,
+                        FftwFlags.Measure | FftwFlags.DestroyInput);
                 }
             }
             finally

@@ -18,8 +18,8 @@ namespace Filter.Series
         /// <param name="logarithmic">Determines whether the series should be on a linear or a logarithmic scale.</param>
         public UniformSeries(double from, double to, int length, bool logarithmic = false) :
             base(logarithmic
-                    ? SignalGenerators.LogSeries(from, to, length)
-                    : SignalGenerators.LinSeries(from, to, length),
+                ? SignalGenerators.LogSeries(from, to, length)
+                : SignalGenerators.LinSeries(from, to, length),
                 logarithmic)
         {
             this.From = from;

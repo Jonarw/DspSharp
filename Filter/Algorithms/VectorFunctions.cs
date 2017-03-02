@@ -16,7 +16,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Aggregate(0.0, (d, d1) => d + d1 * d1);
+            return input.Aggregate(0.0, (d, d1) => d + d1*d1);
         }
 
         /// <summary>
@@ -47,10 +47,14 @@ namespace Filter.Algorithms
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            int index = -1;
-            T maxValue = default(T); // Immediately overwritten anyway
+            var sequencelist = sequence.ToReadOnlyList();
+            if (sequencelist.Count == 0)
+                return -1;
 
-            return sequence.Aggregate(
+            var index = -1;
+            var maxValue = sequencelist.First(); // Immediately overwritten anyway
+
+            return sequencelist.Aggregate(
                 0,
                 (i, value) =>
                 {
@@ -77,10 +81,14 @@ namespace Filter.Algorithms
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            int index = -1;
-            T minValue = default(T); // Immediately overwritten anyway
+            var sequencelist = sequence.ToReadOnlyList();
+            if (sequencelist.Count == 0)
+                return -1;
 
-            return sequence.Aggregate(
+            var index = -1;
+            var minValue = sequencelist.First(); // Immediately overwritten anyway
+
+            return sequencelist.Aggregate(
                 0,
                 (i, value) =>
                 {

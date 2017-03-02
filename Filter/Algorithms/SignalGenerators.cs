@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Filter.Extensions;
 using Filter.Signal.Windows;
 
 namespace Filter.Algorithms
@@ -111,7 +110,8 @@ namespace Filter.Algorithms
         /// <param name="alignment">The alignment.</param>
         /// <param name="samplerate">The samplerate.</param>
         /// <returns></returns>
-        public static IEnumerable<double> AlignedLogSweep(double from, double to, double length, SweepAlignments alignment, double samplerate = 44100)
+        public static IEnumerable<double> AlignedLogSweep(double from, double to, double length,
+            SweepAlignments alignment, double samplerate = 44100)
         {
             if (length <= 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
@@ -132,27 +132,39 @@ namespace Filter.Algorithms
             if (alignment == SweepAlignments.None)
                 return LogSweep(from, to, length, samplerate);
 
-            length = Convert.ToInt32(length * samplerate) / samplerate;
+            length = Convert.ToInt32(length*samplerate)/samplerate;
 
-            var w1 = Math.Min(to, from) * 2 * Math.PI;
-            var w2 = Math.Max(to, from) * 2 * Math.PI;
-            var k = length * (w2 - w1) / (Math.PI * Math.Log(w2 / w1));
+            var w1 = Math.Min(to, from)*2*Math.PI;
+            var w2 = Math.Max(to, from)*2*Math.PI;
+            var k = length*(w2 - w1)/(Math.PI*Math.Log(w2/w1));
 
             if (alignment == SweepAlignments.Zero)
                 k = Convert.ToInt32(k);
-            else if (alignment == SweepAlignments.NegativeZero)
-                k = Convert.ToInt32(0.5 * k) * 2;
-            else if (alignment == SweepAlignments.PositiveZero)
-                k = Convert.ToInt32(0.5 * (k + 1)) * 2 - 1;
-            else if (alignment == SweepAlignments.NegativeOne)
-                k = Convert.ToInt32(0.5 * (k + 0.5)) * 2 - 0.5;
-            else if (alignment == SweepAlignments.PositiveOne)
-                k = Convert.ToInt32(0.5 * (k - 0.5)) * 2 + 0.5;
+            else
+            {
+                if (alignment == SweepAlignments.NegativeZero)
+                    k = Convert.ToInt32(0.5*k)*2;
+                else
+                {
+                    if (alignment == SweepAlignments.PositiveZero)
+                        k = Convert.ToInt32(0.5*(k + 1))*2 - 1;
+                    else
+                    {
+                        if (alignment == SweepAlignments.NegativeOne)
+                            k = Convert.ToInt32(0.5*(k + 0.5))*2 - 0.5;
+                        else
+                        {
+                            if (alignment == SweepAlignments.PositiveOne)
+                                k = Convert.ToInt32(0.5*(k - 0.5))*2 + 0.5;
+                        }
+                    }
+                }
+            }
 
-            w2 = Mathematic.FindRoot(w2N => length * (w2N - w1) / (Math.PI * Math.Log(w2N / w1)) - k, w2, 1);
+            w2 = Mathematic.FindRoot(w2N => length*(w2N - w1)/(Math.PI*Math.Log(w2N/w1)) - k, w2, 1);
 
-            var actualfrom = from < to ? from : w2 / (2 * Math.PI);
-            var actualto = from < to ? w2 / (2 * Math.PI) : to;
+            var actualfrom = from < to ? from : w2/(2*Math.PI);
+            var actualto = from < to ? w2/(2*Math.PI) : to;
             return LogSweep(actualfrom, actualto, length, samplerate);
         }
 
@@ -183,12 +195,12 @@ namespace Filter.Algorithms
 
             yield return 1;
 
-            double factor = 2 * Math.PI * frequency / samplerate;
-            int c = 1;
+            var factor = 2*Math.PI*frequency/samplerate;
+            var c = 1;
             while (true)
             {
-                var omega = c * factor;
-                yield return Math.Sin(omega) / omega;
+                var omega = c*factor;
+                yield return Math.Sin(omega)/omega;
                 c++;
             }
             // ReSharper disable once FunctionNeverReturns
@@ -207,8 +219,8 @@ namespace Filter.Algorithms
             if (length < 1)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            var d = (to - from) / (length - 1);
-            return Enumerable.Range(0, length).Select(i => i * d + from);
+            var d = (to - from)/(length - 1);
+            return Enumerable.Range(0, length).Select(i => i*d + from);
         }
 
         /// <summary>
@@ -231,9 +243,9 @@ namespace Filter.Algorithms
 
             var startValueLog = Math.Log(from);
             var stopValueLog = Math.Log(to);
-            var stepSizeLog = (stopValueLog - startValueLog) / (steps - 1);
+            var stepSizeLog = (stopValueLog - startValueLog)/(steps - 1);
 
-            return Enumerable.Range(0, steps).Select(i => Math.Exp(startValueLog + i * stepSizeLog));
+            return Enumerable.Range(0, steps).Select(i => Math.Exp(startValueLog + i*stepSizeLog));
         }
 
         /// <summary>
@@ -261,23 +273,27 @@ namespace Filter.Algorithms
             if (to == from)
                 throw new ArgumentException();
 
-            var w1 = Math.Min(from, to) * 2 * Math.PI;
-            var w2 = Math.Max(from, to) * 2 * Math.PI;
-            var steps = (int)(length * samplerate);
+            var w1 = Math.Min(from, to)*2*Math.PI;
+            var w2 = Math.Max(from, to)*2*Math.PI;
+            var steps = (int) (length*samplerate);
 
-            var factor1 = w1 * length / Math.Log(w2 / w1);
-            var factor2 = Math.Log(w2 / w1) / length;
+            var factor1 = w1*length/Math.Log(w2/w1);
+            var factor2 = Math.Log(w2/w1)/length;
 
             if (to > from)
-                for (int i = 0; i < steps; i++)
+            {
+                for (var i = 0; i < steps; i++)
                 {
-                    yield return Math.Sin(factor1 * (Math.Exp(i / samplerate * factor2) - 1));
+                    yield return Math.Sin(factor1*(Math.Exp(i/samplerate*factor2) - 1));
                 }
+            }
             else
-                for (int i = steps - 1; i >= 0; i--)
+            {
+                for (var i = steps - 1; i >= 0; i--)
                 {
-                    yield return Math.Sin(factor1 * (Math.Exp(i / samplerate * factor2) - 1));
+                    yield return Math.Sin(factor1*(Math.Exp(i/samplerate*factor2) - 1));
                 }
+            }
         }
 
         /// <summary>
@@ -292,21 +308,22 @@ namespace Filter.Algorithms
         ///     The oversampling used to calculate the sweep. Increases the accuracy of the phase
         ///     calculation, especially at higher frequencies.
         /// </param>
-        public static IEnumerable<double> LogSweepAlternative(double from, double to, double length, double samplerate = 44100, int oversampling = 10)
+        public static IEnumerable<double> LogSweepAlternative(double from, double to, double length,
+            double samplerate = 44100, int oversampling = 10)
         {
-            var logAngularFrom = Math.Log(from * 2 * Math.PI / (samplerate * oversampling));
-            var logAngularTo = Math.Log(to * 2 * Math.PI / (samplerate * oversampling));
+            var logAngularFrom = Math.Log(from*2*Math.PI/(samplerate*oversampling));
+            var logAngularTo = Math.Log(to*2*Math.PI/(samplerate*oversampling));
 
-            var steps = (int)(length * samplerate);
-            var oversampledSteps = steps * oversampling;
-            var logStep = (logAngularTo - logAngularFrom) / oversampledSteps;
+            var steps = (int) (length*samplerate);
+            var oversampledSteps = steps*oversampling;
+            var logStep = (logAngularTo - logAngularFrom)/oversampledSteps;
 
             var logCurrentFrequency = logAngularFrom;
             var currentPhase = 0.0;
 
             for (var c = 0; c < oversampledSteps; c++)
             {
-                if (c % oversampling == 0)
+                if (c%oversampling == 0)
                     yield return Math.Sin(currentPhase);
 
                 logCurrentFrequency += logStep;
@@ -331,7 +348,7 @@ namespace Filter.Algorithms
 
             //var fftsw = Fft.RealFft(sweep.Reverse());
             inverse = sweep.Reverse().Select(
-                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
+                (d, i) => d*Math.Pow(to/from, -(double) i/c)).ToReadOnlyList();
 
             //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
             //var fftinv = fftsw.Zip(frequencies,
@@ -363,16 +380,16 @@ namespace Filter.Algorithms
         /// <exception cref="System.ArgumentOutOfRangeException"></exception>
         public static IEnumerable<double> Mls(int order)
         {
-            if (order < 2 || order > MlsFeedbackTaps.Count - 1)
+            if ((order < 2) || (order > MlsFeedbackTaps.Count - 1))
                 throw new ArgumentOutOfRangeException(nameof(order));
 
             var taps = MlsFeedbackTaps[order];
             const uint startState = 1 << 1;
-            uint state = startState;
+            var state = startState;
 
             do
             {
-                uint lsb = 1 & state;
+                var lsb = 1 & state;
                 state >>= 1;
 
                 if (lsb > 0)
@@ -381,11 +398,8 @@ namespace Filter.Algorithms
                     yield return 1;
                 }
                 else
-                {
                     yield return -1;
-                }
-            }
-            while (state != startState);
+            } while (state != startState);
         }
 
         /// <summary>
@@ -440,7 +454,7 @@ namespace Filter.Algorithms
             if (actualX.Count == 0)
                 yield break;
 
-            Func<double, double> smoothSlope = input => -0.5 * (Math.Cos(Math.PI * input) - 1);
+            Func<double, double> smoothSlope = input => -0.5*(Math.Cos(Math.PI*input) - 1);
 
             var deltaF = actualStopX - actualStartX;
             var deltaV = stopValue - startValue;
@@ -449,21 +463,20 @@ namespace Filter.Algorithms
             {
                 double actualGain;
                 if (f <= actualStartX)
-                {
                     actualGain = startValue;
-                }
-                else if (f >= actualStopX)
-                {
-                    actualGain = stopValue;
-                }
                 else
                 {
-                    var tmpgain = (f - actualStartX) / deltaF;
-                    if (mode == SlopeModes.Smooth)
-                        tmpgain = smoothSlope(tmpgain);
+                    if (f >= actualStopX)
+                        actualGain = stopValue;
+                    else
+                    {
+                        var tmpgain = (f - actualStartX)/deltaF;
+                        if (mode == SlopeModes.Smooth)
+                            tmpgain = smoothSlope(tmpgain);
 
-                    tmpgain = deltaV * tmpgain + startValue;
-                    actualGain = tmpgain;
+                        tmpgain = deltaV*tmpgain + startValue;
+                        actualGain = tmpgain;
+                    }
                 }
 
                 yield return actualGain;
@@ -478,7 +491,7 @@ namespace Filter.Algorithms
         public static IEnumerable<double> WhiteNoise()
         {
             // this is to prevent multiple consecutive calls to this function getting the same seed
-            var seed = unchecked((int)(DateTime.Now.Ticks + WhiteNoiseSeedNumber++));
+            var seed = unchecked((int) (DateTime.Now.Ticks + WhiteNoiseSeedNumber++));
             var rnd = new Random(seed);
 
             while (true)
@@ -486,14 +499,13 @@ namespace Filter.Algorithms
                 double v1, v2, s;
                 do
                 {
-                    v1 = 2 * rnd.NextDouble() - 1;
-                    v2 = 2 * rnd.NextDouble() - 1;
-                    s = v1 * v1 + v2 * v2;
-                }
-                while (s >= 1);
+                    v1 = 2*rnd.NextDouble() - 1;
+                    v2 = 2*rnd.NextDouble() - 1;
+                    s = v1*v1 + v2*v2;
+                } while (s >= 1);
 
-                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v1;
-                yield return Math.Sqrt(-2 * Math.Log(s) / s) * v2;
+                yield return Math.Sqrt(-2*Math.Log(s)/s)*v1;
+                yield return Math.Sqrt(-2*Math.Log(s)/s)*v2;
             }
             // ReSharper disable once IteratorNeverReturns
         }
@@ -517,15 +529,15 @@ namespace Filter.Algorithms
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            double factor = 2 * Math.PI * frequency / samplerate;
+            var factor = 2*Math.PI*frequency/samplerate;
             return Enumerable.Range(start, length).Select(
                 i =>
                 {
                     if (i == 0)
                         return 1;
 
-                    var omega = i * factor;
-                    return Math.Sin(omega) / omega;
+                    var omega = i*factor;
+                    return Math.Sin(omega)/omega;
                 });
         }
     }

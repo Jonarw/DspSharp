@@ -154,7 +154,8 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new EnumerableSignal(TimeDomain.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate, s1.Start - s2.Start)
+            return new EnumerableSignal(TimeDomain.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate,
+                s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
             };
@@ -191,7 +192,8 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(), s1.SampleRate, s1.Start)
+            return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(),
+                s1.SampleRate, s1.Start)
             {
                 DisplayName = "multiplication result"
             };
@@ -271,7 +273,10 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static ISignal Negate(this ISignal s)
         {
-            return new InfiniteSignal((start, length) => s.GetWindowedSamples(start, length).Negate(), s.SampleRate) {DisplayName = "negation result"};
+            return new InfiniteSignal((start, length) => s.GetWindowedSamples(start, length).Negate(), s.SampleRate)
+            {
+                DisplayName = "negation result"
+            };
         }
 
         /// <summary>
@@ -281,7 +286,8 @@ namespace Filter.Extensions
         /// <param name="function">The processing function.</param>
         /// <exception cref="ArgumentNullException">
         /// </exception>
-        public static IEnumerableSignal Process(this IEnumerableSignal signal, Func<IEnumerable<double>, IEnumerable<double>> function)
+        public static IEnumerableSignal Process(this IEnumerableSignal signal,
+            Func<IEnumerable<double>, IEnumerable<double>> function)
         {
             if (signal == null)
                 throw new ArgumentNullException(nameof(signal));
@@ -289,7 +295,10 @@ namespace Filter.Extensions
             if (function == null)
                 throw new ArgumentNullException(nameof(function));
 
-            return new EnumerableSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
+            return new EnumerableSignal(function(signal.Signal), signal.SampleRate, signal.Start)
+            {
+                DisplayName = "processed signal"
+            };
         }
 
         /// <summary>
@@ -335,7 +344,8 @@ namespace Filter.Extensions
         /// <param name="function">The processing function.</param>
         /// <exception cref="ArgumentNullException">
         /// </exception>
-        public static IFiniteSignal Process(this IFiniteSignal signal, Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
+        public static IFiniteSignal Process(this IFiniteSignal signal,
+            Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
         {
             if (signal == null)
                 throw new ArgumentNullException(nameof(signal));
@@ -343,7 +353,10 @@ namespace Filter.Extensions
             if (function == null)
                 throw new ArgumentNullException(nameof(function));
 
-            return new FiniteSignal(function(signal.Signal), signal.SampleRate, signal.Start) {DisplayName = "processed signal"};
+            return new FiniteSignal(function(signal.Signal), signal.SampleRate, signal.Start)
+            {
+                DisplayName = "processed signal"
+            };
         }
 
         /// <summary>
@@ -363,7 +376,9 @@ namespace Filter.Extensions
         /// <returns></returns>
         public static ISignal Reverse(this ISignal signal)
         {
-            return new InfiniteSignal((start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(), signal.SampleRate);
+            return
+                new InfiniteSignal((start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(),
+                    signal.SampleRate);
         }
     }
 }

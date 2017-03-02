@@ -39,7 +39,7 @@ namespace Filter.Algorithms
         /// </summary>
         /// <param name="c">The c.</param>
         /// <returns></returns>
-        public static IEnumerable<double> InterleaveComplex(this IEnumerable<Complex> c)
+        public static IEnumerable<double> Interleave(this IEnumerable<Complex> c)
         {
             if (c == null)
                 throw new ArgumentNullException(nameof(c));

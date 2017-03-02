@@ -59,9 +59,7 @@ namespace Filter
         protected bool SetField<T>(string propertyName, ref T field, T value)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
-            {
                 return false;
-            }
 
             field = value;
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

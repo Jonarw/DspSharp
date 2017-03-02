@@ -65,7 +65,7 @@ namespace Filter.Signal
 
         private IEnumerable<double> GetTimeDomainFunction(int start, int length)
         {
-            for (int i = start; i < start + length; i++)
+            for (var i = start; i < start + length; i++)
             {
                 yield return this.SampleFunction.Invoke(i);
             }

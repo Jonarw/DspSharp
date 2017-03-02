@@ -11,16 +11,16 @@ namespace Filter.CircularBuffers
         {
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
-            if (outputBufferSize <= 0 || outputBufferSize > items.Length)
+            if ((outputBufferSize <= 0) || (outputBufferSize > items.Length))
                 throw new ArgumentOutOfRangeException(nameof(outputBufferSize));
 
             this.OutputBufferSize = outputBufferSize;
-            this.buffer = (double*)FftwInterop.malloc(items.Length * sizeof(double));
+            this.buffer = (double*) FftwInterop.malloc(items.Length*sizeof(double));
             this.BufferSize = items.Length;
 
             fixed (void* pItems = items)
             {
-                Interop.memcpy(this.buffer, pItems, items.Length * sizeof(double));
+                Interop.memcpy(this.buffer, pItems, items.Length*sizeof(double));
             }
         }
 
@@ -32,16 +32,16 @@ namespace Filter.CircularBuffers
         {
             if (this.CurrentPosition + this.OutputBufferSize < this.BufferSize)
             {
-                Interop.memcpy(target, this.buffer + this.CurrentPosition, this.OutputBufferSize * sizeof(double));
+                Interop.memcpy(target, this.buffer + this.CurrentPosition, this.OutputBufferSize*sizeof(double));
                 this.CurrentPosition += this.OutputBufferSize;
             }
             else
             {
                 var c = this.BufferSize - this.CurrentPosition;
 
-                Interop.memcpy(target, this.buffer + this.CurrentPosition, c * sizeof(double));
+                Interop.memcpy(target, this.buffer + this.CurrentPosition, c*sizeof(double));
                 this.CurrentPosition = this.OutputBufferSize - c;
-                Interop.memcpy(target + c, this.buffer, this.CurrentPosition * sizeof(double));
+                Interop.memcpy(target + c, this.buffer, this.CurrentPosition*sizeof(double));
             }
         }
 

@@ -27,7 +27,7 @@ namespace Filter.Algorithms
             var list = sequence.ToReadOnlyList();
             var ret = new T[list.Count];
 
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 ret[i] = list[i];
             }
@@ -98,11 +98,11 @@ namespace Filter.Algorithms
                 return irolist.Take(maximumLength).ToReadOnlyList();
             }
 
-            int i = 0;
+            var i = 0;
             var ret = new List<T>();
             using (var e = sequence.GetEnumerator())
             {
-                while (e.MoveNext() && i < maximumLength)
+                while (e.MoveNext() && (i < maximumLength))
                 {
                     ret.Add(e.Current);
                     i++;

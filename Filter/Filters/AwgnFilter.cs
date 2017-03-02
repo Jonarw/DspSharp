@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Filter.Algorithms;
-using Filter.Extensions;
 using PropertyTools.DataAnnotations;
 
 namespace Filter.Filters
@@ -55,7 +54,7 @@ namespace Filter.Filters
         }
 
         /// <summary>
-        /// Processes the specified sequence.
+        ///     Processes the specified sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
         /// <returns></returns>

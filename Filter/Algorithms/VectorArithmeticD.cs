@@ -57,9 +57,7 @@ namespace Filter.Algorithms
                 while (enumerator.MoveNext())
                 {
                     if (enumerator2.MoveNext())
-                    {
                         yield return enumerator.Current + enumerator2.Current;
-                    }
                     else
                     {
                         yield return enumerator.Current;
@@ -67,6 +65,7 @@ namespace Filter.Algorithms
                         {
                             yield return enumerator.Current;
                         }
+
                         yield break;
                     }
                 }
@@ -91,7 +90,8 @@ namespace Filter.Algorithms
         ///     vice-versa.
         /// </param>
         /// <returns></returns>
-        public static IEnumerable<double> AddFullWithOffset(this IEnumerable<double> input, IEnumerable<double> input2, int offset)
+        public static IEnumerable<double> AddFullWithOffset(this IEnumerable<double> input, IEnumerable<double> input2,
+            int offset)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -101,33 +101,42 @@ namespace Filter.Algorithms
             using (var enumerator = input.GetEnumerator())
             using (var enumerator2 = input2.GetEnumerator())
             {
-                int c = offset;
+                int c;
 
-                while (enumerator2.MoveNext() && c < 0)
+                if (offset < 0)
                 {
-                    yield return enumerator2.Current;
+                    c = offset;
+                    while ((c++ < 0) && enumerator2.MoveNext())
+                    {
+                        yield return enumerator2.Current;
+                    }
+
+                    c--;
+                    while (c++ < 0)
+                    {
+                        yield return 0d;
+                    }
                 }
 
                 c = 0;
-
                 while (enumerator.MoveNext())
                 {
                     if (c++ < offset)
-                    {
                         yield return enumerator.Current;
-                    }
-                    else if (enumerator2.MoveNext())
-                    {
-                        yield return enumerator.Current + enumerator2.Current;
-                    }
                     else
                     {
-                        yield return enumerator.Current;
-                        while (enumerator.MoveNext())
+                        if (enumerator2.MoveNext())
+                            yield return enumerator.Current + enumerator2.Current;
+                        else
                         {
                             yield return enumerator.Current;
+                            while (enumerator.MoveNext())
+                            {
+                                yield return enumerator.Current;
+                            }
+
+                            yield break;
                         }
-                        yield break;
                     }
                 }
 
@@ -157,7 +166,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d / d1);
+            return input.Zip(input2, (d, d1) => d/d1);
         }
 
         /// <summary>
@@ -171,7 +180,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => scalar / c);
+            return input.Select(c => scalar/c);
         }
 
         /// <summary>
@@ -188,7 +197,21 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d * d1);
+            return input.Zip(input2, (d, d1) => d*d1);
+        }
+
+        /// <summary>
+        ///     Multiplies a real-valued sequence with a scalar.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <param name="scalar">The scalar.</param>
+        /// <returns></returns>
+        public static IEnumerable<double> Divide(this IEnumerable<double> input, double scalar)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return input.Multiply(1/scalar);
         }
 
         /// <summary>
@@ -202,7 +225,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => c * scalar);
+            return input.Select(c => c*scalar);
         }
 
         /// <summary>
@@ -250,6 +273,20 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
+        ///     Subtracts a real-valued sequence from a scalar.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <param name="scalar">The scalar.</param>
+        /// <returns></returns>
+        public static IEnumerable<double> Subtract(this IEnumerable<double> input, double scalar)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return input.Select(c => c - scalar);
+        }
+
+        /// <summary>
         ///     Subtracts two real-valued sequences element-wise. The shorter sequence is zero-padded to the length of the longer
         ///     sequence.
         /// </summary>
@@ -269,9 +306,7 @@ namespace Filter.Algorithms
                 while (enumerator.MoveNext())
                 {
                     if (enumerator2.MoveNext())
-                    {
                         yield return enumerator.Current - enumerator2.Current;
-                    }
                     else
                     {
                         yield return enumerator.Current;

@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Filter.Extensions;
 
 namespace Filter.Algorithms
 {
     public static class VectorOperations
     {
-
         /// <summary>
-        ///     Applies a circular shift to the provided sequence.
+        ///     Performs a circular shift on an array.
         /// </summary>
-        /// <param name="series">The sequence.</param>
-        /// <param name="amount">The shift amount.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> CircularShift(this IEnumerable<double> series, int amount)
+        /// <param name="input">The array to be circularly shifted.</param>
+        /// <param name="offset">
+        ///     The amount of samples the array should be shifted. Positive offsets are used for left-shifts while negative
+        ///     offsets are used for right-shifts.
+        /// </param>
+        /// <returns>An array of the same length as <paramref name="input" /> containing the result.</returns>
+        public static IEnumerable<T> CircularShift<T>(this IReadOnlyList<T> input, int offset)
         {
-            if (series == null)
-                throw new ArgumentNullException(nameof(series));
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
 
-            var list = series.ToReadOnlyList();
-            amount = Mathematic.Mod(amount, list.Count);
-            return list.Skip(amount).Concat(list.Take(amount));
+            if (input.Count == 0)
+                return Enumerable.Empty<T>();
+
+            offset = Mathematic.Mod(offset, input.Count);
+
+            return input.Skip(offset).Concat(input.Take(offset));
         }
 
         /// <summary>
@@ -49,15 +50,18 @@ namespace Filter.Algorithms
             if (length > list.Count)
             {
                 stop = start == 0 ? list.Count - 1 : start - 1;
-                return Enumerable.Concat(list.GetRangeOptimized(start, list.Count - start), list.Take(stop)).ZeroPad(length - list.Count);
+                return
+                    list.GetRangeOptimized(start, list.Count - start)
+                        .Concat(list.Take(stop))
+                        .PadRight(length - list.Count);
             }
 
             stop = Mathematic.Mod(start + length, list.Count);
 
             if (start < stop)
-                return list.GetRangeOptimized(start, stop);
+                return list.GetRangeOptimized(start, stop - start);
 
-            return Enumerable.Concat(list.GetRangeOptimized(start, list.Count - start), list.Take(stop));
+            return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop));
         }
 
         /// <summary>
@@ -71,14 +75,13 @@ namespace Filter.Algorithms
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
-            if (start < 0)
-                throw new ArgumentOutOfRangeException(nameof(start));
+
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            int c = start;
-            int i = 0;
-            while (c < 0 && i < length)
+            var c = start;
+            var i = 0;
+            while ((c < 0) && (i < length))
             {
                 yield return 0.0;
                 i++;
@@ -88,7 +91,7 @@ namespace Filter.Algorithms
             c = 0;
             using (var e = input.GetEnumerator())
             {
-                while (c < start && e.MoveNext())
+                while ((c < start) && e.MoveNext())
                 {
                     c++;
                 }
@@ -98,7 +101,7 @@ namespace Filter.Algorithms
                     c++;
                 }
 
-                while (e.MoveNext() && i < length)
+                while (e.MoveNext() && (i < length))
                 {
                     yield return e.Current;
                     i++;
@@ -114,7 +117,8 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Gets a range from a sequence, taking advantage of indexed access if the sequence type supports it.
+        ///     Gets a range from a sequence, taking advantage of indexed access if the sequence type supports it. If the original
+        ///     sequence runs out of elements, the output sequence can be shorter than <see cref="length" />.
         /// </summary>
         /// <param name="input">The input sequence.</param>
         /// <param name="startindex">The start of the range.</param>
@@ -133,21 +137,22 @@ namespace Filter.Algorithms
 
             if (inputlist == null)
             {
-                int c = 0;
+                var c = 0;
 
                 using (var e = input.Skip(startindex).GetEnumerator())
                 {
-                    while (e.MoveNext() && c++ < length)
+                    while (e.MoveNext() && (c++ < length))
                     {
                         yield return e.Current;
                     }
                 }
+
                 yield break;
             }
 
-            int stop = Math.Min(startindex + length, inputlist.Count);
+            var stop = Math.Min(startindex + length, inputlist.Count);
 
-            for (int i = startindex; i < stop; i++)
+            for (var i = startindex; i < stop; i++)
             {
                 yield return inputlist[i];
             }
@@ -179,20 +184,6 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Zeropads a sequence at the start.
-        /// </summary>
-        /// <param name="d">The sequence.</param>
-        /// <param name="n">The number of leading zeros.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> RightShift(this IEnumerable<double> d, int n)
-        {
-            if (d == null)
-                throw new ArgumentNullException(nameof(d));
-
-            return Enumerable.Repeat(0.0, n).Concat(d);
-        }
-
-        /// <summary>
         ///     Loops the provided sequence.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -210,7 +201,7 @@ namespace Filter.Algorithms
             if (loops == 0)
                 yield break;
 
-            for (int i = 0; i != loops; i++)
+            for (var i = 0; i != loops; i++)
             {
                 foreach (var element in source)
                 {
@@ -220,12 +211,50 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
+        ///     Pads a sequence at the left side with the specified number of pad elements.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="count">The number of pad elements.</param>
+        /// <param name="padElement">The pad element.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IEnumerable<T> PadLeft<T>(this IEnumerable<T> input, int count, T padElement = default(T))
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            return Enumerable.Repeat(padElement, count).Concat(input);
+        }
+
+        /// <summary>
+        ///     Pads a sequence at the right side with the specified number of pad elements.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="count">The number of pad elements.</param>
+        /// <param name="padElement">The pad element.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static IEnumerable<T> PadRight<T>(this IEnumerable<T> input, int count, T padElement = default(T))
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            return input.Concat(Enumerable.Repeat(padElement, count));
+        }
+
+        /// <summary>
         ///     Computes a sub-portion of a sequence by only including every xth element.
         /// </summary>
         /// <param name="series">The sequence.</param>
         /// <param name="sparseFactor">The sparse factor.</param>
         /// <returns></returns>
-        public static IEnumerable<Complex> SparseSeries(this IEnumerable<Complex> series, int sparseFactor)
+        public static IEnumerable<T> SparseSequence<T>(this IEnumerable<T> series, int sparseFactor)
         {
             if (series == null)
                 throw new ArgumentNullException(nameof(series));
@@ -234,7 +263,7 @@ namespace Filter.Algorithms
             {
                 while (true)
                 {
-                    for (int i = 0; i < sparseFactor; i++)
+                    for (var i = 0; i < sparseFactor; i++)
                     {
                         if (!e.MoveNext())
                             yield break;
@@ -258,8 +287,8 @@ namespace Filter.Algorithms
 
             using (var e = input.GetEnumerator())
             {
-                int c = 0;
-                while (e.MoveNext() && c < length)
+                var c = 0;
+                while (e.MoveNext() && (c < length))
                 {
                     yield return e.Current;
                     c++;
@@ -270,60 +299,6 @@ namespace Filter.Algorithms
                     yield return 0.0;
                     c++;
                 }
-            }
-        }
-
-        /// <summary>
-        ///     Zeropads a sequence.
-        /// </summary>
-        /// <param name="d">The sequence.</param>
-        /// <param name="n">The total length of the resulting sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> ZeroPad(this IEnumerable<double> d, int n)
-        {
-            if (d == null)
-                throw new ArgumentNullException(nameof(d));
-
-            int i = 0;
-
-            using (var enumerator = d.GetEnumerator())
-            {
-                while (enumerator.MoveNext() && i++ < n)
-                {
-                    yield return enumerator.Current;
-                }
-            }
-
-            while (i++ < n)
-            {
-                yield return 0;
-            }
-        }
-
-        /// <summary>
-        ///     Zeropads a sequence.
-        /// </summary>
-        /// <param name="d">The sequence.</param>
-        /// <param name="n">The total length of the resulting sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<Complex> ZeroPad(this IEnumerable<Complex> d, int n)
-        {
-            if (d == null)
-                throw new ArgumentNullException(nameof(d));
-
-            int i = 0;
-
-            using (var enumerator = d.GetEnumerator())
-            {
-                while (enumerator.MoveNext() && i++ < n)
-                {
-                    yield return enumerator.Current;
-                }
-            }
-
-            while (i++ < n)
-            {
-                yield return 0;
             }
         }
     }

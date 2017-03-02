@@ -19,7 +19,8 @@ namespace Filter
             this.Samplerate = samplerate;
         }
 
-        public static IList<double> AvailableSampleRates { get; } = new List<double> {44100, 48000, 88200, 96000, 192000};
+        public static IReadOnlyList<double> DefaultSampleRates { get; } =
+            new List<double> {44100, 48000, 88200, 96000, 192000}.AsReadOnly();
 
         /// <summary>
         ///     Determines whether the filter object is enabled.
@@ -43,12 +44,17 @@ namespace Filter
         /// </summary>
         protected abstract bool HasEffectOverride { get; }
 
+        [DisplayName("display name")]
+        public string Name
+        {
+            get { return this._Name; }
+            set { this.SetField(ref this._Name, value); }
+        }
+
         public IEnumerable<double> Process(IEnumerable<double> input)
         {
             if (this.HasEffect)
-            {
                 return this.ProcessOverride(input);
-            }
 
             return input;
         }
@@ -62,16 +68,16 @@ namespace Filter
         public virtual bool HasInfiniteImpulseResponse => true;
 
         /// <summary>
+        ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
+        /// </summary>
+        public double Samplerate { get; }
+
+        /// <summary>
         ///     Processes the specified signal.
         /// </summary>
         /// <param name="signal">The signal.</param>
         /// <returns>The processed signal.</returns>
         public abstract IEnumerable<double> ProcessOverride(IEnumerable<double> signal);
-
-        /// <summary>
-        ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
-        /// </summary>
-        public double Samplerate { get; }
 
         /// <summary>
         ///     Invoked when the filter object has changed.
@@ -92,13 +98,6 @@ namespace Filter
         /// </summary>
         protected virtual void OnChange()
         {
-        }
-
-        [DisplayName("display name")]
-        public string Name
-        {
-            get { return this._Name; }
-            set { this.SetField(ref this._Name, value); }
         }
     }
 }

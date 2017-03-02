@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Filter.Algorithms;
-using Filter.Extensions;
 using Filter.Series;
 
 namespace Filter.Spectrum
@@ -25,9 +24,7 @@ namespace Filter.Spectrum
         public Spectrum(ISeries frequencies, IReadOnlyList<Complex> values)
         {
             if (frequencies.Length != values.Count)
-            {
                 throw new Exception();
-            }
 
             this.Frequencies = frequencies;
             this.Values = values;
@@ -43,7 +40,12 @@ namespace Filter.Spectrum
         /// </summary>
         public IReadOnlyList<double> GroupDelay
         {
-            get { return this._groupDelay ?? (this._groupDelay = FrequencyDomain.CalculateGroupDelay(this.Frequencies.Values, this.Phase).ToReadOnlyList()); }
+            get
+            {
+                return this._groupDelay ??
+                       (this._groupDelay =
+                           FrequencyDomain.CalculateGroupDelay(this.Frequencies.Values, this.Phase).ToReadOnlyList());
+            }
         }
 
         /// <summary>

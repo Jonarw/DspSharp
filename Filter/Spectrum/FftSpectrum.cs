@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Filter.Algorithms;
-using Filter.Extensions;
 using Filter.Series;
 
 namespace Filter.Spectrum
@@ -31,7 +30,9 @@ namespace Filter.Spectrum
         /// <param name="sampleRate">The sample rate.</param>
         /// <param name="start">The start sample time of the signal.</param>
         public FftSpectrum(IEnumerable<double> timeSignal, int fftLength, double sampleRate, int start = 0)
-            : this(new FftSeries(sampleRate, fftLength), Fft.RealFft(timeSignal.CircularShift(start), fftLength))
+            : this(
+                new FftSeries(sampleRate, fftLength),
+                Fft.RealFft(timeSignal.ToReadOnlyList().CircularShift(start), fftLength))
         {
         }
 

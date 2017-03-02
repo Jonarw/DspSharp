@@ -21,9 +21,7 @@ namespace Filter.LtiFilters
             get
             {
                 if (this.ImpulseResponse == null)
-                {
                     return false;
-                }
 
                 return true;
             }
