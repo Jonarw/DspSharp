@@ -21,10 +21,10 @@ namespace Filter.Algorithms
             int initialLength = 1024,
             int maximumLength = 524288)
         {
-            var currentLength = initialLength/2;
+            var currentLength = initialLength / 2;
 
             // ReSharper disable PossibleMultipleEnumeration - unavoidable with infinite signal
-            while (signal.Skip(currentLength).Take(currentLength).CalculateEnergy()/
+            while (signal.Skip(currentLength).Take(currentLength).CalculateEnergy() /
                    signal.Take(currentLength).CalculateEnergy() > energyRatio)
             {
                 currentLength *= 2;
@@ -59,20 +59,20 @@ namespace Filter.Algorithms
             {
                 while (e.MoveNext() && (c < initialLength))
                 {
-                    previousEnergy += e.Current*e.Current;
+                    previousEnergy += e.Current * e.Current;
                     c++;
                 }
 
-                var currentLength = initialLength*2;
+                var currentLength = initialLength * 2;
 
                 while (e.MoveNext())
                 {
-                    currentEnergy += e.Current*e.Current;
+                    currentEnergy += e.Current * e.Current;
                     c++;
 
                     if (c == currentLength)
                     {
-                        if (currentEnergy/previousEnergy < threshold)
+                        if (currentEnergy / previousEnergy < threshold)
                             break;
 
                         currentLength *= 2;

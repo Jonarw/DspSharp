@@ -15,7 +15,8 @@ namespace Filter.Algorithms
         /// <param name="signal1">The first signal.</param>
         /// <param name="signal2">The second signal.</param>
         /// <returns>The convolution of the two signals.</returns>
-        public static IReadOnlyList<double> CircularConvolve(IReadOnlyList<double> signal1,
+        public static IReadOnlyList<double> CircularConvolve(
+            IReadOnlyList<double> signal1,
             IReadOnlyList<double> signal2)
         {
             if (signal1 == null)
@@ -40,7 +41,8 @@ namespace Filter.Algorithms
         /// <param name="signal1">The first signal.</param>
         /// <param name="signal2">The second signal.</param>
         /// <returns>The result of the computation.</returns>
-        public static IReadOnlyList<double> CircularCrossCorrelate(IReadOnlyList<double> signal1,
+        public static IReadOnlyList<double> CircularCrossCorrelate(
+            IReadOnlyList<double> signal1,
             IReadOnlyList<double> signal2)
         {
             if (signal1 == null)
@@ -64,14 +66,14 @@ namespace Filter.Algorithms
             if (sampleRate <= 0)
                 throw new ArgumentOutOfRangeException(nameof(sampleRate));
 
-            var mod = Math.Abs(delay%(1/sampleRate));
+            var mod = Math.Abs(delay % (1 / sampleRate));
 
-            if ((mod > 1e-13) && (mod < 1/sampleRate - 1e-13))
+            if ((mod > 1e-13) && (mod < 1 / sampleRate - 1e-13))
                 integer = false;
             else
                 integer = true;
 
-            return Convert.ToInt32(delay*sampleRate);
+            return Convert.ToInt32(delay * sampleRate);
         }
 
         /// <summary>
@@ -118,7 +120,7 @@ namespace Filter.Algorithms
 
             using (var e1 = signal1.GetEnumerator())
             {
-                var n = 2*Fft.GetOptimalFftLength(signal2.Count);
+                var n = 2 * Fft.GetOptimalFftLength(signal2.Count);
                 var blockSize = n - signal2.Count + 1;
                 var sig2Fft = Fft.RealFft(signal2, n);
                 IReadOnlyList<double> buffer = null;
@@ -231,9 +233,9 @@ namespace Filter.Algorithms
                         return c;
 
                     if (f < fc1 + windowBwL)
-                        return c*winfunc((f - fc1)/windowBwL);
+                        return c * winfunc((f - fc1) / windowBwL);
 
-                    return c*winfunc((fc2 - f)/windowBwH);
+                    return c * winfunc((fc2 - f) / windowBwH);
                 });
 
             return Fft.RealIfft(spec);
@@ -250,8 +252,15 @@ namespace Filter.Algorithms
             WindowTypes windowType)
         {
             return
-                Fft.RealIfft(FrequencyWindowedInversionSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH,
-                    windowType));
+                Fft.RealIfft(
+                    FrequencyWindowedInversionSpectrum(
+                        input,
+                        samplerate,
+                        fc1,
+                        fc2,
+                        windowBwL,
+                        windowBwH,
+                        windowType));
         }
 
         //TODO: unit test
@@ -276,12 +285,12 @@ namespace Filter.Algorithms
                         return 0;
 
                     if ((f >= fc1 + windowBwL) && (f <= fc2 - windowBwH))
-                        return 1/c;
+                        return 1 / c;
 
                     if (f < fc1 + windowBwL)
-                        return 1/c*winfunc((f - fc1)/windowBwL);
+                        return 1 / c * winfunc((f - fc1) / windowBwL);
 
-                    return 1/c*winfunc((fc2 - f)/windowBwH);
+                    return 1 / c * winfunc((fc2 - f) / windowBwH);
                 });
 
             return spec.ToReadOnlyList();
@@ -344,18 +353,18 @@ namespace Filter.Algorithms
                     throw new ArgumentException();
             }
 
-            var an = a.Multiply(1/a[0]).ToReadOnlyList();
-            var bn = b.Multiply(1/a[0]).ToReadOnlyList();
+            var an = a.Multiply(1 / a[0]).ToReadOnlyList();
+            var bn = b.Multiply(1 / a[0]).ToReadOnlyList();
             using (var e = input.GetEnumerator())
             {
                 while (e.MoveNext())
                 {
-                    var currentY = e.Current*bn[0];
+                    var currentY = e.Current * bn[0];
 
                     for (var i = 1; i <= n; i++)
                     {
-                        currentY += inputbuffer.Peek(-i)*bn[i];
-                        currentY -= outputbuffer.Peek(-i)*an[i];
+                        currentY += inputbuffer.Peek(-i) * bn[i];
+                        currentY -= outputbuffer.Peek(-i) * an[i];
                     }
 
                     inputbuffer.Store(e.Current);
@@ -374,8 +383,8 @@ namespace Filter.Algorithms
 
                 for (var i = 1; i <= n; i++)
                 {
-                    currentY += inputbuffer.Peek(-i)*bn[i];
-                    currentY -= outputbuffer.Peek(-i)*an[i];
+                    currentY += inputbuffer.Peek(-i) * bn[i];
+                    currentY -= outputbuffer.Peek(-i) * an[i];
                 }
 
                 inputbuffer.Store(0.0);
@@ -389,7 +398,7 @@ namespace Filter.Algorithms
                 var currentY = 0.0;
                 for (var i = 1; i <= n; i++)
                 {
-                    currentY -= outputbuffer.Peek(-i)*an[i];
+                    currentY -= outputbuffer.Peek(-i) * an[i];
                 }
 
                 outputbuffer.Store(currentY);

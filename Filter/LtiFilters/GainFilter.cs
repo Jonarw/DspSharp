@@ -30,6 +30,11 @@ namespace Filter.LtiFilters
             }
         }
 
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        {
+            return signal.Multiply(this.Gain);
+        }
+
         /// <summary>
         ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
         /// </summary>
@@ -39,11 +44,6 @@ namespace Filter.LtiFilters
         {
             get { return this._Gain; }
             set { this.SetField(ref this._Gain, value); }
-        }
-
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
-        {
-            return signal.Multiply(this.Gain);
         }
     }
 }

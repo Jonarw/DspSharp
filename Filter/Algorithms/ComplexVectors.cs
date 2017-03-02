@@ -78,19 +78,6 @@ namespace Filter.Algorithms
         }
 
         /// <summary>
-        ///     Creates a new complex sequence from a sequence of real parts.
-        /// </summary>
-        /// <param name="input">The real-valued input sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<Complex> ToComplex(this IEnumerable<double> input)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(d => new Complex(d, 0));
-        }
-
-        /// <summary>
         ///     Extracts the real part from a complex-valued vector.
         /// </summary>
         /// <param name="input">The vector.</param>
@@ -101,6 +88,19 @@ namespace Filter.Algorithms
                 throw new ArgumentNullException(nameof(input));
 
             return input.Select(c => c.Real);
+        }
+
+        /// <summary>
+        ///     Creates a new complex sequence from a sequence of real parts.
+        /// </summary>
+        /// <param name="input">The real-valued input sequence.</param>
+        /// <returns></returns>
+        public static IEnumerable<Complex> ToComplex(this IEnumerable<double> input)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return input.Select(d => new Complex(d, 0));
         }
 
         /// <summary>

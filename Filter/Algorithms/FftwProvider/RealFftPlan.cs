@@ -22,13 +22,13 @@
         {
             var spectrumLength = (fftLength >> 1) + 1;
 
-            var pInput = (void*) 0;
-            var pOutput = (void*) 0;
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
                 // make both memory blocks the same size for simplicity (16 bytes are wasted)
-                pInput = FftwInterop.malloc(spectrumLength*2*sizeof(double));
-                pOutput = FftwInterop.malloc(spectrumLength*2*sizeof(double));
+                pInput = FftwInterop.malloc(spectrumLength * 2 * sizeof(double));
+                pOutput = FftwInterop.malloc(spectrumLength * 2 * sizeof(double));
 
                 lock (FftwInterop.FftwLock)
                 {

@@ -32,6 +32,11 @@ namespace Filter.LtiFilters
             }
         }
 
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        {
+            return SignalGenerators.GetZeros(this.SampleDelay).Concat(signal);
+        }
+
         /// <summary>
         ///     Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
         /// </summary>
@@ -39,13 +44,13 @@ namespace Filter.LtiFilters
         [DisplayName("delay in samples")]
         public int SampleDelay
         {
-            get { return Convert.ToInt32(this.Delay*this.Samplerate); }
+            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
             set
             {
                 if (!this.SetField(ref this._SampleDelay, value))
                     return;
 
-                this.Delay = value/this.Samplerate;
+                this.Delay = value / this.Samplerate;
                 this.RaiseChangedEvent();
             }
         }
@@ -58,11 +63,6 @@ namespace Filter.LtiFilters
         {
             get { return this._delay; }
             private set { this.SetField(ref this._delay, value); }
-        }
-
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
-        {
-            return SignalGenerators.GetZeros(this.SampleDelay).Concat(signal);
         }
     }
 }

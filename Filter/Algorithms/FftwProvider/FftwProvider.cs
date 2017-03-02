@@ -26,8 +26,6 @@ namespace Filter.Algorithms.FftwProvider
             //}
         }
 
-        private static string WisdomPath { get; } = "fftwisdom";
-
         private Dictionary<int, ComplexToComplexFftPlan> ComplexForwardPlans { get; } =
             new Dictionary<int, ComplexToComplexFftPlan>();
 
@@ -35,6 +33,8 @@ namespace Filter.Algorithms.FftwProvider
             new Dictionary<int, ComplexToComplexFftPlan>();
 
         private Dictionary<int, int> OptimalFftLengths { get; } = new Dictionary<int, int>();
+
+        private static string WisdomPath { get; } = "fftwisdom";
 
         public IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1)
         {
@@ -54,45 +54,6 @@ namespace Filter.Algorithms.FftwProvider
             return plan.Execute(input.ToArrayOptimized());
         }
 
-        public int GetOptimalFftLength(int originalLength)
-        {
-            if (!this.OptimalFftLengths.ContainsKey(originalLength))
-            {
-                var ret = originalLength - 1;
-                int i;
-
-                do
-                {
-                    ret++;
-                    i = ret;
-
-                    while (i%2 == 0)
-                    {
-                        i /= 2;
-                    }
-
-                    while (i%3 == 0)
-                    {
-                        i /= 3;
-                    }
-
-                    while (i%5 == 0)
-                    {
-                        i /= 5;
-                    }
-
-                    while (i%7 == 0)
-                    {
-                        i /= 7;
-                    }
-                } while (i > 7);
-
-                this.OptimalFftLengths.Add(originalLength, ret);
-            }
-
-            return this.OptimalFftLengths[originalLength];
-        }
-
         public IReadOnlyList<Complex> ComplexIfft(IReadOnlyList<Complex> input)
         {
             if (input == null)
@@ -108,6 +69,46 @@ namespace Filter.Algorithms.FftwProvider
 
             var plan = this.ComplexInversePlans[n];
             return plan.Execute(input.ToArrayOptimized());
+        }
+
+        public int GetOptimalFftLength(int originalLength)
+        {
+            if (!this.OptimalFftLengths.ContainsKey(originalLength))
+            {
+                var ret = originalLength - 1;
+                int i;
+
+                do
+                {
+                    ret++;
+                    i = ret;
+
+                    while (i % 2 == 0)
+                    {
+                        i /= 2;
+                    }
+
+                    while (i % 3 == 0)
+                    {
+                        i /= 3;
+                    }
+
+                    while (i % 5 == 0)
+                    {
+                        i /= 5;
+                    }
+
+                    while (i % 7 == 0)
+                    {
+                        i /= 7;
+                    }
+                }
+                while (i > 7);
+
+                this.OptimalFftLengths.Add(originalLength, ret);
+            }
+
+            return this.OptimalFftLengths[originalLength];
         }
 
         /// <summary>

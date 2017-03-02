@@ -73,7 +73,11 @@ namespace Filter.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
-        public CubicSpline(double[] x, double[] y, double startSlope = double.NaN, double endSlope = double.NaN,
+        public CubicSpline(
+            double[] x,
+            double[] y,
+            double startSlope = double.NaN,
+            double endSlope = double.NaN,
             bool debug = false)
         {
             this.Fit(x, y, startSlope, endSlope, debug);
@@ -154,12 +158,12 @@ namespace Filter.Algorithms.CubicSpline
                 // Evaluate using j'th spline
                 var dx = this.xOrig[j + 1] - this.xOrig[j];
                 var dy = this.yOrig[j + 1] - this.yOrig[j];
-                var t = (x[i] - this.xOrig[j])/dx;
+                var t = (x[i] - this.xOrig[j]) / dx;
 
                 // From equation 5 we could also compute q' (qp) which is the slope at this x
-                qPrime[i] = dy/dx
-                            + (1 - 2*t)*(this.a[j]*(1 - t) + this.b[j]*t)/dx
-                            + t*(1 - t)*(this.b[j] - this.a[j])/dx;
+                qPrime[i] = dy / dx
+                            + (1 - 2 * t) * (this.a[j] * (1 - t) + this.b[j] * t) / dx
+                            + t * (1 - t) * (this.b[j] - this.a[j]) / dx;
             }
 
             return qPrime;
@@ -176,7 +180,11 @@ namespace Filter.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <param name="debug">Turn on console output. Default is false.</param>
-        public void Fit(double[] x, double[] y, double startSlope = double.NaN, double endSlope = double.NaN,
+        public void Fit(
+            double[] x,
+            double[] y,
+            double startSlope = double.NaN,
+            double endSlope = double.NaN,
             bool debug = false)
         {
             if (double.IsInfinity(startSlope) || double.IsInfinity(endSlope))
@@ -196,9 +204,9 @@ namespace Filter.Algorithms.CubicSpline
             if (double.IsNaN(startSlope))
             {
                 dx1 = x[1] - x[0];
-                m.C[0] = 1.0/dx1;
-                m.B[0] = 2.0*m.C[0];
-                r[0] = 3*(y[1] - y[0])/(dx1*dx1);
+                m.C[0] = 1.0 / dx1;
+                m.B[0] = 2.0 * m.C[0];
+                r[0] = 3 * (y[1] - y[0]) / (dx1 * dx1);
             }
             else
             {
@@ -212,13 +220,13 @@ namespace Filter.Algorithms.CubicSpline
                 dx1 = x[i] - x[i - 1];
                 dx2 = x[i + 1] - x[i];
 
-                m.A[i] = 1.0f/dx1;
-                m.C[i] = 1.0f/dx2;
-                m.B[i] = 2.0f*(m.A[i] + m.C[i]);
+                m.A[i] = 1.0f / dx1;
+                m.C[i] = 1.0f / dx2;
+                m.B[i] = 2.0f * (m.A[i] + m.C[i]);
 
                 dy1 = y[i] - y[i - 1];
                 dy2 = y[i + 1] - y[i];
-                r[i] = 3*(dy1/(dx1*dx1) + dy2/(dx2*dx2));
+                r[i] = 3 * (dy1 / (dx1 * dx1) + dy2 / (dx2 * dx2));
             }
 
             // Last row also different (equation 17 from the article)
@@ -226,9 +234,9 @@ namespace Filter.Algorithms.CubicSpline
             {
                 dx1 = x[n - 1] - x[n - 2];
                 dy1 = y[n - 1] - y[n - 2];
-                m.A[n - 1] = 1.0f/dx1;
-                m.B[n - 1] = 2.0f*m.A[n - 1];
-                r[n - 1] = 3*(dy1/(dx1*dx1));
+                m.A[n - 1] = 1.0f / dx1;
+                m.B[n - 1] = 2.0f * m.A[n - 1];
+                r[n - 1] = 3 * (dy1 / (dx1 * dx1));
             }
             else
             {
@@ -247,8 +255,8 @@ namespace Filter.Algorithms.CubicSpline
             {
                 dx1 = x[i] - x[i - 1];
                 dy1 = y[i] - y[i - 1];
-                this.a[i - 1] = k[i - 1]*dx1 - dy1; // equation 10 from the article
-                this.b[i - 1] = -k[i]*dx1 + dy1; // equation 11 from the article
+                this.a[i - 1] = k[i - 1] * dx1 - dy1; // equation 10 from the article
+                this.b[i - 1] = -k[i] * dx1 + dy1; // equation 11 from the article
             }
         }
 
@@ -317,13 +325,13 @@ namespace Filter.Algorithms.CubicSpline
             {
                 var dx = x[i] - x[i - 1];
                 var dy = y[i] - y[i - 1];
-                var dist = Math.Sqrt(dx*dx + dy*dy);
+                var dist = Math.Sqrt(dx * dx + dy * dy);
                 totalDist += dist;
                 dists[i] = totalDist;
             }
 
             // Create 'times' to interpolate to
-            var dt = totalDist/(nOutputPoints - 1);
+            var dt = totalDist / (nOutputPoints - 1);
             var times = new double[nOutputPoints];
             times[0] = 0;
 
@@ -338,10 +346,10 @@ namespace Filter.Algorithms.CubicSpline
 
             // Spline fit both x and y to times
             var xSpline = new CubicSpline();
-            xs = xSpline.FitAndEval(dists, x, times, firstDx/dt, lastDx/dt);
+            xs = xSpline.FitAndEval(dists, x, times, firstDx / dt, lastDx / dt);
 
             var ySpline = new CubicSpline();
-            ys = ySpline.FitAndEval(dists, y, times, firstDy/dt, lastDy/dt);
+            ys = ySpline.FitAndEval(dists, y, times, firstDy / dt, lastDy / dt);
         }
 
         /// <summary>
@@ -362,9 +370,9 @@ namespace Filter.Algorithms.CubicSpline
         private double EvalSpline(double x, int j)
         {
             var dx = this.xOrig[j + 1] - this.xOrig[j];
-            var t = (x - this.xOrig[j])/dx;
-            var y = (1 - t)*this.yOrig[j] + t*this.yOrig[j + 1] + t*(1 - t)*(this.a[j]*(1 - t) + this.b[j]*t);
-                // equation 9
+            var t = (x - this.xOrig[j]) / dx;
+            var y = (1 - t) * this.yOrig[j] + t * this.yOrig[j + 1] + t * (1 - t) * (this.a[j] * (1 - t) + this.b[j] * t);
+            // equation 9
             return y;
         }
 
@@ -390,12 +398,12 @@ namespace Filter.Algorithms.CubicSpline
         {
             if (!double.IsNaN(dx) && !double.IsNaN(dy))
             {
-                var d = Math.Sqrt(dx*dx + dy*dy);
+                var d = Math.Sqrt(dx * dx + dy * dy);
 
                 if (d > double.Epsilon) // probably not conservative enough, but catches the (0,0) case at least
                 {
-                    dx = dx/d;
-                    dy = dy/d;
+                    dx = dx / d;
+                    dy = dy / d;
                 }
                 else
                     throw new ArgumentException("The input vector is too small to be normalized.");

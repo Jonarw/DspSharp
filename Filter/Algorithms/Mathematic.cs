@@ -13,7 +13,10 @@ namespace Filter.Algorithms
         /// <param name="initialStepSize">The initial step size.</param>
         /// <param name="threshold">The threshold where the iteration stops.</param>
         /// <returns>The x coordinate of the root.</returns>
-        public static double FindRoot(Func<double, double> function, double startValue, double initialStepSize,
+        public static double FindRoot(
+            Func<double, double> function,
+            double startValue,
+            double initialStepSize,
             double threshold = 1e-16)
         {
             if (function == null)
@@ -37,7 +40,7 @@ namespace Filter.Algorithms
                 if (Math.Abs(e - e1) < threshold)
                     break;
 
-                stepsize = stepsize*(e/(e1 - e));
+                stepsize = stepsize * (e / (e1 - e));
 
                 e1 = e;
                 x += stepsize;
@@ -57,7 +60,7 @@ namespace Filter.Algorithms
         /// <returns></returns>
         public static double LambertW(double input)
         {
-            if (input < -1/Math.E)
+            if (input < -1 / Math.E)
                 throw new ArgumentOutOfRangeException(nameof(input));
 
             double wj = 0;
@@ -70,14 +73,15 @@ namespace Filter.Algorithms
             {
                 ewj = Math.Exp(wj);
                 pwj = wj;
-                wj = wj - (wj*ewj - input)/(ewj*(wj + 1) - (wj + 2)*(wj*ewj - input)/(2*wj + 2));
+                wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
                 i++;
                 if (i > 1000)
                     throw new Exception("Not converging...");
-            } while (Math.Abs(wj - pwj) > 1e-15);
+            }
+            while (Math.Abs(wj - pwj) > 1e-15);
 
             ewj = Math.Exp(wj);
-            wj = wj - (wj*ewj - input)/(ewj*(wj + 1) - (wj + 2)*(wj*ewj - input)/(2*wj + 2));
+            wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
 
             return wj;
         }
@@ -117,7 +121,7 @@ namespace Filter.Algorithms
             if (m == 0)
                 throw new ArgumentOutOfRangeException(nameof(m));
 
-            return (x%m + m)%m;
+            return (x % m + m) % m;
         }
 
         /// <summary>
@@ -134,7 +138,7 @@ namespace Filter.Algorithms
             if (m == 0)
                 return double.NaN;
 
-            return (x%m + m)%m;
+            return (x % m + m) % m;
         }
 
         /// <summary>
@@ -149,22 +153,24 @@ namespace Filter.Algorithms
                 throw new ArgumentOutOfRangeException(nameof(x));
 
             if (x < 4.9)
-                return 1 + Math.Pow(x, 2)/4 + Math.Pow(x, 4)/64 + Math.Pow(x, 6)/2304 + Math.Pow(x, 8)/147456 +
-                       Math.Pow(x, 10)/14745600;
+            {
+                return 1 + Math.Pow(x, 2) / 4 + Math.Pow(x, 4) / 64 + Math.Pow(x, 6) / 2304 + Math.Pow(x, 8) / 147456 +
+                       Math.Pow(x, 10) / 14745600;
+            }
 
             if (x > 5.1)
             {
-                return Math.Pow(Math.E, x)/Math.Sqrt(2*Math.PI*x)*
-                       (1 + 1/(8*x) + 9/(128*Math.Pow(x, 2)) + 225/(3072*Math.Pow(x, 3)) + 11025/(98304*Math.Pow(x, 4)) +
-                        893025/(3932160*x));
+                return Math.Pow(Math.E, x) / Math.Sqrt(2 * Math.PI * x) *
+                       (1 + 1 / (8 * x) + 9 / (128 * Math.Pow(x, 2)) + 225 / (3072 * Math.Pow(x, 3)) + 11025 / (98304 * Math.Pow(x, 4)) +
+                        893025 / (3932160 * x));
             }
 
-            var t1 = 1 + Math.Pow(x, 2)/4 + Math.Pow(x, 4)/64 + Math.Pow(x, 6)/2304 + Math.Pow(x, 8)/147456 +
-                     Math.Pow(x, 10)/14745600;
-            var t2 = Math.Pow(Math.E, x)/Math.Sqrt(2*Math.PI*x)*
-                     (1 + 1/(8*x) + 9/(128*Math.Pow(x, 2)) + 225/(3072*Math.Pow(x, 3)) + 11025/(98304*Math.Pow(x, 4)) +
-                      893025/(3932160*x));
-            return t1*(5.1 - x)/0.2 + t2*(x - 4.9)/0.2;
+            var t1 = 1 + Math.Pow(x, 2) / 4 + Math.Pow(x, 4) / 64 + Math.Pow(x, 6) / 2304 + Math.Pow(x, 8) / 147456 +
+                     Math.Pow(x, 10) / 14745600;
+            var t2 = Math.Pow(Math.E, x) / Math.Sqrt(2 * Math.PI * x) *
+                     (1 + 1 / (8 * x) + 9 / (128 * Math.Pow(x, 2)) + 225 / (3072 * Math.Pow(x, 3)) + 11025 / (98304 * Math.Pow(x, 4)) +
+                      893025 / (3932160 * x));
+            return t1 * (5.1 - x) / 0.2 + t2 * (x - 4.9) / 0.2;
         }
 
         /// <summary>
@@ -177,7 +183,7 @@ namespace Filter.Algorithms
             if (x == 0)
                 return 1;
 
-            return Math.Sin(Math.PI*x)/(Math.PI*x);
+            return Math.Sin(Math.PI * x) / (Math.PI * x);
         }
     }
 }

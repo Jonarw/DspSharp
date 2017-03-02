@@ -27,7 +27,7 @@ namespace Filter.Collections
 
         public static IReadOnlyObservableList<T> ToReadOnlyObservableList<T>(this IObservableList<T> input)
         {
-            return new ReadOnlyObservableList<T>((ObservableCollection<T>) input);
+            return new ReadOnlyObservableList<T>((ObservableCollection<T>)input);
         }
 
         public static IReadOnlyObservableList<T> ToReadOnlyObservableList<T>(this ObservableList<T> input)

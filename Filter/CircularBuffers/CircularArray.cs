@@ -12,9 +12,10 @@ namespace Filter.CircularBuffers
             this.Length = this.Items.Length;
         }
 
+        public int Length { get; }
+
         public int Position { get; private set; }
         private T[] Items { get; }
-        public int Length { get; }
 
         public T[] GetRange(int count)
         {

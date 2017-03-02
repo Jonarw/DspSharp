@@ -38,7 +38,7 @@ namespace Filter
         /// <returns></returns>
         public IReadOnlyList<double> ProcessOverride(IReadOnlyList<double> input)
         {
-            return this.ProcessOverride((IEnumerable<double>) input).ToReadOnlyList();
+            return this.ProcessOverride((IEnumerable<double>)input).ToReadOnlyList();
         }
     }
 }

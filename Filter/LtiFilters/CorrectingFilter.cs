@@ -57,69 +57,13 @@ namespace Filter.LtiFilters
             this.Name = "correcting filter";
         }
 
-        public FilterBase Target
-        {
-            get { return this._Target; }
-            set
-            {
-                if (!ReferenceEquals(value, this._Target))
-                {
-                    if (this._Target != null) this._Target.Changed -= this.LocalChanged;
-                    this.SetField(ref this._Target, value);
-                    this._Target.Changed += this.LocalChanged;
-                    if (this._UpdateMode == UpdateModes.Automatic) this._targetLocal = this._Target;
-                }
-            }
-        }
-
-        public FilterBase Original
-        {
-            get { return this._Original; }
-            set
-            {
-                if (!ReferenceEquals(value, this._Original))
-                {
-                    if (this._Original != null) this._Original.Changed -= this.LocalChanged;
-                    this.SetField(ref this._Original, value);
-                    this._Original.Changed += this.LocalChanged;
-                    if (this._UpdateMode == UpdateModes.Automatic) this._originalLocal = this._Original;
-                }
-            }
-        }
-
-        public UpdateModes UpdateMode
-        {
-            get { return this._UpdateMode; }
-            set { this.SetField(ref this._UpdateMode, value); }
-        }
-
-        public int Oversampling
-        {
-            get { return this._Oversampling; }
-            set { this.SetField(ref this._Oversampling, value); }
-        }
-
         public int FilterLength
         {
             get { return this._FilterLength; }
             set { this.SetField(ref this._FilterLength, value); }
         }
 
-        public WindowTypes WindowType
-        {
-            get { return this._WindowType; }
-            set
-            {
-                if (this.SetField(ref this._WindowType, value))
-                    this._window = null;
-            }
-        }
-
-        public PhaseTypes PhaseType
-        {
-            get { return this._PhaseType; }
-            set { this.SetField(ref this._PhaseType, value); }
-        }
+        public override IReadOnlyList<double> ImpulseResponse { get; }
 
         public double MaxBoost
         {
@@ -133,22 +77,10 @@ namespace Filter.LtiFilters
             set { this.SetField(ref this._MinBoost, value); }
         }
 
-        public double PositiveRatio
-        {
-            get { return this._PositiveRatio; }
-            set { this.SetField(ref this._PositiveRatio, value); }
-        }
-
         public double NegativeRatio
         {
             get { return this._NegativeRatio; }
             set { this.SetField(ref this._NegativeRatio, value); }
-        }
-
-        public double PositiveThreshold
-        {
-            get { return this._PositiveThreshold; }
-            set { this.SetField(ref this._PositiveThreshold, value); }
         }
 
         public double NegativeThreshold
@@ -157,7 +89,79 @@ namespace Filter.LtiFilters
             set { this.SetField(ref this._NegativeThreshold, value); }
         }
 
-        public override IReadOnlyList<double> ImpulseResponse { get; }
+        public FilterBase Original
+        {
+            get { return this._Original; }
+            set
+            {
+                if (!ReferenceEquals(value, this._Original))
+                {
+                    if (this._Original != null)
+                        this._Original.Changed -= this.LocalChanged;
+                    this.SetField(ref this._Original, value);
+                    this._Original.Changed += this.LocalChanged;
+                    if (this._UpdateMode == UpdateModes.Automatic)
+                        this._originalLocal = this._Original;
+                }
+            }
+        }
+
+        public int Oversampling
+        {
+            get { return this._Oversampling; }
+            set { this.SetField(ref this._Oversampling, value); }
+        }
+
+        public PhaseTypes PhaseType
+        {
+            get { return this._PhaseType; }
+            set { this.SetField(ref this._PhaseType, value); }
+        }
+
+        public double PositiveRatio
+        {
+            get { return this._PositiveRatio; }
+            set { this.SetField(ref this._PositiveRatio, value); }
+        }
+
+        public double PositiveThreshold
+        {
+            get { return this._PositiveThreshold; }
+            set { this.SetField(ref this._PositiveThreshold, value); }
+        }
+
+        public FilterBase Target
+        {
+            get { return this._Target; }
+            set
+            {
+                if (!ReferenceEquals(value, this._Target))
+                {
+                    if (this._Target != null)
+                        this._Target.Changed -= this.LocalChanged;
+                    this.SetField(ref this._Target, value);
+                    this._Target.Changed += this.LocalChanged;
+                    if (this._UpdateMode == UpdateModes.Automatic)
+                        this._targetLocal = this._Target;
+                }
+            }
+        }
+
+        public UpdateModes UpdateMode
+        {
+            get { return this._UpdateMode; }
+            set { this.SetField(ref this._UpdateMode, value); }
+        }
+
+        public WindowTypes WindowType
+        {
+            get { return this._WindowType; }
+            set
+            {
+                if (this.SetField(ref this._WindowType, value))
+                    this._window = null;
+            }
+        }
 
         protected override bool HasEffectOverride
         {
@@ -170,11 +174,6 @@ namespace Filter.LtiFilters
         }
 
         public IReadOnlyObservableList<ISignal> AvailableSignals { get; set; }
-
-        private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
-        {
-            if (this._UpdateMode == UpdateModes.Automatic) this.RaiseChangedEvent();
-        }
 
         public void UpdateFilter()
         {
@@ -233,6 +232,12 @@ namespace Filter.LtiFilters
             //imp = imp.ShiftCircularToMaximum();
 
             //return imp * this._window;
+        }
+
+        private void LocalChanged(IFilter sender, FilterChangedEventArgs filterChangedEventArgs)
+        {
+            if (this._UpdateMode == UpdateModes.Automatic)
+                this.RaiseChangedEvent();
         }
     }
 }

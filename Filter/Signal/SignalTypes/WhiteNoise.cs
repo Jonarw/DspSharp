@@ -32,13 +32,6 @@ namespace Filter.Signal
         private IEnumerator<double> NoiseSource { get; }
         private double Sigma { get; }
 
-        [Category("white noise")]
-        [DisplayName("mean")]
-        public double Mean { get; }
-
-        [DisplayName("variance")]
-        public double Variance { get; }
-
         /// <summary>
         ///     Gets a section of the signal in time domain.
         /// </summary>
@@ -79,10 +72,17 @@ namespace Filter.Signal
             for (var i = 0; i < length; i++)
             {
                 this.NoiseSource.MoveNext();
-                ret.Add(this.NoiseSource.Current*this.Sigma + this.Mean);
+                ret.Add(this.NoiseSource.Current * this.Sigma + this.Mean);
             }
 
             return ret;
         }
+
+        [Category("white noise")]
+        [DisplayName("mean")]
+        public double Mean { get; }
+
+        [DisplayName("variance")]
+        public double Variance { get; }
     }
 }

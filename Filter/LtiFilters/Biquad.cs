@@ -101,7 +101,7 @@ namespace Filter.LtiFilters
                 if (double.IsNaN(this.Q) || !(this.Q > 0))
                     return false;
 
-                if (double.IsNaN(this.Fc) || !((this.Fc > 0) && (this.Fc < this.Samplerate/2.0)))
+                if (double.IsNaN(this.Fc) || !((this.Fc > 0) && (this.Fc < this.Samplerate / 2.0)))
                     return false;
 
                 if (((this.Type == BiquadFilters.Peaking) || (this.Type == BiquadFilters.Lowshelf) ||
@@ -111,6 +111,97 @@ namespace Filter.LtiFilters
 
                 return true;
             }
+        }
+
+        /// <summary>
+        ///     Calculates the biquad coefficients.
+        /// </summary>
+        protected void CalculateCoefficients()
+        {
+            var amp = Math.Pow(10, this.Gain / 40);
+            var w0 = 2 * Math.PI * this.Fc / this.Samplerate;
+            var alpha = Math.Sin(w0) / (2 * this.Q);
+
+            var b = new double[3];
+            var a = new double[3];
+
+            switch (this.Type)
+            {
+            case BiquadFilters.Lowpass:
+                b[0] = (1 - Math.Cos(w0)) / 2;
+                b[1] = 1 - Math.Cos(w0);
+                b[2] = (1 - Math.Cos(w0)) / 2;
+                a[0] = 1 + alpha;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha;
+                break;
+            case BiquadFilters.Highpass:
+                b[0] = (1 + Math.Cos(w0)) / 2;
+                b[1] = -(1 + Math.Cos(w0));
+                b[2] = (1 + Math.Cos(w0)) / 2;
+                a[0] = 1 + alpha;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha;
+                break;
+            case BiquadFilters.Peaking:
+                b[0] = 1 + alpha * amp;
+                b[1] = -2 * Math.Cos(w0);
+                b[2] = 1 - alpha * amp;
+                a[0] = 1 + alpha / amp;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha / amp;
+                break;
+            case BiquadFilters.Bandpass:
+                b[0] = alpha;
+                b[1] = 0;
+                b[2] = -alpha;
+                a[0] = 1 + alpha;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha;
+                break;
+            case BiquadFilters.Notch:
+                b[0] = 1;
+                b[1] = -2 * Math.Cos(w0);
+                b[2] = 1;
+                a[0] = 1 + alpha;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha;
+                break;
+            case BiquadFilters.Allpass:
+                b[0] = 1 - alpha;
+                b[1] = -2 * Math.Cos(w0);
+                b[2] = 1 + alpha;
+                a[0] = 1 + alpha;
+                a[1] = -2 * Math.Cos(w0);
+                a[2] = 1 - alpha;
+                break;
+            case BiquadFilters.Lowshelf:
+                b[0] = amp * (amp + 1 - (amp - 1) * Math.Cos(w0) + 2 * Math.Sqrt(amp) * alpha);
+                b[1] = 2 * amp * (amp - 1 - (amp + 1) * Math.Cos(w0));
+                b[2] = amp * (amp + 1 - (amp - 1) * Math.Cos(w0) - 2 * Math.Sqrt(amp) * alpha);
+                a[0] = amp + 1 + (amp - 1) * Math.Cos(w0) + 2 * Math.Sqrt(amp) * alpha;
+                a[1] = -2 * (amp - 1 + (amp + 1) * Math.Cos(w0));
+                a[2] = amp + 1 + (amp - 1) * Math.Cos(w0) - 2 * Math.Sqrt(amp) * alpha;
+                break;
+            case BiquadFilters.Highshelf:
+                b[0] = amp * (amp + 1 + (amp - 1) * Math.Cos(w0) + 2 * Math.Sqrt(amp) * alpha);
+                b[1] = -2 * amp * (amp - 1 + (amp + 1) * Math.Cos(w0));
+                b[2] = amp * (amp + 1 + (amp - 1) * Math.Cos(w0) - 2 * Math.Sqrt(amp) * alpha);
+                a[0] = amp + 1 - (amp - 1) * Math.Cos(w0) + 2 * Math.Sqrt(amp) * alpha;
+                a[1] = 2 * (amp - 1 - (amp + 1) * Math.Cos(w0));
+                a[2] = amp + 1 - (amp - 1) * Math.Cos(w0) - 2 * Math.Sqrt(amp) * alpha;
+                break;
+            }
+
+            this.SetCoefficients(a, b);
+            this.RaisePropertyChanged(nameof(this.a0));
+            this.RaisePropertyChanged(nameof(this.a1));
+            this.RaisePropertyChanged(nameof(this.a2));
+            this.RaisePropertyChanged(nameof(this.b0));
+            this.RaisePropertyChanged(nameof(this.b1));
+            this.RaisePropertyChanged(nameof(this.b2));
+            this.RaisePropertyChanged(nameof(this.A));
+            this.RaisePropertyChanged(nameof(this.B));
         }
 
         /// <summary>
@@ -193,96 +284,5 @@ namespace Filter.LtiFilters
 
         [DisplayName("b2")]
         public double b2 => this.B[2];
-
-        /// <summary>
-        ///     Calculates the biquad coefficients.
-        /// </summary>
-        protected void CalculateCoefficients()
-        {
-            var amp = Math.Pow(10, this.Gain/40);
-            var w0 = 2*Math.PI*this.Fc/this.Samplerate;
-            var alpha = Math.Sin(w0)/(2*this.Q);
-
-            var b = new double[3];
-            var a = new double[3];
-
-            switch (this.Type)
-            {
-                case BiquadFilters.Lowpass:
-                    b[0] = (1 - Math.Cos(w0))/2;
-                    b[1] = 1 - Math.Cos(w0);
-                    b[2] = (1 - Math.Cos(w0))/2;
-                    a[0] = 1 + alpha;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha;
-                    break;
-                case BiquadFilters.Highpass:
-                    b[0] = (1 + Math.Cos(w0))/2;
-                    b[1] = -(1 + Math.Cos(w0));
-                    b[2] = (1 + Math.Cos(w0))/2;
-                    a[0] = 1 + alpha;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha;
-                    break;
-                case BiquadFilters.Peaking:
-                    b[0] = 1 + alpha*amp;
-                    b[1] = -2*Math.Cos(w0);
-                    b[2] = 1 - alpha*amp;
-                    a[0] = 1 + alpha/amp;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha/amp;
-                    break;
-                case BiquadFilters.Bandpass:
-                    b[0] = alpha;
-                    b[1] = 0;
-                    b[2] = -alpha;
-                    a[0] = 1 + alpha;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha;
-                    break;
-                case BiquadFilters.Notch:
-                    b[0] = 1;
-                    b[1] = -2*Math.Cos(w0);
-                    b[2] = 1;
-                    a[0] = 1 + alpha;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha;
-                    break;
-                case BiquadFilters.Allpass:
-                    b[0] = 1 - alpha;
-                    b[1] = -2*Math.Cos(w0);
-                    b[2] = 1 + alpha;
-                    a[0] = 1 + alpha;
-                    a[1] = -2*Math.Cos(w0);
-                    a[2] = 1 - alpha;
-                    break;
-                case BiquadFilters.Lowshelf:
-                    b[0] = amp*(amp + 1 - (amp - 1)*Math.Cos(w0) + 2*Math.Sqrt(amp)*alpha);
-                    b[1] = 2*amp*(amp - 1 - (amp + 1)*Math.Cos(w0));
-                    b[2] = amp*(amp + 1 - (amp - 1)*Math.Cos(w0) - 2*Math.Sqrt(amp)*alpha);
-                    a[0] = amp + 1 + (amp - 1)*Math.Cos(w0) + 2*Math.Sqrt(amp)*alpha;
-                    a[1] = -2*(amp - 1 + (amp + 1)*Math.Cos(w0));
-                    a[2] = amp + 1 + (amp - 1)*Math.Cos(w0) - 2*Math.Sqrt(amp)*alpha;
-                    break;
-                case BiquadFilters.Highshelf:
-                    b[0] = amp*(amp + 1 + (amp - 1)*Math.Cos(w0) + 2*Math.Sqrt(amp)*alpha);
-                    b[1] = -2*amp*(amp - 1 + (amp + 1)*Math.Cos(w0));
-                    b[2] = amp*(amp + 1 + (amp - 1)*Math.Cos(w0) - 2*Math.Sqrt(amp)*alpha);
-                    a[0] = amp + 1 - (amp - 1)*Math.Cos(w0) + 2*Math.Sqrt(amp)*alpha;
-                    a[1] = 2*(amp - 1 - (amp + 1)*Math.Cos(w0));
-                    a[2] = amp + 1 - (amp - 1)*Math.Cos(w0) - 2*Math.Sqrt(amp)*alpha;
-                    break;
-            }
-
-            this.SetCoefficients(a, b);
-            this.RaisePropertyChanged(nameof(this.a0));
-            this.RaisePropertyChanged(nameof(this.a1));
-            this.RaisePropertyChanged(nameof(this.a2));
-            this.RaisePropertyChanged(nameof(this.b0));
-            this.RaisePropertyChanged(nameof(this.b1));
-            this.RaisePropertyChanged(nameof(this.b2));
-            this.RaisePropertyChanged(nameof(this.A));
-            this.RaisePropertyChanged(nameof(this.B));
-        }
     }
 }

@@ -16,7 +16,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Aggregate(0.0, (d, d1) => d + d1*d1);
+            return input.Aggregate(0.0, (d, d1) => d + d1 * d1);
         }
 
         /// <summary>

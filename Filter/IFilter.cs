@@ -10,14 +10,14 @@ namespace Filter
     public interface IFilter : INotifyPropertyChanged
     {
         /// <summary>
-        ///     Gets the samplerate.
-        /// </summary>
-        double Samplerate { get; }
-
-        /// <summary>
         ///     Gets a value indicating whether this instance has an infinite impulse response.
         /// </summary>
         bool HasInfiniteImpulseResponse { get; }
+
+        /// <summary>
+        ///     Gets the samplerate.
+        /// </summary>
+        double Samplerate { get; }
 
         /// <summary>
         ///     Processes the specified input.

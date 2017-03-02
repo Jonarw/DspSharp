@@ -39,7 +39,6 @@ namespace Filter.Signal
         [DisplayName("display name")]
         public string DisplayName { get; set; }
 
-
         [DisplayName("sample rate")]
         public double SampleRate { get; }
     }

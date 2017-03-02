@@ -136,20 +136,20 @@ namespace Filter.Algorithms.CubicSpline
 
             // cPrime
             var cPrime = new double[n];
-            cPrime[0] = this.C[0]/this.B[0];
+            cPrime[0] = this.C[0] / this.B[0];
 
             for (var i = 1; i < n; i++)
             {
-                cPrime[i] = this.C[i]/(this.B[i] - cPrime[i - 1]*this.A[i]);
+                cPrime[i] = this.C[i] / (this.B[i] - cPrime[i - 1] * this.A[i]);
             }
 
             // dPrime
             var dPrime = new double[n];
-            dPrime[0] = d[0]/this.B[0];
+            dPrime[0] = d[0] / this.B[0];
 
             for (var i = 1; i < n; i++)
             {
-                dPrime[i] = (d[i] - dPrime[i - 1]*this.A[i])/(this.B[i] - cPrime[i - 1]*this.A[i]);
+                dPrime[i] = (d[i] - dPrime[i - 1] * this.A[i]) / (this.B[i] - cPrime[i - 1] * this.A[i]);
             }
 
             // Back substitution
@@ -158,7 +158,7 @@ namespace Filter.Algorithms.CubicSpline
 
             for (var i = n - 2; i >= 0; i--)
             {
-                x[i] = dPrime[i] - cPrime[i]*x[i + 1];
+                x[i] = dPrime[i] - cPrime[i] * x[i + 1];
             }
 
             return x;

@@ -28,6 +28,16 @@ namespace Filter.Filters
         /// </summary>
         protected override bool HasEffectOverride => true;
 
+        /// <summary>
+        ///     Processes the specified sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <returns></returns>
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
+        {
+            return input.Add(SignalGenerators.WhiteNoise().Multiply(this.Sigma));
+        }
+
         [Category("Noise Configuration")]
         [DisplayName("Variance")]
         public double Variance
@@ -51,16 +61,6 @@ namespace Filter.Filters
                 this._Variance = Math.Pow(this.Sigma, 2);
                 this.RaisePropertyChanged(nameof(this.Variance));
             }
-        }
-
-        /// <summary>
-        ///     Processes the specified sequence.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
-        {
-            return input.Add(SignalGenerators.WhiteNoise().Multiply(this.Sigma));
         }
     }
 }

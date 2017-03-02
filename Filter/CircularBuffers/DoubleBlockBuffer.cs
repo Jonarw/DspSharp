@@ -22,8 +22,8 @@ namespace Filter.CircularBuffers
             this.BufferSize = bufferSize;
             this.InputBufferSize = inputBufferSize;
 
-            this.workbuffer = (byte*) FftwInterop.malloc(this.BufferSize);
-            this.inputbuffer = (byte*) FftwInterop.malloc(this.BufferSize);
+            this.workbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
+            this.inputbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
         }
 
         public int BufferPosition { get; set; }

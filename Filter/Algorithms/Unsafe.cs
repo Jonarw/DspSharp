@@ -30,7 +30,7 @@ namespace Filter.Algorithms
         /// <param name="length">The length.</param>
         public static Complex* MallocC(int length)
         {
-            return (Complex*) FftwInterop.malloc(length*2*sizeof(double));
+            return (Complex*)FftwInterop.malloc(length * 2 * sizeof(double));
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Filter.Algorithms
         /// <param name="length">The length.</param>
         public static double* MallocD(int length)
         {
-            return (double*) FftwInterop.malloc(length*sizeof(double));
+            return (double*)FftwInterop.malloc(length * sizeof(double));
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Filter.Algorithms
         /// <param name="length">The length.</param>
         public static int* MallocI(int length)
         {
-            return (int*) FftwInterop.malloc(length*sizeof(int));
+            return (int*)FftwInterop.malloc(length * sizeof(int));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Filter.Algorithms
             fixed (double* pDest = destination)
             fixed (double* pSource = source)
             {
-                Interop.memcpy(pDest, pSource, count*sizeof(double));
+                Interop.memcpy(pDest, pSource, count * sizeof(double));
             }
         }
 
@@ -94,7 +94,7 @@ namespace Filter.Algorithms
 
             fixed (double* pSource = source)
             {
-                Interop.memcpy(pDestination, pSource, count*sizeof(double));
+                Interop.memcpy(pDestination, pSource, count * sizeof(double));
             }
         }
 
@@ -110,7 +110,7 @@ namespace Filter.Algorithms
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            Interop.memcpy(pDestination, pSource, count*sizeof(double));
+            Interop.memcpy(pDestination, pSource, count * sizeof(double));
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Filter.Algorithms
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            Interop.memcpy(pDestination, pSource, count*sizeof(int));
+            Interop.memcpy(pDestination, pSource, count * sizeof(int));
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Filter.Algorithms
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            Interop.memcpy(pDestination, pSource, count*2*sizeof(double));
+            Interop.memcpy(pDestination, pSource, count * 2 * sizeof(double));
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace Filter.Algorithms
 
             fixed (int* pSource = source)
             {
-                Interop.memcpy(pDestination, pSource, count*sizeof(int));
+                Interop.memcpy(pDestination, pSource, count * sizeof(int));
             }
         }
 
@@ -200,7 +200,7 @@ namespace Filter.Algorithms
 
             fixed (Complex* pSource = source)
             {
-                Interop.memcpy(pDestination, pSource, count*2*sizeof(double));
+                Interop.memcpy(pDestination, pSource, count * 2 * sizeof(double));
             }
         }
 
@@ -223,7 +223,7 @@ namespace Filter.Algorithms
 
             fixed (double* pDest = destination)
             {
-                Interop.memcpy(pDest, pSource, count*sizeof(double));
+                Interop.memcpy(pDest, pSource, count * sizeof(double));
             }
         }
 
@@ -246,7 +246,7 @@ namespace Filter.Algorithms
 
             fixed (int* pDest = destination)
             {
-                Interop.memcpy(pDest, pSource, count*sizeof(int));
+                Interop.memcpy(pDest, pSource, count * sizeof(int));
             }
         }
 
@@ -269,7 +269,7 @@ namespace Filter.Algorithms
 
             fixed (Complex* pDest = destination)
             {
-                Interop.memcpy(pDest, pSource, count*2*sizeof(double));
+                Interop.memcpy(pDest, pSource, count * 2 * sizeof(double));
             }
         }
 
@@ -293,7 +293,7 @@ namespace Filter.Algorithms
             fixed (int* pDest = destination)
             fixed (int* pSource = source)
             {
-                Interop.memcpy(pDest, pSource, count*sizeof(int));
+                Interop.memcpy(pDest, pSource, count * sizeof(int));
             }
         }
 
@@ -317,7 +317,7 @@ namespace Filter.Algorithms
             fixed (Complex* pDest = destination)
             fixed (Complex* pSource = source)
             {
-                Interop.memcpy(pDest, pSource, count*2*sizeof(double));
+                Interop.memcpy(pDest, pSource, count * 2 * sizeof(double));
             }
         }
 
@@ -340,7 +340,7 @@ namespace Filter.Algorithms
 
             fixed (double* pDest = destination)
             {
-                Interop.memset(pDest, value, length*sizeof(double));
+                Interop.memset(pDest, value, length * sizeof(double));
             }
         }
 
@@ -356,7 +356,7 @@ namespace Filter.Algorithms
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            Interop.memset(destination, value, length*sizeof(double));
+            Interop.memset(destination, value, length * sizeof(double));
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Filter.Algorithms
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            Interop.memset(destination, value, length*sizeof(int));
+            Interop.memset(destination, value, length * sizeof(int));
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace Filter.Algorithms
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            Interop.memset(destination, value, length*2*sizeof(double));
+            Interop.memset(destination, value, length * 2 * sizeof(double));
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Filter.Algorithms
 
             fixed (int* pDest = destination)
             {
-                Interop.memset(pDest, value, length*sizeof(int));
+                Interop.memset(pDest, value, length * sizeof(int));
             }
         }
 
@@ -446,7 +446,7 @@ namespace Filter.Algorithms
 
             fixed (Complex* pDest = destination)
             {
-                Interop.memset(pDest, value, length*2*sizeof(double));
+                Interop.memset(pDest, value, length * 2 * sizeof(double));
             }
         }
 
@@ -461,7 +461,7 @@ namespace Filter.Algorithms
             var ret = new int[length];
             fixed (int* pRet = ret)
             {
-                Interop.memcpy(pRet, source, length*sizeof(int));
+                Interop.memcpy(pRet, source, length * sizeof(int));
             }
 
             return ret;
@@ -478,7 +478,7 @@ namespace Filter.Algorithms
             var ret = new double[length];
             fixed (double* pRet = ret)
             {
-                Interop.memcpy(pRet, source, length*sizeof(double));
+                Interop.memcpy(pRet, source, length * sizeof(double));
             }
 
             return ret;
@@ -495,7 +495,7 @@ namespace Filter.Algorithms
             var ret = new Complex[length];
             fixed (Complex* pRet = ret)
             {
-                Interop.memcpy(pRet, source, length*2*sizeof(double));
+                Interop.memcpy(pRet, source, length * 2 * sizeof(double));
             }
 
             return ret;

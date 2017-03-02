@@ -20,14 +20,14 @@ namespace Filter.Signal
         /// <param name="phaseOffset">The phase offset in radians.</param>
         /// <exception cref="System.Exception"></exception>
         public Sinus(double sampleRate, double frequency, double phaseOffset = 0)
-            : base(time => Math.Sin(2*Math.PI*time*frequency/sampleRate + phaseOffset), sampleRate)
+            : base(time => Math.Sin(2 * Math.PI * time * frequency / sampleRate + phaseOffset), sampleRate)
         {
             this.Frequency = frequency;
             this.PhaseOffset = phaseOffset;
-            if ((frequency < 0) || (frequency > sampleRate/2))
+            if ((frequency < 0) || (frequency > sampleRate / 2))
                 throw new Exception();
 
-            var frequencies = new CustomSeries(new[] {0, frequency, frequency, frequency, sampleRate/2});
+            var frequencies = new CustomSeries(new[] {0, frequency, frequency, frequency, sampleRate / 2});
             this.Spectrum = new Spectrum.Spectrum(frequencies, new Complex[] {0, 0, double.PositiveInfinity, 0, 0});
             this.DisplayName = "sinus, f = " + frequency;
         }

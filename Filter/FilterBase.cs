@@ -44,12 +44,13 @@ namespace Filter
         /// </summary>
         protected abstract bool HasEffectOverride { get; }
 
-        [DisplayName("display name")]
-        public string Name
-        {
-            get { return this._Name; }
-            set { this.SetField(ref this._Name, value); }
-        }
+        /// <summary>
+        ///     Gets a value indicating whether this instance has infinite impulse response.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
+        /// </value>
+        public virtual bool HasInfiniteImpulseResponse => true;
 
         public IEnumerable<double> Process(IEnumerable<double> input)
         {
@@ -60,17 +61,14 @@ namespace Filter
         }
 
         /// <summary>
-        ///     Gets a value indicating whether this instance has infinite impulse response.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool HasInfiniteImpulseResponse => true;
-
-        /// <summary>
         ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
         /// </summary>
         public double Samplerate { get; }
+
+        /// <summary>
+        ///     Invoked when the filter object has changed.
+        /// </summary>
+        public event ChangeEventHandler Changed;
 
         /// <summary>
         ///     Processes the specified signal.
@@ -80,9 +78,11 @@ namespace Filter
         public abstract IEnumerable<double> ProcessOverride(IEnumerable<double> signal);
 
         /// <summary>
-        ///     Invoked when the filter object has changed.
+        ///     Can be overridden by a child class to perform a certain action every time the filter is changed.
         /// </summary>
-        public event ChangeEventHandler Changed;
+        protected virtual void OnChange()
+        {
+        }
 
         /// <summary>
         ///     Should be called every time the filter object is changed in a way that alters its filter effect.
@@ -93,11 +93,11 @@ namespace Filter
             this.Changed?.Invoke(this, new FilterChangedEventArgs());
         }
 
-        /// <summary>
-        ///     Can be overridden by a child class to perform a certain action every time the filter is changed.
-        /// </summary>
-        protected virtual void OnChange()
+        [DisplayName("display name")]
+        public string Name
         {
+            get { return this._Name; }
+            set { this.SetField(ref this._Name, value); }
         }
     }
 }

@@ -154,7 +154,9 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new EnumerableSignal(TimeDomain.CrossCorrelate(s2.Signal, s1.Signal), s1.SampleRate,
+            return new EnumerableSignal(
+                TimeDomain.CrossCorrelate(s2.Signal, s1.Signal),
+                s1.SampleRate,
                 s1.Start - s2.Start)
             {
                 DisplayName = "cross correlation"
@@ -192,8 +194,10 @@ namespace Filter.Extensions
             if (s1.SampleRate != s2.SampleRate)
                 throw new SamplerateMismatchException();
 
-            return new FiniteSignal(s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(),
-                s1.SampleRate, s1.Start)
+            return new FiniteSignal(
+                s1.Signal.Multiply(s2.GetWindowedSamples(s1.Start, s1.Length)).ToReadOnlyList(),
+                s1.SampleRate,
+                s1.Start)
             {
                 DisplayName = "multiplication result"
             };
@@ -286,7 +290,8 @@ namespace Filter.Extensions
         /// <param name="function">The processing function.</param>
         /// <exception cref="ArgumentNullException">
         /// </exception>
-        public static IEnumerableSignal Process(this IEnumerableSignal signal,
+        public static IEnumerableSignal Process(
+            this IEnumerableSignal signal,
             Func<IEnumerable<double>, IEnumerable<double>> function)
         {
             if (signal == null)
@@ -344,7 +349,8 @@ namespace Filter.Extensions
         /// <param name="function">The processing function.</param>
         /// <exception cref="ArgumentNullException">
         /// </exception>
-        public static IFiniteSignal Process(this IFiniteSignal signal,
+        public static IFiniteSignal Process(
+            this IFiniteSignal signal,
             Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
         {
             if (signal == null)
@@ -377,7 +383,8 @@ namespace Filter.Extensions
         public static ISignal Reverse(this ISignal signal)
         {
             return
-                new InfiniteSignal((start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(),
+                new InfiniteSignal(
+                    (start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(),
                     signal.SampleRate);
         }
     }

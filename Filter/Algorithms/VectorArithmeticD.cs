@@ -90,7 +90,9 @@ namespace Filter.Algorithms
         ///     vice-versa.
         /// </param>
         /// <returns></returns>
-        public static IEnumerable<double> AddFullWithOffset(this IEnumerable<double> input, IEnumerable<double> input2,
+        public static IEnumerable<double> AddFullWithOffset(
+            this IEnumerable<double> input,
+            IEnumerable<double> input2,
             int offset)
         {
             if (input == null)
@@ -166,7 +168,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d/d1);
+            return input.Zip(input2, (d, d1) => d / d1);
         }
 
         /// <summary>
@@ -180,7 +182,21 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => scalar/c);
+            return input.Select(c => scalar / c);
+        }
+
+        /// <summary>
+        ///     Multiplies a real-valued sequence with a scalar.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <param name="scalar">The scalar.</param>
+        /// <returns></returns>
+        public static IEnumerable<double> Divide(this IEnumerable<double> input, double scalar)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            return input.Multiply(1 / scalar);
         }
 
         /// <summary>
@@ -197,21 +213,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d*d1);
-        }
-
-        /// <summary>
-        ///     Multiplies a real-valued sequence with a scalar.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <param name="scalar">The scalar.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Divide(this IEnumerable<double> input, double scalar)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Multiply(1/scalar);
+            return input.Zip(input2, (d, d1) => d * d1);
         }
 
         /// <summary>
@@ -225,7 +227,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => c*scalar);
+            return input.Select(c => c * scalar);
         }
 
         /// <summary>

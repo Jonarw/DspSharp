@@ -28,27 +28,31 @@ namespace Filter.Algorithms.FftwProvider
             if (output.Length < this.SpectrumLength)
                 throw new ArgumentException();
 
-            var pInput = (void*) 0;
-            var pOutput = (void*) 0;
+            var pInput = (void*)0;
+            var pOutput = (void*)0;
             try
             {
-                pInput = FftwInterop.malloc(this.FftLength*sizeof(double));
-                pOutput = FftwInterop.malloc(this.SpectrumLength*2*sizeof(double));
+                pInput = FftwInterop.malloc(this.FftLength * sizeof(double));
+                pOutput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
 
                 fixed (double* pinputarray = input)
                 {
-                    Interop.memcpy(pInput, pinputarray, input.Length*sizeof(double));
+                    Interop.memcpy(pInput, pinputarray, input.Length * sizeof(double));
 
                     if (input.Length < this.FftLength)
-                        Interop.memset((double*) pInput + input.Length, 0,
-                            (this.FftLength - input.Length)*sizeof(double));
+                    {
+                        Interop.memset(
+                            (double*)pInput + input.Length,
+                            0,
+                            (this.FftLength - input.Length) * sizeof(double));
+                    }
                 }
 
                 FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
 
                 fixed (Complex* poutputarray = output)
                 {
-                    Interop.memcpy(poutputarray, pOutput, this.SpectrumLength*2*sizeof(double));
+                    Interop.memcpy(poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
                 }
             }
             finally

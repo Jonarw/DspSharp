@@ -19,7 +19,9 @@ namespace Filter
         /// <param name="availableSignals">The available signals for all filters that are based on existing signals.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
-        public static IFilter CreateFilter(FilterTypes type, double samplerate,
+        public static IFilter CreateFilter(
+            FilterTypes type,
+            double samplerate,
             IReadOnlyObservableList<ISignal> availableSignals = null)
         {
             if (type == FilterTypes.Distortion)

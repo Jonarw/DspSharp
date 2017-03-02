@@ -20,14 +20,14 @@ namespace Filter.Signal
         /// <param name="frequency">The frequency.</param>
         /// <exception cref="System.Exception"></exception>
         public Sinc(double sampleRate, double frequency)
-            : base(time => Mathematic.Sinc(frequency*time/sampleRate), sampleRate)
+            : base(time => Mathematic.Sinc(frequency * time / sampleRate), sampleRate)
         {
             this.Frequency = frequency;
-            if ((frequency < 0) || (frequency > sampleRate/2))
+            if ((frequency < 0) || (frequency > sampleRate / 2))
                 throw new Exception();
 
-            var frequencies = new CustomSeries(new[] {0, frequency, frequency, sampleRate/2});
-            this.Spectrum = new Spectrum.Spectrum(frequencies, new Complex[] {1/(2*frequency), 1/(2*frequency), 0, 0});
+            var frequencies = new CustomSeries(new[] {0, frequency, frequency, sampleRate / 2});
+            this.Spectrum = new Spectrum.Spectrum(frequencies, new Complex[] {1 / (2 * frequency), 1 / (2 * frequency), 0, 0});
             this.DisplayName = "sinc, f = " + frequency;
         }
 

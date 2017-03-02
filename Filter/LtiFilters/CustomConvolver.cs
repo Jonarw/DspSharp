@@ -35,15 +35,6 @@ namespace Filter.LtiFilters
             get { return this.Source != null; }
         }
 
-        [DisplayName("source impulse response")]
-        [ItemsSourceProperty(nameof(AvailableFiniteSignals))]
-        [DisplayMemberPath(nameof(IFiniteSignal.DisplayName))]
-        public IFiniteSignal Source
-        {
-            get { return this._Source; }
-            set { this.SetField(ref this._Source, value); }
-        }
-
         public IReadOnlyObservableList<ISignal> AvailableSignals
         {
             get { return this._availableSignals; }
@@ -69,6 +60,15 @@ namespace Filter.LtiFilters
         {
             if (this.AvailableSignals != null)
                 this.AvailableFiniteSignals.Reset(this.AvailableSignals.OfType<FiniteSignal>());
+        }
+
+        [DisplayName("source impulse response")]
+        [ItemsSourceProperty(nameof(AvailableFiniteSignals))]
+        [DisplayMemberPath(nameof(IFiniteSignal.DisplayName))]
+        public IFiniteSignal Source
+        {
+            get { return this._Source; }
+            set { this.SetField(ref this._Source, value); }
         }
     }
 }

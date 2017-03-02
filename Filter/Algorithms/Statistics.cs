@@ -80,7 +80,7 @@ namespace Filter.Algorithms
                 return 0;
 
             var variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
-            return variance/valueslist.Count;
+            return variance / valueslist.Count;
         }
     }
 }

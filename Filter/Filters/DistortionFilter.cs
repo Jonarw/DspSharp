@@ -26,7 +26,7 @@ namespace Filter.Filters
         /// <returns></returns>
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return signal.Select(d => d + 0.2*Math.Pow(d, 2)*Math.Sign(d) + 0.1*Math.Pow(d, 3));
+            return signal.Select(d => d + 0.2 * Math.Pow(d, 2) * Math.Sign(d) + 0.1 * Math.Pow(d, 3));
         }
     }
 }

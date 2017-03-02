@@ -52,7 +52,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d/d1);
+            return input.Zip(input2, (d, d1) => d / d1);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => scalar/c);
+            return input.Select(c => scalar / c);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Filter.Algorithms
             if (input2 == null)
                 throw new ArgumentNullException(nameof(input2));
 
-            return input.Zip(input2, (d, d1) => d*d1);
+            return input.Zip(input2, (d, d1) => d * d1);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Filter.Algorithms
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
-            return input.Select(c => c*scalar);
+            return input.Select(c => c * scalar);
         }
 
         /// <summary>

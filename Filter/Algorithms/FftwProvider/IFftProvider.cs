@@ -17,18 +17,18 @@ namespace Filter.Algorithms.FftwProvider
         IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1);
 
         /// <summary>
-        ///     Gets the length of next biggest FFT length that the FFT provider can compute efficiently.
-        /// </summary>
-        /// <param name="originalLength">The original length.</param>
-        /// <returns>The most efficient fft length greater or equal to the original length.</returns>
-        int GetOptimalFftLength(int originalLength);
-
-        /// <summary>
         ///     Computes the IFFT of a complex-valued sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
         /// <returns>The IFFT of the sequence.</returns>
         IReadOnlyList<Complex> ComplexIfft(IReadOnlyList<Complex> input);
+
+        /// <summary>
+        ///     Gets the length of next biggest FFT length that the FFT provider can compute efficiently.
+        /// </summary>
+        /// <param name="originalLength">The original length.</param>
+        /// <returns>The most efficient fft length greater or equal to the original length.</returns>
+        int GetOptimalFftLength(int originalLength);
 
         /// <summary>
         ///     Computes the FFT of the real valued input vector.

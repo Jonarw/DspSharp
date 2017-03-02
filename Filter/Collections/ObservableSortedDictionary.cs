@@ -15,7 +15,7 @@ namespace Filter.Collections
 
         public void CopyTo(Array array, int index)
         {
-            ((ICollection) this.InternalDictionary).CopyTo(array, index);
+            ((ICollection)this.InternalDictionary).CopyTo(array, index);
         }
 
         int ICollection.Count
@@ -25,72 +25,27 @@ namespace Filter.Collections
 
         bool ICollection.IsSynchronized
         {
-            get { return ((ICollection) this.InternalDictionary).IsSynchronized; }
+            get { return ((ICollection)this.InternalDictionary).IsSynchronized; }
         }
 
         object ICollection.SyncRoot
         {
-            get { return ((ICollection) this.InternalDictionary).SyncRoot; }
-        }
-
-        public void Add(object key, object value)
-        {
-            ((IDictionary) this.InternalDictionary).Add(key, value);
-            this.CollectionChanged?.Invoke(this,
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
-
-        public bool Contains(object key)
-        {
-            return ((IDictionary) this.InternalDictionary).Contains(key);
-        }
-
-        IDictionaryEnumerator IDictionary.GetEnumerator()
-        {
-            return ((IDictionary) this.InternalDictionary).GetEnumerator();
-        }
-
-        bool IDictionary.IsFixedSize
-        {
-            get { return ((IDictionary) this.InternalDictionary).IsFixedSize; }
-        }
-
-        bool IDictionary.IsReadOnly
-        {
-            get { return ((IDictionary) this.InternalDictionary).IsReadOnly; }
-        }
-
-        object IDictionary.this[object key]
-        {
-            get { return ((IDictionary) this.InternalDictionary)[key]; }
-            set { ((IDictionary) this.InternalDictionary)[key] = value; }
-        }
-
-        ICollection IDictionary.Keys => this.InternalDictionary.Keys;
-
-        public void Remove(object key)
-        {
-            ((IDictionary) this.InternalDictionary).Remove(key);
-            this.CollectionChanged?.Invoke(this,
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
-
-        ICollection IDictionary.Values
-        {
-            get { return this.InternalDictionary.Values; }
+            get { return ((ICollection)this.InternalDictionary).SyncRoot; }
         }
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
         {
-            ((ICollection<KeyValuePair<TKey, TValue>>) this.InternalDictionary).Add(item);
-            this.CollectionChanged?.Invoke(this,
+            ((ICollection<KeyValuePair<TKey, TValue>>)this.InternalDictionary).Add(item);
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         public void Clear()
         {
             this.InternalDictionary.Clear();
-            this.CollectionChanged?.Invoke(this,
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -111,23 +66,76 @@ namespace Filter.Collections
 
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
         {
-            get { return ((ICollection<KeyValuePair<TKey, TValue>>) this.InternalDictionary).IsReadOnly; }
+            get { return ((ICollection<KeyValuePair<TKey, TValue>>)this.InternalDictionary).IsReadOnly; }
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
-            var ret = ((ICollection<KeyValuePair<TKey, TValue>>) this.InternalDictionary).Remove(item);
+            var ret = ((ICollection<KeyValuePair<TKey, TValue>>)this.InternalDictionary).Remove(item);
             if (ret)
-                this.CollectionChanged?.Invoke(this,
+            {
+                this.CollectionChanged?.Invoke(
+                    this,
                     new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
 
             return ret;
+        }
+
+        public void Add(object key, object value)
+        {
+            ((IDictionary)this.InternalDictionary).Add(key, value);
+            this.CollectionChanged?.Invoke(
+                this,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        public bool Contains(object key)
+        {
+            return ((IDictionary)this.InternalDictionary).Contains(key);
+        }
+
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
+            return ((IDictionary)this.InternalDictionary).GetEnumerator();
+        }
+
+        bool IDictionary.IsFixedSize
+        {
+            get { return ((IDictionary)this.InternalDictionary).IsFixedSize; }
+        }
+
+        bool IDictionary.IsReadOnly
+        {
+            get { return ((IDictionary)this.InternalDictionary).IsReadOnly; }
+        }
+
+        object IDictionary.this[object key]
+        {
+            get { return ((IDictionary)this.InternalDictionary)[key]; }
+            set { ((IDictionary)this.InternalDictionary)[key] = value; }
+        }
+
+        ICollection IDictionary.Keys => this.InternalDictionary.Keys;
+
+        public void Remove(object key)
+        {
+            ((IDictionary)this.InternalDictionary).Remove(key);
+            this.CollectionChanged?.Invoke(
+                this,
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        ICollection IDictionary.Values
+        {
+            get { return this.InternalDictionary.Values; }
         }
 
         public void Add(TKey key, TValue value)
         {
             this.InternalDictionary.Add(key, value);
-            this.CollectionChanged?.Invoke(this,
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -148,8 +156,11 @@ namespace Filter.Collections
         {
             var ret = this.InternalDictionary.Remove(key);
             if (ret)
-                this.CollectionChanged?.Invoke(this,
+            {
+                this.CollectionChanged?.Invoke(
+                    this,
                     new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
 
             return ret;
         }
@@ -163,7 +174,7 @@ namespace Filter.Collections
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable) this.InternalDictionary).GetEnumerator();
+            return ((IEnumerable)this.InternalDictionary).GetEnumerator();
         }
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
@@ -187,7 +198,8 @@ namespace Filter.Collections
                 this.InternalDictionary.Add(item.Key, item.Value);
             }
 
-            this.CollectionChanged?.Invoke(this,
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -198,7 +210,8 @@ namespace Filter.Collections
                 this.InternalDictionary.Remove(key);
             }
 
-            this.CollectionChanged?.Invoke(this,
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
@@ -211,7 +224,8 @@ namespace Filter.Collections
                 this.InternalDictionary.Add(item.Key, item.Value);
             }
 
-            this.CollectionChanged?.Invoke(this,
+            this.CollectionChanged?.Invoke(
+                this,
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
     }

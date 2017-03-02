@@ -49,7 +49,7 @@ namespace Filter.CircularBuffers
         public void Store(T item)
         {
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1)%this.Length;
+            this.Position = (this.Position + 1) % this.Length;
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Filter.CircularBuffers
                 }
             }
 
-            this.Position = (this.Position + itemarray.Length)%this.Length;
+            this.Position = (this.Position + itemarray.Length) % this.Length;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Filter.CircularBuffers
         {
             var ret = this.storage[this.Position];
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1)%this.Length;
+            this.Position = (this.Position + 1) % this.Length;
             return ret;
         }
 
@@ -148,7 +148,7 @@ namespace Filter.CircularBuffers
                 }
             }
 
-            this.Position = (this.Position + itemarray.Length)%this.Length;
+            this.Position = (this.Position + itemarray.Length) % this.Length;
 
             return ret;
         }

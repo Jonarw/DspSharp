@@ -113,8 +113,13 @@ namespace Filter.Signal
             get
             {
                 if (this._spectrum == null)
-                    this._spectrum = new FftSpectrum(this.Signal, Math.Max(this.Length, this.MinFftLength),
-                        this.SampleRate, this.Start);
+                {
+                    this._spectrum = new FftSpectrum(
+                        this.Signal,
+                        Math.Max(this.Length, this.MinFftLength),
+                        this.SampleRate,
+                        this.Start);
+                }
 
                 return this._spectrum;
             }
