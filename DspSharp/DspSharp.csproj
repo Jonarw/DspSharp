@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{17269798-53CF-4088-B7AC-157108E8EACA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DspSharp</RootNamespace>
+    <AssemblyName>DspSharp</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;x64</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;x64</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;x86</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;x86</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\ComplexVectors.cs" />
+    <Compile Include="Algorithms\CubicSpline\CubicSpline.cs" />
+    <Compile Include="Algorithms\Experimental.cs" />
+    <Compile Include="Algorithms\Interpolation.cs" />
+    <Compile Include="Algorithms\FrequencyDomain.cs" />
+    <Compile Include="Algorithms\Mathematic.cs" />
+    <Compile Include="Algorithms\SignalGenerators.cs" />
+    <Compile Include="Algorithms\Statistics.cs" />
+    <Compile Include="Algorithms\TimeDomain.cs" />
+    <Compile Include="Algorithms\FftwProvider\ComplexFftPlan.cs" />
+    <Compile Include="Algorithms\Fft.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftPlan.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftwDirection.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftwFlags.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftwInterop.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftwKind.cs" />
+    <Compile Include="Algorithms\FftwProvider\FftwProvider.cs" />
+    <Compile Include="Algorithms\FftwProvider\ForwardRealFftPlan.cs" />
+    <Compile Include="Algorithms\FftwProvider\IFftProvider.cs" />
+    <Compile Include="Algorithms\FftwProvider\InverseRealFftPlan.cs" />
+    <Compile Include="Algorithms\FftwProvider\RealFftPlan.cs" />
+    <Compile Include="Algorithms\VectorArithmeticD.cs" />
+    <Compile Include="Algorithms\VectorConversions.cs" />
+    <Compile Include="Algorithms\VectorFunctions.cs" />
+    <Compile Include="Algorithms\VectorOperations.cs" />
+    <Compile Include="Helpers\HashHelper.cs" />
+    <Compile Include="Algorithms\CubicSpline\TriDiagonalMatrix.cs" />
+    <Compile Include="AudioSource\BufferCompletedEventArgs.cs" />
+    <Compile Include="AudioSource\BufferCompletedEventHandler.cs" />
+    <Compile Include="AudioSource\FilterStreamer.cs" />
+    <Compile Include="AudioSource\IAudioSource.cs" />
+    <Compile Include="ChangeEventHandler.cs" />
+    <Compile Include="CircularBuffers\CircularArray.cs" />
+    <Compile Include="CircularBuffers\CircularBlockBuffer.cs" />
+    <Compile Include="CircularBuffers\DoubleBlockBuffer.cs" />
+    <Compile Include="Collections\Extensions.cs" />
+    <Compile Include="Collections\IObservableList.cs" />
+    <Compile Include="Collections\IReadOnlyObservableList.cs" />
+    <Compile Include="Collections\ObservableList.cs" />
+    <Compile Include="Collections\ObservableSortedDictionary.cs" />
+    <Compile Include="Collections\ReadOnlyObservableList.cs" />
+    <Compile Include="Exceptions\SamplerateMismatchException.cs" />
+    <Compile Include="Extensions\FilterExtensions.cs" />
+    <Compile Include="Algorithms\Unsafe.cs" />
+    <Compile Include="Extensions\Utilities.cs" />
+    <Compile Include="FilterChangedEventArgs.cs" />
+    <Compile Include="FilterFactory\FilterTypes.cs" />
+    <Compile Include="Filters\AwgnFilter.cs" />
+    <Compile Include="Filters\CustomFilter.cs" />
+    <Compile Include="Filters\CustomFiniteFilter.cs" />
+    <Compile Include="Filters\FilterSet.cs" />
+    <Compile Include="Filters\FiniteFilterSet.cs" />
+    <Compile Include="FiniteFilter.cs" />
+    <Compile Include="IFiniteFilter.cs" />
+    <Compile Include="ISignalBasedFilter.cs" />
+    <Compile Include="LtiFilters\CustomConvolver.cs" />
+    <Compile Include="Signal\BaseImplementations\SignalBase.cs" />
+    <Compile Include="Signal\Interfaces\IEnumerableSignal.cs" />
+    <Compile Include="Signal\Interfaces\IFiniteSignal.cs" />
+    <Compile Include="Signal\Interfaces\ISignal.cs" />
+    <Compile Include="Signal\Interfaces\ISyntheticSignal.cs" />
+    <Compile Include="Signal\Windows\Window.cs" />
+    <Compile Include="CircularBuffers\CircularBuffer.cs" />
+    <Compile Include="FilterBase.cs" />
+    <Compile Include="FilterFactory\FilterFactory.cs" />
+    <Compile Include="Filters\DistortionFilter.cs" />
+    <Compile Include="IFilter.cs" />
+    <Compile Include="Signal\BaseImplementations\EnumerableSignal.cs" />
+    <Compile Include="Signal\BaseImplementations\FiniteSignal.cs" />
+    <Compile Include="Signal\SignalTypes\IdealLowpass.cs" />
+    <Compile Include="Signal\SignalTypes\IdealHighpass.cs" />
+    <Compile Include="Signal\BaseImplementations\InfiniteSignal.cs" />
+    <Compile Include="LtiFilters\Biquad.cs" />
+    <Compile Include="LtiFilters\Convolver.cs" />
+    <Compile Include="LtiFilters\CorrectingFilter.cs" />
+    <Compile Include="LtiFilters\DelayFilter.cs" />
+    <Compile Include="LtiFilters\FirFilter.cs" />
+    <Compile Include="LtiFilters\GainFilter.cs" />
+    <Compile Include="LtiFilters\IIRFilter.cs" />
+    <Compile Include="LtiFilters\InvertFilter.cs" />
+    <Compile Include="LtiFilters\DiracFilter.cs" />
+    <Compile Include="LtiFilters\ZeroFilter.cs" />
+    <Compile Include="Observable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Series\ConstantSeries.cs" />
+    <Compile Include="Series\CustomSeries.cs" />
+    <Compile Include="Series\FftSeries.cs" />
+    <Compile Include="Series\ISeries.cs" />
+    <Compile Include="Series\SeriesBase.cs" />
+    <Compile Include="Series\SeriesUtil.cs" />
+    <Compile Include="Series\UniformSeries.cs" />
+    <Compile Include="Signal\SignalTypes\Dirac.cs" />
+    <Compile Include="Signal\SignalTypes\LogSweep.cs" />
+    <Compile Include="Extensions\SignalExtensions.cs" />
+    <Compile Include="Signal\SignalTypes\Sinc.cs" />
+    <Compile Include="Signal\SignalTypes\Sinus.cs" />
+    <Compile Include="Signal\BaseImplementations\SyntheticSignal.cs" />
+    <Compile Include="Signal\SignalTypes\WhiteNoise.cs" />
+    <Compile Include="Signal\Windows\WindowModes.cs" />
+    <Compile Include="Signal\Windows\WindowTypes.cs" />
+    <Compile Include="Spectrum\FftSpectrum.cs" />
+    <Compile Include="Spectrum\IFftSpectrum.cs" />
+    <Compile Include="Spectrum\ISpectrum.cs" />
+    <Compile Include="Spectrum\Spectrum.cs" />
+    <Compile Include="Algorithms\VectorArithmeticC.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="fftw3x86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="fftw3x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="DspSharp.Interop">
+      <HintPath>.\DspSharp.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="PropertyTools">
+      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\portable-net45+win8+wpa81+wp8\PropertyTools.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

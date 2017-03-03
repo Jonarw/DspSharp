@@ -1,0 +1,26 @@
+using System.Collections.Generic;
+using DspSharp.Algorithms;
+
+namespace DspSharp.LtiFilters
+{
+    /// <summary>
+    ///     A filter with a transfer function of -1.
+    /// </summary>
+    public class InvertFilter : FiniteFilter
+    {
+        public InvertFilter(double samplerate) : base(samplerate)
+        {
+            this.Name = "invert filter";
+        }
+
+        /// <summary>
+        ///     Returns true.
+        /// </summary>
+        protected override bool HasEffectOverride => true;
+
+        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        {
+            return signal.Negate();
+        }
+    }
+}
