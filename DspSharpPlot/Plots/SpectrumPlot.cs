@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SpectrumPlot.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Algorithms;
@@ -118,99 +124,122 @@ namespace DspSharpPlot
                     winstart = this.FiniteFixedStart;
                     winlength = this.FiniteFixedLength;
                 }
-                else if (this.FiniteMode == FiniteModes.Regular)
-                {
-                    winstart = fsignal.Start;
-                    winlength = fsignal.Length;
-                }
-                else if (this.FiniteMode == FiniteModes.Oversampled)
-                {
-                    winstart = fsignal.Start;
-                    winlength = fsignal.Length * this.FiniteOversampling;
-                }
-                else if (this.FiniteMode == FiniteModes.View)
-                {
-                    winstart = this.ViewStart;
-                    winlength = this.ViewLength;
-                }
                 else
                 {
-                    throw new ArgumentOutOfRangeException();
-                }
-            }
-            else if (esignal != null)
-            {
-                winmode = this.EnumerableWindowMode;
-                wintype = this.EnumerableWindowType;
-
-                if (this.EnumerableMode == EnumerableModes.Fixed)
-                {
-                    winstart = this.EnumerableFixedStart;
-                    winlength = this.EnumerableFixedLength;
-                }
-                else if (this.EnumerableMode == EnumerableModes.View)
-                {
-                    winstart = this.ViewStart;
-                    winlength = this.ViewLength;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
-            }
-            else if (ssignal != null)
-            {
-                winmode = this.SyntheticWindowMode;
-                wintype = this.SyntheticWindowType;
-
-                if (this.SyntheticMode == SyntheticModes.Ideal)
-                {
-                    ret.Points.AddRange(this.GetYValues(ssignal.Spectrum).Zip(ssignal.Spectrum.Frequencies.Values, (m, f) => new DataPoint(f, m)));
-                    return ret;
-                }
-                if (this.SyntheticMode == SyntheticModes.Fixed)
-                {
-                    winstart = this.SyntheticFixedStart;
-                    winlength = this.SyntheticFixedLength;
-                }
-                else if (this.SyntheticMode == SyntheticModes.View)
-                {
-                    winstart = this.ViewStart;
-                    winlength = this.ViewLength;
-                }
-                else if (this.SyntheticMode == SyntheticModes.FixedSymmetric)
-                {
-                    winstart = -(this.SyntheticFixedSymmetricLength >> 1);
-                    winlength = this.SyntheticFixedSymmetricLength;
-                }
-                else
-                {
-                    throw new ArgumentOutOfRangeException();
+                    if (this.FiniteMode == FiniteModes.Regular)
+                    {
+                        winstart = fsignal.Start;
+                        winlength = fsignal.Length;
+                    }
+                    else
+                    {
+                        if (this.FiniteMode == FiniteModes.Oversampled)
+                        {
+                            winstart = fsignal.Start;
+                            winlength = fsignal.Length * this.FiniteOversampling;
+                        }
+                        else
+                        {
+                            if (this.FiniteMode == FiniteModes.View)
+                            {
+                                winstart = this.ViewStart;
+                                winlength = this.ViewLength;
+                            }
+                            else
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
                 }
             }
             else
             {
-                winmode = this.InfiniteWindowMode;
-                wintype = this.InfiniteWindowType;
+                if (esignal != null)
+                {
+                    winmode = this.EnumerableWindowMode;
+                    wintype = this.EnumerableWindowType;
 
-                if (this.InfiniteMode == InfiniteModes.Fixed)
-                {
-                    winstart = this.InfiniteFixedStart;
-                    winlength = this.InfiniteFixedLength;
-                }
-                else if (this.InfiniteMode == InfiniteModes.View)
-                {
-                    winstart = this.ViewStart;
-                    winlength = this.ViewLength;
-                }
-                else if (this.InfiniteMode == InfiniteModes.FixedSymmetric)
-                {
-                    winstart = -(this.InfiniteFixedSymmetricLength >> 1);
-                    winlength = this.InfiniteFixedSymmetricLength;
+                    if (this.EnumerableMode == EnumerableModes.Fixed)
+                    {
+                        winstart = this.EnumerableFixedStart;
+                        winlength = this.EnumerableFixedLength;
+                    }
+                    else
+                    {
+                        if (this.EnumerableMode == EnumerableModes.View)
+                        {
+                            winstart = this.ViewStart;
+                            winlength = this.ViewLength;
+                        }
+                        else
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException();
+                    if (ssignal != null)
+                    {
+                        winmode = this.SyntheticWindowMode;
+                        wintype = this.SyntheticWindowType;
+
+                        if (this.SyntheticMode == SyntheticModes.Ideal)
+                        {
+                            ret.Points.AddRange(
+                                this.GetYValues(ssignal.Spectrum).Zip(ssignal.Spectrum.Frequencies.Values, (m, f) => new DataPoint(f, m)));
+                            return ret;
+                        }
+                        if (this.SyntheticMode == SyntheticModes.Fixed)
+                        {
+                            winstart = this.SyntheticFixedStart;
+                            winlength = this.SyntheticFixedLength;
+                        }
+                        else
+                        {
+                            if (this.SyntheticMode == SyntheticModes.View)
+                            {
+                                winstart = this.ViewStart;
+                                winlength = this.ViewLength;
+                            }
+                            else
+                            {
+                                if (this.SyntheticMode == SyntheticModes.FixedSymmetric)
+                                {
+                                    winstart = -(this.SyntheticFixedSymmetricLength >> 1);
+                                    winlength = this.SyntheticFixedSymmetricLength;
+                                }
+                                else
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        winmode = this.InfiniteWindowMode;
+                        wintype = this.InfiniteWindowType;
+
+                        if (this.InfiniteMode == InfiniteModes.Fixed)
+                        {
+                            winstart = this.InfiniteFixedStart;
+                            winlength = this.InfiniteFixedLength;
+                        }
+                        else
+                        {
+                            if (this.InfiniteMode == InfiniteModes.View)
+                            {
+                                winstart = this.ViewStart;
+                                winlength = this.ViewLength;
+                            }
+                            else
+                            {
+                                if (this.InfiniteMode == InfiniteModes.FixedSymmetric)
+                                {
+                                    winstart = -(this.InfiniteFixedSymmetricLength >> 1);
+                                    winlength = this.InfiniteFixedSymmetricLength;
+                                }
+                                else
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        }
+                    }
                 }
             }
 
@@ -224,9 +253,7 @@ namespace DspSharpPlot
             if (this.CustomResulutionEnabled)
             {
                 if (this.CustomFrequencies == null)
-                {
                     this.CustomFrequencies = new UniformSeries(this.StartFrequency, this.StopFrequency, this.NumberOfPoints, this.Logarithmic);
-                }
 
                 var fnew = this.CustomFrequencies.Values.ToReadOnlyList();
 
@@ -235,9 +262,7 @@ namespace DspSharpPlot
             }
 
             if (this.Smoothing > 0)
-            {
                 values = Interpolation.Smooth(frequencies, values, this.Smoothing, this.Logarithmic).ToReadOnlyList();
-            }
 
             ret.Points.AddRange(values.Zip(frequencies, (m, f) => new DataPoint(f, m)));
             return ret;

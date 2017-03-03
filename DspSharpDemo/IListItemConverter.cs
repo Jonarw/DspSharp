@@ -1,4 +1,10 @@
-﻿namespace DspSharpDemo
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IListItemConverter.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace DspSharpDemo
 {
     /// <summary>
     ///     Converts items in the Master list to Items in the target list, and back again.

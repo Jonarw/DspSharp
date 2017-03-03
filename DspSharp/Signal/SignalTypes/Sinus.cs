@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Sinus.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Numerics;
 using DspSharp.Series;

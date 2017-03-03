@@ -1,4 +1,10 @@
-﻿using DspSharp.Signal;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="WindowFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Signal;
 using DspSharp.Signal.Windows;
 using PropertyTools.DataAnnotations;
 
@@ -11,6 +17,14 @@ namespace DspSharpDemo.SignalFactory
         private WindowModes _Mode = WindowModes.Symmetric;
         private int _Start;
         private WindowTypes _type = WindowTypes.Hann;
+
+        public override ISignal CreateSignal()
+        {
+            if (this.CustomStart)
+                return new Window(this.Type, this.Start, this.Length, this.SampleRate, this.Mode);
+
+            return new Window(this.Type, this.Length, this.SampleRate, this.Mode);
+        }
 
         [DisplayName("custom window start time")]
         [Category("window settings")]
@@ -56,16 +70,6 @@ namespace DspSharpDemo.SignalFactory
         {
             get { return this._type; }
             set { this.SetField(ref this._type, value); }
-        }
-
-        public override ISignal CreateSignal()
-        {
-            if (this.CustomStart)
-            {
-                return new Window(this.Type, this.Start, this.Length, this.SampleRate, this.Mode);
-            }
-
-            return new Window(this.Type, this.Length, this.SampleRate, this.Mode);
         }
     }
 }

@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ASIODriverExt.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 
 namespace DspSharpWin.Asio
 {
@@ -13,15 +19,9 @@ namespace DspSharpWin.Asio
     public class AsioDriverExt
     {
         private AsioBufferInfo[] bufferInfos;
-        private int BufferSize { get; set; }
         private AsioCallbacks callbacks;
         private IntPtr[] currentInputBuffers;
         private IntPtr[] currentOutputBuffers;
-        private int InputChannelOffset { get; set; }
-        private bool IsOutputReadySupported { get; set; }
-        private int NumberOfInputChannels { get; set; }
-        private int NumberOfOutputChannels { get; set; }
-        private int OutputChannelOffset { get; set; }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="AsioDriverExt" /> class based on an already
@@ -33,9 +33,7 @@ namespace DspSharpWin.Asio
             this.Driver = driver;
 
             if (!driver.Init(IntPtr.Zero))
-            {
                 throw new InvalidOperationException(driver.GetErrorMessage());
-            }
 
             this.callbacks = new AsioCallbacks();
             this.callbacks.pasioMessage = this.AsioMessageCallBack;
@@ -64,6 +62,13 @@ namespace DspSharpWin.Asio
         /// <value>The fill buffer callback.</value>
         public AsioFillBufferCallback FillBufferCallback { get; set; }
 
+        private int BufferSize { get; set; }
+        private int InputChannelOffset { get; set; }
+        private bool IsOutputReadySupported { get; set; }
+        private int NumberOfInputChannels { get; set; }
+        private int NumberOfOutputChannels { get; set; }
+        private int OutputChannelOffset { get; set; }
+
         /// <summary>
         ///     Creates the buffers for playing.
         /// </summary>
@@ -72,12 +77,12 @@ namespace DspSharpWin.Asio
         /// <param name="bufferSize">The buffer size.</param>
         public int CreateBuffers(int numberOfOutputChannels, int numberOfInputChannels, int bufferSize = -1)
         {
-            if (numberOfOutputChannels < 0 || numberOfOutputChannels > this.Capabilities.NbOutputChannels)
+            if ((numberOfOutputChannels < 0) || (numberOfOutputChannels > this.Capabilities.NbOutputChannels))
             {
                 throw new ArgumentException(
                     $"Invalid number of channels {numberOfOutputChannels}, must be in the range [0,{this.Capabilities.NbOutputChannels}]");
             }
-            if (numberOfInputChannels < 0 || numberOfInputChannels > this.Capabilities.NbInputChannels)
+            if ((numberOfInputChannels < 0) || (numberOfInputChannels > this.Capabilities.NbInputChannels))
             {
                 throw new ArgumentException(
                     "numberOfInputChannels",
@@ -85,14 +90,10 @@ namespace DspSharpWin.Asio
             }
 
             if (bufferSize < 0)
-            {
                 bufferSize = this.Capabilities.BufferPreferredSize;
-            }
 
-            if (bufferSize < this.Capabilities.BufferMinSize || bufferSize > this.Capabilities.BufferMaxSize)
-            {
+            if ((bufferSize < this.Capabilities.BufferMinSize) || (bufferSize > this.Capabilities.BufferMaxSize))
                 throw new ArgumentOutOfRangeException(nameof(bufferSize));
-            }
 
             // each channel needs a buffer info
             this.NumberOfOutputChannels = numberOfOutputChannels;
@@ -176,21 +177,13 @@ namespace DspSharpWin.Asio
         public void SetChannelOffset(int outputChannelOffset, int inputChannelOffset)
         {
             if (outputChannelOffset + this.NumberOfOutputChannels <= this.Capabilities.NbOutputChannels)
-            {
                 this.OutputChannelOffset = outputChannelOffset;
-            }
             else
-            {
                 throw new ArgumentException("Invalid channel offset");
-            }
             if (inputChannelOffset + this.NumberOfInputChannels <= this.Capabilities.NbInputChannels)
-            {
                 this.InputChannelOffset = inputChannelOffset;
-            }
             else
-            {
                 throw new ArgumentException("Invalid channel offset");
-            }
         }
 
         /// <summary>
@@ -302,9 +295,7 @@ namespace DspSharpWin.Asio
             this.FillBufferCallback?.Invoke(this.currentInputBuffers, this.currentOutputBuffers);
 
             if (this.IsOutputReadySupported)
-            {
                 this.Driver.OutputReady();
-            }
         }
 
         /// <summary>
@@ -353,7 +344,7 @@ namespace DspSharpWin.Asio
             var error = this.Driver.GetLatencies(out this.Capabilities.InputLatency, out this.Capabilities.OutputLatency);
             // focusrite scarlett 2i4 returns ASE_NotPresent here
 
-            if (error != AsioError.ASE_OK && error != AsioError.ASE_NotPresent)
+            if ((error != AsioError.ASE_OK) && (error != AsioError.ASE_NotPresent))
             {
                 var ex = new AsioException("ASIOgetLatencies");
                 ex.Error = error;

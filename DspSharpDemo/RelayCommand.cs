@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RelayCommand.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -13,9 +19,9 @@ namespace DspSharpDemo
     /// </summary>
     public class RelayCommand : ICommand
     {
+        readonly Predicate<object> _canExecute;
 
         readonly Action<object> _execute;
-        readonly Predicate<object> _canExecute;
 
         /// <summary>
         ///     Creates a new command that can always execute.
@@ -34,9 +40,7 @@ namespace DspSharpDemo
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
             if (execute == null)
-            {
                 throw new ArgumentNullException(nameof(execute));
-            }
 
             this._execute = execute;
             this._canExecute = canExecute;

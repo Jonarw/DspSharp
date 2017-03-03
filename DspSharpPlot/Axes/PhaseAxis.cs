@@ -1,15 +1,21 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="PhaseAxis.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 
 namespace DspSharpPlot.Axes
 {
     /// <summary>
-    /// Represents a phase axis (degree).
+    ///     Represents a phase axis (degree).
     /// </summary>
     /// <seealso cref="DefaultAxis" />
     public class PhaseAxis : DefaultAxis
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PhaseAxis"/> class.
+        ///     Initializes a new instance of the <see cref="PhaseAxis" /> class.
         /// </summary>
         public PhaseAxis()
         {

@@ -67,7 +67,8 @@
                             <pt:PropertyGrid Grid.Row="2" SelectedObject="{Binding SelectedSignal}" Margin="5"
                                              TabVisibility="VisibleIfMoreThanOne"
                                              RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"
-                                             EnumAsRadioButtonsLimit="0" ControlFactory="{StaticResource PropertyControlFactory}" />
+                                             EnumAsRadioButtonsLimit="0"
+                                             ControlFactory="{StaticResource PropertyControlFactory}" />
 
                         </Grid>
                     </Grid>
@@ -94,7 +95,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <dspSharpDemo:EnumCombo Grid.Column="0" Margin="5" Enum="{x:Type dspSharp:FilterTypes}"
-                                             SelectedValue="{Binding SelectedFilterType}" />
+                                                    SelectedValue="{Binding SelectedFilterType}" />
 
                         </Grid>
 
@@ -104,7 +105,8 @@
                                  dspSharpDemo:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedFilters}" />
                         <pt:PropertyGrid Grid.Row="3" SelectedObject="{Binding SelectedFilter}" Margin="5"
                                          TabVisibility="VisibleIfMoreThanOne" EnumAsRadioButtonsLimit="0"
-                                         RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" ControlFactory="{StaticResource PropertyControlFactory}"/>
+                                         RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"
+                                         ControlFactory="{StaticResource PropertyControlFactory}" />
 
                     </Grid>
 
@@ -112,7 +114,8 @@
                 <TabItem Header="Plot settings">
                     <pt:PropertyGrid SelectedObject="{Binding SelectedPlot}" Margin="5"
                                      TabVisibility="VisibleIfMoreThanOne"
-                                     RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" EnumAsRadioButtonsLimit="0" ControlFactory="{StaticResource PropertyControlFactory}"/>
+                                     RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" EnumAsRadioButtonsLimit="0"
+                                     ControlFactory="{StaticResource PropertyControlFactory}" />
 
                 </TabItem>
             </TabControl>

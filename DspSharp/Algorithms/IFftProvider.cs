@@ -1,7 +1,13 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="IFftProvider.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace DspSharp.Algorithms.FftwProvider
+namespace DspSharp.Algorithms
 {
     /// <summary>
     ///     Defines an interface for FFT-Algorithms required by this library.

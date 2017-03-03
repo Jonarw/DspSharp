@@ -1,4 +1,10 @@
-﻿using System.ComponentModel;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ViewModel.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.ComponentModel;
 using System.Windows.Input;
 using DspSharp;
 using DspSharp.Signal;
@@ -44,6 +50,8 @@ namespace DspSharpDemo.SignalFactory
         /// </summary>
         public ICommand OkCommand => this._OkCommand ?? (this._OkCommand = new RelayCommand(param => this.Ok(), o => this.SpecificConfig != null));
 
+        public double Samplerate { get; }
+
         public SignalFactory SpecificConfig
         {
             get { return this._SpecificConfig; }
@@ -58,9 +66,7 @@ namespace DspSharpDemo.SignalFactory
         private void CommonConfigChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(CommonSignalConfig.SignalType))
-            {
                 this.SignalTypeChanged();
-            }
         }
 
         private void Ok()
@@ -73,7 +79,5 @@ namespace DspSharpDemo.SignalFactory
         {
             this.SpecificConfig = SignalFactoryFactory.CreateSignalFactory(this.CommonConfig.SignalType, this.Samplerate);
         }
-
-        public double Samplerate { get; }
     }
 }

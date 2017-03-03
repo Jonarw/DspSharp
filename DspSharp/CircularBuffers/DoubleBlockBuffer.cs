@@ -1,5 +1,11 @@
-﻿using System;
-using DspSharp.Algorithms.FftwProvider;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DoubleBlockBuffer.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
+using DspSharp.Algorithms;
 
 namespace DspSharp.CircularBuffers
 {
@@ -22,8 +28,8 @@ namespace DspSharp.CircularBuffers
             this.BufferSize = bufferSize;
             this.InputBufferSize = inputBufferSize;
 
-            this.workbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
-            this.inputbuffer = (byte*)FftwInterop.malloc(this.BufferSize);
+            this.workbuffer = Unsafe.MallocB(this.BufferSize);
+            this.inputbuffer = Unsafe.MallocB(this.BufferSize);
         }
 
         public int BufferPosition { get; set; }
@@ -60,8 +66,8 @@ namespace DspSharp.CircularBuffers
 
         ~DoubleBlockBuffer()
         {
-            FftwInterop.free(this.inputbuffer);
-            FftwInterop.free(this.workbuffer);
+            Unsafe.Free(this.inputbuffer);
+            Unsafe.Free(this.workbuffer);
         }
     }
 }

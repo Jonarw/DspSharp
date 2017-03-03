@@ -1,4 +1,10 @@
-﻿using DspSharp.Algorithms;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CircularBuffersTest.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Algorithms;
 using DspSharp.CircularBuffers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -24,6 +30,35 @@ namespace DspSharpTest
         }
 
         [TestMethod]
+        public unsafe void TestCircularBlockBuffer()
+        {
+            double[] init = {.1, .2, .3, .4, .5, .6, .7, .8};
+            var ret = new double[3];
+
+            var test = new CircularBlockBuffer(init, 3);
+            fixed (double* pRet = ret)
+            {
+                test.GetBlock(pRet);
+            }
+
+            FilterAssert.ListsAreReasonablyClose(ret, new[] {.1, .2, .3});
+
+            fixed (double* pRet = ret)
+            {
+                test.GetBlock(pRet);
+            }
+
+            FilterAssert.ListsAreReasonablyClose(ret, new[] {.4, .5, .6});
+
+            fixed (double* pRet = ret)
+            {
+                test.GetBlock(pRet);
+            }
+
+            FilterAssert.ListsAreReasonablyClose(ret, new[] {.7, .8, .1});
+        }
+
+        [TestMethod]
         public void TestCircularBuffer()
         {
             double[] init = {.1, .2, .3, .4, .5, .6, .7, .8};
@@ -44,43 +79,14 @@ namespace DspSharpTest
         }
 
         [TestMethod]
-        public unsafe void TestCircularBlockBuffer()
-        {
-            double[] init = { .1, .2, .3, .4, .5, .6, .7, .8 };
-            var ret = new double[3];
-
-            var test = new CircularBlockBuffer(init, 3);
-            fixed (double* pRet = ret)
-            {
-                test.GetBlock(pRet);
-            }
-
-            FilterAssert.ListsAreReasonablyClose(ret, new[] { .1, .2, .3 });
-
-            fixed (double* pRet = ret)
-            {
-                test.GetBlock(pRet);
-            }
-
-            FilterAssert.ListsAreReasonablyClose(ret, new[] { .4, .5, .6 });
-
-            fixed (double* pRet = ret)
-            {
-                test.GetBlock(pRet);
-            }
-
-            FilterAssert.ListsAreReasonablyClose(ret, new[] { .7, .8, .1 });
-        }
-
-        [TestMethod]
         public unsafe void TestDoubleBlockBuffer()
         {
-            double[] a1 = { .1, .2, .3};
-            double[] a2 = { .4, .5, .6};
-            double[] a3 = { .7, .8, .9};
-            double[] a4 = { .10, .11, .12};
-            double[] a5 = { .13, .14, .15};
-            double[] a6 = { .16, .17, .18};
+            double[] a1 = {.1, .2, .3};
+            double[] a2 = {.4, .5, .6};
+            double[] a3 = {.7, .8, .9};
+            double[] a4 = {.10, .11, .12};
+            double[] a5 = {.13, .14, .15};
+            double[] a6 = {.16, .17, .18};
 
             var test = new DoubleBlockBuffer(8 * sizeof(double), 3 * sizeof(double));
 
@@ -118,12 +124,12 @@ namespace DspSharpTest
 
         private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, byte* buffer)
         {
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] { .1, .2, .3, .4, .5, .6, .7, .8 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.1, .2, .3, .4, .5, .6, .7, .8});
         }
 
         private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, byte* buffer)
         {
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] { .9, .10, .11, .12, .13, .14, .15, .16 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.9, .10, .11, .12, .13, .14, .15, .16});
         }
     }
 }

@@ -1,5 +1,11 @@
-﻿using System;
-using DspSharp.Algorithms.FftwProvider;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CircularBlockBuffer.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
+using DspSharp.Algorithms;
 
 namespace DspSharp.CircularBuffers
 {
@@ -15,7 +21,7 @@ namespace DspSharp.CircularBuffers
                 throw new ArgumentOutOfRangeException(nameof(outputBufferSize));
 
             this.OutputBufferSize = outputBufferSize;
-            this.buffer = (double*)FftwInterop.malloc(items.Length * sizeof(double));
+            this.buffer = Unsafe.MallocD(items.Length);
             this.BufferSize = items.Length;
 
             fixed (void* pItems = items)
@@ -47,7 +53,7 @@ namespace DspSharp.CircularBuffers
 
         ~CircularBlockBuffer()
         {
-            FftwInterop.free(this.buffer);
+            Unsafe.Free(this.buffer);
         }
     }
 }

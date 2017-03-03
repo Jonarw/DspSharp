@@ -1,4 +1,10 @@
-﻿using DspSharp.Signal;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SinusFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Signal;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory
@@ -7,6 +13,11 @@ namespace DspSharpDemo.SignalFactory
     {
         private double _Frequency = 1000;
         private double _Phase;
+
+        public override ISignal CreateSignal()
+        {
+            return new Sinus(this.SampleRate, this.Frequency, this.Phase);
+        }
 
         [DisplayName("frequency [Hz]")]
         [Category("sinus settings")]
@@ -24,11 +35,6 @@ namespace DspSharpDemo.SignalFactory
         {
             get { return this._Phase; }
             set { this.SetField(ref this._Phase, value); }
-        }
-
-        public override ISignal CreateSignal()
-        {
-            return new Sinus(this.SampleRate, this.Frequency, this.Phase);
         }
     }
 }

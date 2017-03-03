@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SignalPlot.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.ComponentModel;
 using DspSharp;
 using DspSharp.Signal;
@@ -27,14 +33,12 @@ namespace DspSharpPlot
             this.PropertyChanged += this.ConfigChanged;
         }
 
-        private void ConfigChanged(object sender, PropertyChangedEventArgs e)
-        {
-            this.Update(true);
-        }
+        public string DisplayName { get; set; }
 
         public PlotModel Model { get; } = new PlotModel();
         public IList<ISignal> Signals { get; } = new List<ISignal>();
-        public string DisplayName { get; set; }
+        protected abstract Axis XAxis { get; }
+        protected abstract Axis YAxis { get; }
 
         public void Update(bool updateData)
         {
@@ -55,8 +59,10 @@ namespace DspSharpPlot
         }
 
         protected abstract Series CreateGraph(ISignal signal);
-        protected abstract Axis XAxis { get; }
-        protected abstract Axis YAxis { get; }
 
+        private void ConfigChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.Update(true);
+        }
     }
 }

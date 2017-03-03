@@ -1,4 +1,10 @@
-﻿using DspSharp.Algorithms;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FilterExtensions.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Algorithms;
 using DspSharp.Signal;
 
 namespace DspSharp.Extensions

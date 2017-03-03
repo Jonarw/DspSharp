@@ -1,4 +1,10 @@
-﻿using DspSharp.Algorithms;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LogSweep.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Algorithms;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal

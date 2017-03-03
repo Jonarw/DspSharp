@@ -1,7 +1,14 @@
-﻿using System;
-using System.Numerics;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ComplexFftPlan.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
 
-namespace DspSharp.Algorithms.FftwProvider
+using System;
+using System.Numerics;
+using DspSharp;
+
+namespace DspSharpFftw
 {
     /// <summary>
     ///     Handles the creating of an fftw plan and the associated memory blocks.
@@ -43,8 +50,8 @@ namespace DspSharp.Algorithms.FftwProvider
 
             try
             {
-                pInput = FftwInterop.malloc(this.FftLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(this.FftLength * 2 * sizeof(double));
+                pInput = FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
+                pOutput = FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
 
                 fixed (Complex* pinputarray = input)
                 {
@@ -59,7 +66,7 @@ namespace DspSharp.Algorithms.FftwProvider
                     }
                 }
 
-                FftwInterop.execute_dft(this.Plan, pInput, pOutput);
+                FftwInterop.ExecuteDft(this.Plan, pInput, pOutput);
 
                 fixed (Complex* pRet = output)
                 {
@@ -79,8 +86,8 @@ namespace DspSharp.Algorithms.FftwProvider
             }
             finally
             {
-                FftwInterop.free(pInput);
-                FftwInterop.free(pOutput);
+                FftwInterop.Free(pInput);
+                FftwInterop.Free(pOutput);
             }
         }
 
@@ -98,7 +105,7 @@ namespace DspSharp.Algorithms.FftwProvider
 
         public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
-            FftwInterop.execute_dft(this.Plan, pInput, pOutput);
+            FftwInterop.ExecuteDft(this.Plan, pInput, pOutput);
             if (this.Direction == FftwDirection.Backward)
             {
                 var dpOutput = (double*)pOutput;
@@ -116,24 +123,21 @@ namespace DspSharp.Algorithms.FftwProvider
             var pOutput = (void*)0;
             try
             {
-                pInput = FftwInterop.malloc(fftLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(fftLength * 2 * sizeof(double));
+                pInput = FftwInterop.Malloc(fftLength * 2 * sizeof(double));
+                pOutput = FftwInterop.Malloc(fftLength * 2 * sizeof(double));
 
-                lock (FftwInterop.FftwLock)
-                {
-                    return FftwInterop.dft_1d(
-                        fftLength,
-                        pInput,
-                        pOutput,
-                        direction,
-                        FftwFlags.Measure | FftwFlags.DestroyInput);
-                }
+                return FftwInterop.PlanDft1D(
+                    fftLength,
+                    pInput,
+                    pOutput,
+                    direction,
+                    FftwFlags.Measure | FftwFlags.DestroyInput);
             }
             finally
             {
                 // free arrays used for planning - we won't ever call fftw_execute
-                FftwInterop.free(pInput);
-                FftwInterop.free(pOutput);
+                FftwInterop.Free(pInput);
+                FftwInterop.Free(pOutput);
             }
         }
     }

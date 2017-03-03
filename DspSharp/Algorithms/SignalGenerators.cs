@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="SignalGenerators.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -173,17 +179,6 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Generates a sequence of zeros.
-        /// </summary>
-        /// <param name="count">The number of zeros.</param>
-        /// <returns></returns>
-        public static IReadOnlyList<double> GetZeros(int count)
-        {
-            var ret = new double[count];
-            return ret.ToReadOnlyList();
-        }
-
-        /// <summary>
         ///     Generates a dirac pulse.
         /// </summary>
         /// <param name="count">The length of the dirac.</param>
@@ -192,6 +187,17 @@ namespace DspSharp.Algorithms
         {
             var ret = new double[count - 1];
             return 1d.ToEnumerable().Concat(ret).ToReadOnlyList();
+        }
+
+        /// <summary>
+        ///     Generates a sequence of zeros.
+        /// </summary>
+        /// <param name="count">The number of zeros.</param>
+        /// <returns></returns>
+        public static IReadOnlyList<double> GetZeros(int count)
+        {
+            var ret = new double[count];
+            return ret.ToReadOnlyList();
         }
 
         /// <summary>

@@ -1,4 +1,10 @@
-﻿namespace DspSharp.Algorithms.FftwProvider
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RealFftPlan.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace DspSharpFftw
 {
     /// <summary>
     ///     Handles the creating of an fftw plan and the associated memory blocks.
@@ -27,19 +33,16 @@
             try
             {
                 // make both memory blocks the same size for simplicity (16 bytes are wasted)
-                pInput = FftwInterop.malloc(spectrumLength * 2 * sizeof(double));
-                pOutput = FftwInterop.malloc(spectrumLength * 2 * sizeof(double));
+                pInput = FftwInterop.Malloc(spectrumLength * 2 * sizeof(double));
+                pOutput = FftwInterop.Malloc(spectrumLength * 2 * sizeof(double));
 
-                lock (FftwInterop.FftwLock)
-                {
-                    return createPlanDelegate(fftLength, pInput, pOutput, FftwFlags.Measure | FftwFlags.DestroyInput);
-                }
+                return createPlanDelegate(fftLength, pInput, pOutput, FftwFlags.Measure | FftwFlags.DestroyInput);
             }
             finally
             {
                 // free arrays used for planning - we won't ever call fftw_execute
-                FftwInterop.free(pInput);
-                FftwInterop.free(pOutput);
+                FftwInterop.Free(pInput);
+                FftwInterop.Free(pOutput);
             }
         }
 

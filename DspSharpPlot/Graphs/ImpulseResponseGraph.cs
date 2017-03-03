@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ImpulseResponseGraph.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System.Collections.Generic;
 using OxyPlot;
 using OxyPlot.Series;
@@ -26,19 +32,13 @@ namespace DspSharpPlot.Graphs
             get
             {
                 if (this.Points.Count <= 16)
-                {
                     return ZoomLevels.Stems;
-                }
 
                 var ratio = (this.XAxis.ScreenMax.X - this.XAxis.ScreenMin.X) / (this.XAxis.ActualMaximum - this.XAxis.ActualMinimum);
                 if (ratio < 10)
-                {
                     return ZoomLevels.Line;
-                }
                 if ((ratio < 30) || (this.Points.Count > 128))
-                {
                     return ZoomLevels.Markers;
-                }
 
                 return ZoomLevels.Stems;
             }
@@ -55,14 +55,10 @@ namespace DspSharpPlot.Graphs
         public override TrackerHitResult GetNearestPoint(ScreenPoint point, bool interpolate)
         {
             if ((this.XAxis == null) || (this.YAxis == null))
-            {
                 return null;
-            }
 
             if (interpolate)
-            {
                 return null;
-            }
 
             var p1 = this.InverseTransform(point);
             var points = this.ActualPoints;
@@ -70,15 +66,11 @@ namespace DspSharpPlot.Graphs
             for (c = 0; c <= points.Count - 1; c++)
             {
                 if ((p1.X - points[c].X < 0.5) && (p1.X - points[c].X > -0.5))
-                {
                     break;
-                }
             }
 
             if (c >= points.Count)
-            {
                 return null;
-            }
 
             var p2 = points[c];
 
@@ -113,13 +105,9 @@ namespace DspSharpPlot.Graphs
             if (this.ZoomLevel != ZoomLevels.Stems)
             {
                 if (this.ZoomLevel == ZoomLevels.Markers)
-                {
                     this.MarkerType = MarkerType.Circle;
-                }
                 else
-                {
                     this.MarkerType = MarkerType.None;
-                }
                 base.Render(rc);
                 return;
             }
@@ -127,9 +115,7 @@ namespace DspSharpPlot.Graphs
             this.MarkerType = MarkerType.Circle;
 
             if (this.ActualPoints.Count == 0)
-            {
                 return;
-            }
 
             this.VerifyAxes();
 
@@ -146,9 +132,7 @@ namespace DspSharpPlot.Graphs
             foreach (var point in this.ActualPoints)
             {
                 if (!this.IsValidPoint(point))
-                {
                     continue;
-                }
 
                 points[0] = this.Transform(point.X, this._base);
                 points[1] = this.Transform(point.X, point.Y);

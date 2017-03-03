@@ -1,10 +1,16 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TestTimeDomainAlgorithms.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Algorithms;
-using DspSharp.Algorithms.FftwProvider;
 using DspSharp.Extensions;
 using DspSharp.Signal.Windows;
+using DspSharpFftw;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MSTestExtensions;
 

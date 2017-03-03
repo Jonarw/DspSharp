@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MultiSelectBehaviours.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,14 +19,14 @@ namespace DspSharpDemo
     {
         public static readonly DependencyProperty SynchronizedSelectedItems = DependencyProperty.RegisterAttached(
             "SynchronizedSelectedItems",
-            typeof (IList),
-            typeof (MultiSelectorBehaviours),
+            typeof(IList),
+            typeof(MultiSelectorBehaviours),
             new PropertyMetadata(null, OnSynchronizedSelectedItemsChanged));
 
         private static readonly DependencyProperty SynchronizationManagerProperty = DependencyProperty.RegisterAttached(
             "SynchronizationManager",
-            typeof (SynchronizationManager),
-            typeof (MultiSelectorBehaviours),
+            typeof(SynchronizationManager),
+            typeof(MultiSelectorBehaviours),
             new PropertyMetadata(null));
 
         /// <summary>
@@ -101,15 +107,11 @@ namespace DspSharpDemo
             {
                 var multiSelector = selector as MultiSelector;
                 if (multiSelector != null)
-                {
                     return multiSelector.SelectedItems;
-                }
 
                 var box = selector as ListBox;
                 if (box != null)
-                {
                     return box.SelectedItems;
-                }
 
                 throw new InvalidOperationException("Target object has no SelectedItems property to bind.");
             }

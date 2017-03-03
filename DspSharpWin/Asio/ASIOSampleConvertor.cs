@@ -1,14 +1,162 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ASIOSampleConvertor.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 
 namespace DspSharpWin.Asio
 {
     /// <summary>
-    /// This class stores convertors for different interleaved WaveFormat to ASIOSampleType separate channel
-    /// format.
+    ///     This class stores convertors for different interleaved WaveFormat to ASIOSampleType separate channel
+    ///     format.
     /// </summary>
     internal class AsioSampleConvertor
     {
         public delegate void SampleConvertor(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples);
+
+        /// <summary>
+        ///     Generic converter 24 LSB
+        /// </summary>
+        public static void ConverterFloatTo24LSBGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+
+                byte*[] samples = new byte*[nbChannels];
+                for (int i = 0; i < nbChannels; i++)
+                {
+                    samples[i] = (byte*)asioOutputBuffers[i];
+                }
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    for (int j = 0; j < nbChannels; j++)
+                    {
+                        int sample24 = clampTo24Bit(*inputSamples++);
+                        *samples[j]++ = (byte)sample24;
+                        *samples[j]++ = (byte)(sample24 >> 8);
+                        *samples[j]++ = (byte)(sample24 >> 16);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Generic convertor for float
+        /// </summary>
+        public static void ConverterFloatToFloatGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+                float*[] samples = new float*[nbChannels];
+                for (int i = 0; i < nbChannels; i++)
+                {
+                    samples[i] = (float*)asioOutputBuffers[i];
+                }
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    for (int j = 0; j < nbChannels; j++)
+                    {
+                        *samples[j]++ = *inputSamples++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Optimized convertor for 2 channels FLOAT
+        /// </summary>
+        public static void ConvertorFloatToInt2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+                int* leftSamples = (int*)asioOutputBuffers[0];
+                int* rightSamples = (int*)asioOutputBuffers[1];
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    *leftSamples++ = clampToInt(inputSamples[0]);
+                    *rightSamples++ = clampToInt(inputSamples[1]);
+                    inputSamples += 2;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Generic convertor SHORT
+        /// </summary>
+        public static void ConvertorFloatToIntGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+                int*[] samples = new int*[nbChannels];
+                for (int i = 0; i < nbChannels; i++)
+                {
+                    samples[i] = (int*)asioOutputBuffers[i];
+                }
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    for (int j = 0; j < nbChannels; j++)
+                    {
+                        *samples[j]++ = clampToInt(*inputSamples++);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Optimized convertor for 2 channels FLOAT
+        /// </summary>
+        public static void ConvertorFloatToShort2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+                // Use a trick (short instead of int to avoid any convertion from 16Bit to 32Bit)
+                short* leftSamples = (short*)asioOutputBuffers[0];
+                short* rightSamples = (short*)asioOutputBuffers[1];
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    *leftSamples++ = clampToShort(inputSamples[0]);
+                    *rightSamples++ = clampToShort(inputSamples[1]);
+                    inputSamples += 2;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Generic convertor SHORT
+        /// </summary>
+        public static void ConvertorFloatToShortGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
+        {
+            unsafe
+            {
+                float* inputSamples = (float*)inputInterleavedBuffer;
+                // Use a trick (short instead of int to avoid any convertion from 16Bit to 32Bit)
+                short*[] samples = new short*[nbChannels];
+                for (int i = 0; i < nbChannels; i++)
+                {
+                    samples[i] = (short*)asioOutputBuffers[i];
+                }
+
+                for (int i = 0; i < nbSamples; i++)
+                {
+                    for (int j = 0; j < nbChannels; j++)
+                    {
+                        *samples[j]++ = clampToShort(*inputSamples++);
+                    }
+                }
+            }
+        }
 
         ///// <summary>
         ///// Selects the sample convertor based on the input WaveFormat and the output ASIOSampleTtype.
@@ -75,9 +223,8 @@ namespace DspSharpWin.Asio
         //    return convertor;
         //}
 
-
         /// <summary>
-        /// Optimized convertor for 2 channels SHORT
+        ///     Optimized convertor for 2 channels SHORT
         /// </summary>
         public static void ConvertorShortToInt2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
         {
@@ -105,7 +252,7 @@ namespace DspSharpWin.Asio
         }
 
         /// <summary>
-        /// Generic convertor for SHORT
+        ///     Generic convertor for SHORT
         /// </summary>
         public static void ConvertorShortToIntGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
         {
@@ -133,51 +280,7 @@ namespace DspSharpWin.Asio
         }
 
         /// <summary>
-        /// Optimized convertor for 2 channels FLOAT
-        /// </summary>
-        public static void ConvertorFloatToInt2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                int* leftSamples = (int*)asioOutputBuffers[0];
-                int* rightSamples = (int*)asioOutputBuffers[1];
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    *leftSamples++ = clampToInt(inputSamples[0]);
-                    *rightSamples++ = clampToInt(inputSamples[1]);
-                    inputSamples += 2;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generic convertor SHORT
-        /// </summary>
-        public static void ConvertorFloatToIntGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                int*[] samples = new int*[nbChannels];
-                for (int i = 0; i < nbChannels; i++)
-                {
-                    samples[i] = (int*)asioOutputBuffers[i];
-                }
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    for (int j = 0; j < nbChannels; j++)
-                    {
-                        *samples[j]++ = clampToInt(*inputSamples++);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Optimized convertor for 2 channels SHORT
+        ///     Optimized convertor for 2 channels SHORT
         /// </summary>
         public static void ConvertorShortToShort2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
         {
@@ -200,7 +303,7 @@ namespace DspSharpWin.Asio
         }
 
         /// <summary>
-        /// Generic convertor for SHORT
+        ///     Generic convertor for SHORT
         /// </summary>
         public static void ConvertorShortToShortGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
         {
@@ -218,105 +321,7 @@ namespace DspSharpWin.Asio
                 {
                     for (int j = 0; j < nbChannels; j++)
                     {
-                        *(samples[j]++) = *inputSamples++;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Optimized convertor for 2 channels FLOAT
-        /// </summary>
-        public static void ConvertorFloatToShort2Channels(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                // Use a trick (short instead of int to avoid any convertion from 16Bit to 32Bit)
-                short* leftSamples = (short*)asioOutputBuffers[0];
-                short* rightSamples = (short*)asioOutputBuffers[1];
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    *leftSamples++ = clampToShort(inputSamples[0]);
-                    *rightSamples++ = clampToShort(inputSamples[1]);
-                    inputSamples += 2;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generic convertor SHORT
-        /// </summary>
-        public static void ConvertorFloatToShortGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                // Use a trick (short instead of int to avoid any convertion from 16Bit to 32Bit)
-                short*[] samples = new short*[nbChannels];
-                for (int i = 0; i < nbChannels; i++)
-                {
-                    samples[i] = (short*)asioOutputBuffers[i];
-                }
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    for (int j = 0; j < nbChannels; j++)
-                    {
-                        *(samples[j]++) = clampToShort(*inputSamples++);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generic converter 24 LSB
-        /// </summary>
-        public static void ConverterFloatTo24LSBGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                
-                byte*[] samples = new byte*[nbChannels];
-                for (int i = 0; i < nbChannels; i++)
-                {
-                    samples[i] = (byte*)asioOutputBuffers[i];
-                }
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    for (int j = 0; j < nbChannels; j++)
-                    {
-                        int sample24 = clampTo24Bit(*inputSamples++);
-                        *(samples[j]++) = (byte)(sample24);
-                        *(samples[j]++) = (byte)(sample24 >> 8);
-                        *(samples[j]++) = (byte)(sample24 >> 16);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Generic convertor for float
-        /// </summary>
-        public static void ConverterFloatToFloatGeneric(IntPtr inputInterleavedBuffer, IntPtr[] asioOutputBuffers, int nbChannels, int nbSamples)
-        {
-            unsafe
-            {
-                float* inputSamples = (float*)inputInterleavedBuffer;
-                float*[] samples = new float*[nbChannels];
-                for (int i = 0; i < nbChannels; i++)
-                {
-                    samples[i] = (float*)asioOutputBuffers[i];
-                }
-
-                for (int i = 0; i < nbSamples; i++)
-                {
-                    for (int j = 0; j < nbChannels; j++)
-                    {
-                        *(samples[j]++) = *inputSamples++;
+                        *samples[j]++ = *inputSamples++;
                     }
                 }
             }
@@ -324,19 +329,19 @@ namespace DspSharpWin.Asio
 
         private static int clampTo24Bit(double sampleValue)
         {
-            sampleValue = (sampleValue < -1.0) ? -1.0 : (sampleValue > 1.0) ? 1.0 : sampleValue;
+            sampleValue = sampleValue < -1.0 ? -1.0 : sampleValue > 1.0 ? 1.0 : sampleValue;
             return (int)(sampleValue * 8388607.0);
         }
 
         private static int clampToInt(double sampleValue)
         {
-            sampleValue = (sampleValue < -1.0) ? -1.0 : (sampleValue > 1.0) ? 1.0 : sampleValue;
+            sampleValue = sampleValue < -1.0 ? -1.0 : sampleValue > 1.0 ? 1.0 : sampleValue;
             return (int)(sampleValue * 2147483647.0);
         }
 
         private static short clampToShort(double sampleValue)
         {
-            sampleValue = (sampleValue < -1.0) ? -1.0 : (sampleValue > 1.0) ? 1.0 : sampleValue;
+            sampleValue = sampleValue < -1.0 ? -1.0 : sampleValue > 1.0 ? 1.0 : sampleValue;
             return (short)(sampleValue * 32767.0);
         }
     }

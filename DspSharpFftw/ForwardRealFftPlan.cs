@@ -1,8 +1,15 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ForwardRealFftPlan.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DspSharp;
 
-namespace DspSharp.Algorithms.FftwProvider
+namespace DspSharpFftw
 {
     /// <summary>
     ///     Plan for a real-valued forward FFT.
@@ -13,7 +20,7 @@ namespace DspSharp.Algorithms.FftwProvider
         ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
-        protected ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.dft_r2c_1d)
+        protected ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftR2C1D)
         {
         }
 
@@ -32,8 +39,8 @@ namespace DspSharp.Algorithms.FftwProvider
             var pOutput = (void*)0;
             try
             {
-                pInput = FftwInterop.malloc(this.FftLength * sizeof(double));
-                pOutput = FftwInterop.malloc(this.SpectrumLength * 2 * sizeof(double));
+                pInput = FftwInterop.Malloc(this.FftLength * sizeof(double));
+                pOutput = FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
 
                 fixed (double* pinputarray = input)
                 {
@@ -48,7 +55,7 @@ namespace DspSharp.Algorithms.FftwProvider
                     }
                 }
 
-                FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
+                FftwInterop.ExecuteDftR2C(this.Plan, pInput, pOutput);
 
                 fixed (Complex* poutputarray = output)
                 {
@@ -57,8 +64,8 @@ namespace DspSharp.Algorithms.FftwProvider
             }
             finally
             {
-                FftwInterop.free(pInput);
-                FftwInterop.free(pOutput);
+                FftwInterop.Free(pInput);
+                FftwInterop.Free(pOutput);
             }
         }
 
@@ -71,7 +78,7 @@ namespace DspSharp.Algorithms.FftwProvider
 
         public override void ExecuteUnsafe(void* pInput, void* pOutput)
         {
-            FftwInterop.execute_dft_r2c(this.Plan, pInput, pOutput);
+            FftwInterop.ExecuteDftR2C(this.Plan, pInput, pOutput);
         }
 
         public static ForwardRealFftPlan GetPlan(int length)

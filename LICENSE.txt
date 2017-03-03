@@ -1,3 +1,7 @@
+The DspSharp project and all of its components are licensed under the MIT license. For the applying conditions, see below.
+
+DspSharpFftw uses the FFTW library, which is licensed under the GPL. For the conditions that apply for that library, see FFTWLICENSE.txt. 
+
 MIT License
 
 Copyright (c) 2017 Jonathan Arweck

@@ -17,70 +17,40 @@
     </TargetFrameworkProfile>
     <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;x64</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoStdLib>true</NoStdLib>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;x64</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;x86</DefineConstants>
-    <NoStdLib>true</NoStdLib>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;x86</DefineConstants>
     <Optimize>true</Optimize>
     <NoStdLib>true</NoStdLib>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Algorithms\ComplexVectors.cs" />
     <Compile Include="Algorithms\CubicSpline\CubicSpline.cs" />
     <Compile Include="Algorithms\Experimental.cs" />
+    <Compile Include="Algorithms\IFftProvider.cs" />
     <Compile Include="Algorithms\Interpolation.cs" />
     <Compile Include="Algorithms\FrequencyDomain.cs" />
     <Compile Include="Algorithms\Mathematic.cs" />
     <Compile Include="Algorithms\SignalGenerators.cs" />
     <Compile Include="Algorithms\Statistics.cs" />
     <Compile Include="Algorithms\TimeDomain.cs" />
-    <Compile Include="Algorithms\FftwProvider\ComplexFftPlan.cs" />
     <Compile Include="Algorithms\Fft.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftPlan.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftwDirection.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftwFlags.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftwInterop.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftwKind.cs" />
-    <Compile Include="Algorithms\FftwProvider\FftwProvider.cs" />
-    <Compile Include="Algorithms\FftwProvider\ForwardRealFftPlan.cs" />
-    <Compile Include="Algorithms\FftwProvider\IFftProvider.cs" />
-    <Compile Include="Algorithms\FftwProvider\InverseRealFftPlan.cs" />
-    <Compile Include="Algorithms\FftwProvider\RealFftPlan.cs" />
     <Compile Include="Algorithms\VectorArithmeticD.cs" />
     <Compile Include="Algorithms\VectorConversions.cs" />
     <Compile Include="Algorithms\VectorFunctions.cs" />
@@ -170,14 +140,6 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="fftw3x86.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="fftw3x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="DspSharp.Interop">
       <HintPath>.\DspSharp.Interop.dll</HintPath>
     </Reference>
@@ -185,6 +147,7 @@
       <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\portable-net45+win8+wpa81+wp8\PropertyTools.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

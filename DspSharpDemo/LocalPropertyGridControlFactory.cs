@@ -1,4 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LocalPropertyGridControlFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -7,7 +13,6 @@ using PropertyTools.Wpf;
 
 namespace DspSharpDemo
 {
-
     /// <summary>
     ///     Slightly adapted PropertyControlFactory that creates appropriate controls for enums.
     /// </summary>
@@ -16,19 +21,13 @@ namespace DspSharpDemo
         public override FrameworkElement CreateControl(PropertyItem pi, PropertyControlFactoryOptions options)
         {
             if ((pi.ItemsSourceDescriptor != null) || (pi.ItemsSource != null))
-            {
                 return this.CreateComboBoxControl(pi);
-            }
 
             if (pi.Is(typeof(Collection<string>)))
-            {
                 return this.CreateListControl(pi);
-            }
 
             if (pi.Is(typeof(ICommand)))
-            {
                 return this.CreateCommandControl(pi);
-            }
 
             return base.CreateControl(pi, options);
         }
@@ -44,7 +43,7 @@ namespace DspSharpDemo
         {
             var enumType = TypeHelper.GetEnumType(property.Descriptor.PropertyType);
 
-            var c = new EnumCombo { Enum = enumType };
+            var c = new EnumCombo {Enum = enumType};
             c.SetBinding(Selector.SelectedValueProperty, property.CreateBinding());
             return c;
         }

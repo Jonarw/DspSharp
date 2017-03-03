@@ -1,4 +1,10 @@
-﻿using DspSharp.Signal;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="WhiteNoiseFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Signal;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory
@@ -7,6 +13,11 @@ namespace DspSharpDemo.SignalFactory
     {
         private double _Mean;
         private double _Variance = 1;
+
+        public override ISignal CreateSignal()
+        {
+            return new WhiteNoise(this.SampleRate, this.Mean, this.Variance);
+        }
 
         [DisplayName("mean")]
         [Category("white noise settings")]
@@ -24,11 +35,6 @@ namespace DspSharpDemo.SignalFactory
         {
             get { return this._Variance; }
             set { this.SetField(ref this._Variance, value); }
-        }
-
-        public override ISignal CreateSignal()
-        {
-            return new WhiteNoise(this.SampleRate, this.Mean, this.Variance);
         }
     }
 }

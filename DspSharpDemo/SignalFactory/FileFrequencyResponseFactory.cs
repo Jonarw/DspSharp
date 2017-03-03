@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FileFrequencyResponseFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
@@ -20,9 +26,7 @@ namespace DspSharpDemo.SignalFactory
         {
             var fi = new FileInfo(this.FileName);
             if (!fi.Exists)
-            {
                 return null;
-            }
 
             var file = File.ReadLines(this.FileName);
 
@@ -38,34 +42,29 @@ namespace DspSharpDemo.SignalFactory
                 var fields = line.Split(',');
 
                 if (fields.Length < 2)
-                {
                     continue;
-                }
 
                 if (!double.TryParse(fields[0], NumberStyles.Any, CultureInfo.InvariantCulture, out frequency))
-                {
                     continue;
-                }
 
                 if (!double.TryParse(fields[1], NumberStyles.Any, CultureInfo.InvariantCulture, out mag))
-                {
                     continue;
-                }
 
                 if (fields.Length == 2)
                 {
                     frequencies.Add(frequency);
                     values.Add(mag);
                 }
-                else if (fields.Length == 3)
+                else
                 {
-                    if (!double.TryParse(fields[1], NumberStyles.Any, CultureInfo.InvariantCulture, out phase))
+                    if (fields.Length == 3)
                     {
-                        continue;
-                    }
+                        if (!double.TryParse(fields[1], NumberStyles.Any, CultureInfo.InvariantCulture, out phase))
+                            continue;
 
-                    frequencies.Add(frequency);
-                    values.Add(Complex.FromPolarCoordinates(mag, phase));
+                        frequencies.Add(frequency);
+                        values.Add(Complex.FromPolarCoordinates(mag, phase));
+                    }
                 }
             }
 

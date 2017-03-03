@@ -1,6 +1,12 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Unsafe.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Numerics;
-using DspSharp.Algorithms.FftwProvider;
+using System.Runtime.InteropServices;
 
 namespace DspSharp.Algorithms
 {
@@ -12,16 +18,25 @@ namespace DspSharp.Algorithms
         /// <param name="mem">The memory.</param>
         public static void Free(void* mem)
         {
-            FftwInterop.free(mem);
+            Marshal.FreeHGlobal((IntPtr)mem);
         }
 
         /// <summary>
         ///     Allocates a memory block of the specified length (in bytes).
         /// </summary>
         /// <param name="length">The length.</param>
-        public static void* Malloc(int length)
+        public static IntPtr Malloc(int length)
         {
-            return FftwInterop.malloc(length);
+            return Marshal.AllocHGlobal(length);
+        }
+
+        /// <summary>
+        ///     Allocates a memory block of the specified length (in bytes).
+        /// </summary>
+        /// <param name="length">The length.</param>
+        public static byte* MallocB(int length)
+        {
+            return (byte*)Marshal.AllocHGlobal(length * sizeof(byte));
         }
 
         /// <summary>
@@ -30,7 +45,7 @@ namespace DspSharp.Algorithms
         /// <param name="length">The length.</param>
         public static Complex* MallocC(int length)
         {
-            return (Complex*)FftwInterop.malloc(length * 2 * sizeof(double));
+            return (Complex*)Marshal.AllocHGlobal(length * 2 * sizeof(double));
         }
 
         /// <summary>
@@ -39,7 +54,7 @@ namespace DspSharp.Algorithms
         /// <param name="length">The length.</param>
         public static double* MallocD(int length)
         {
-            return (double*)FftwInterop.malloc(length * sizeof(double));
+            return (double*)Marshal.AllocHGlobal(length * sizeof(double));
         }
 
         /// <summary>
@@ -48,7 +63,16 @@ namespace DspSharp.Algorithms
         /// <param name="length">The length.</param>
         public static int* MallocI(int length)
         {
-            return (int*)FftwInterop.malloc(length * sizeof(int));
+            return (int*)Marshal.AllocHGlobal(length * sizeof(int));
+        }
+
+        /// <summary>
+        ///     Allocates a memory block of the specified length (in bytes).
+        /// </summary>
+        /// <param name="length">The length.</param>
+        public static void* MallocV(int length)
+        {
+            return (void*)Marshal.AllocHGlobal(length);
         }
 
         /// <summary>

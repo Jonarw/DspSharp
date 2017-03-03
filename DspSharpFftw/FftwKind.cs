@@ -1,4 +1,10 @@
-namespace DspSharp.Algorithms.FftwProvider
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FftwKind.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace DspSharpFftw
 {
     /// <summary>
     ///     Kinds of real-to-real transforms

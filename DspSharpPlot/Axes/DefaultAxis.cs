@@ -1,4 +1,10 @@
-﻿using OxyPlot;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="DefaultAxis.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using OxyPlot;
 using OxyPlot.Axes;
 
 namespace DspSharpPlot.Axes

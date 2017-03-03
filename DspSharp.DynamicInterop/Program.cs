@@ -1,4 +1,10 @@
-﻿namespace DspSharp.DynamicInterop
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Program.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace DspSharp.DynamicInterop
 {
     class Program
     {

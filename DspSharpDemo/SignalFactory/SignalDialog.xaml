@@ -21,8 +21,12 @@
             <RowDefinition Height="35" />
         </Grid.RowDefinitions>
         <StackPanel>
-            <pt:PropertyGrid SelectedObject="{Binding CommonConfig}" TabVisibility="VisibleIfMoreThanOne" ControlFactory="{StaticResource PropertyControlFactory}" RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"/>
-            <pt:PropertyGrid SelectedObject="{Binding SpecificConfig}" TabVisibility="VisibleIfMoreThanOne" ControlFactory="{StaticResource PropertyControlFactory}" RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"/>
+            <pt:PropertyGrid SelectedObject="{Binding CommonConfig}" TabVisibility="VisibleIfMoreThanOne"
+                             ControlFactory="{StaticResource PropertyControlFactory}"
+                             RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" />
+            <pt:PropertyGrid SelectedObject="{Binding SpecificConfig}" TabVisibility="VisibleIfMoreThanOne"
+                             ControlFactory="{StaticResource PropertyControlFactory}"
+                             RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" />
         </StackPanel>
 
         <Grid Grid.Row="1">

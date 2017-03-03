@@ -1,13 +1,17 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FftTest.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using DspSharp.Algorithms;
-using DspSharp.Algorithms.FftwProvider;
+using DspSharpFftw;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MSTestExtensions;
-
-//using Filter_CrossPlatform;
 
 namespace DspSharpTest
 {

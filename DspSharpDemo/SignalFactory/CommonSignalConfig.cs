@@ -1,4 +1,10 @@
-﻿using DspSharp;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="CommonSignalConfig.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory

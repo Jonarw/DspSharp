@@ -1,4 +1,10 @@
-﻿using DspSharp.Signal;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="LogSweepFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Signal;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory
@@ -8,6 +14,11 @@ namespace DspSharpDemo.SignalFactory
         private double _Length = 1;
         private double _StartFrequency = 20;
         private double _StopFrequency = 20000;
+
+        public override ISignal CreateSignal()
+        {
+            return new LogSweep(this.StartFrequency, this.StopFrequency, this.Length, this.SampleRate);
+        }
 
         [DisplayName("length [seconds]")]
         [Category("logsweep settings")]
@@ -34,11 +45,6 @@ namespace DspSharpDemo.SignalFactory
         {
             get { return this._StopFrequency; }
             set { this.SetField(ref this._StopFrequency, value); }
-        }
-
-        public override ISignal CreateSignal()
-        {
-            return new LogSweep(this.StartFrequency, this.StopFrequency, this.Length, this.SampleRate);
         }
     }
 }

@@ -1,8 +1,13 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Fft.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using DspSharp.Algorithms.FftwProvider;
 
 namespace DspSharp.Algorithms
 {
@@ -14,7 +19,7 @@ namespace DspSharp.Algorithms
         /// <summary>
         ///     Gets or sets the FFT provider used for all FFT calculations. Defaults to a FftwProvider.
         /// </summary>
-        public static IFftProvider FftProvider { get; set; } = new FftwProvider.FftwProvider();
+        public static IFftProvider FftProvider { get; set; }
 
         /// <summary>
         ///     Computes the FFT of complex-valued input data.

@@ -1,38 +1,47 @@
-﻿using System.Runtime.InteropServices;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AsioChannelInfo.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Runtime.InteropServices;
 
 namespace DspSharpWin.Asio
 {
     /// <summary>
-    /// ASIO Channel Info
+    ///     ASIO Channel Info
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
     public struct AsioChannelInfo
     {
         /// <summary>
-        /// on input, channel index
+        ///     on input, channel index
         /// </summary>
         public int channel;
+
         /// <summary>
-        /// Is Input
+        ///     Is Input
         /// </summary>
-        public bool isInput; 
+        public bool isInput;
+
         /// <summary>
-        /// Is Active
+        ///     Is Active
         /// </summary>
-        public bool isActive; 
+        public bool isActive;
+
         /// <summary>
-        /// Channel Info
+        ///     Channel Info
         /// </summary>
         public int channelGroup;
+
         /// <summary>
-        /// ASIO Sample Type
+        ///     ASIO Sample Type
         /// </summary>
-        [MarshalAs(UnmanagedType.U4)]
-        public AsioSampleType type;
+        [MarshalAs(UnmanagedType.U4)] public AsioSampleType type;
+
         /// <summary>
-        /// Name
+        ///     Name
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string name;
-    };
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string name;
+    }
 }

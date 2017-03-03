@@ -1,4 +1,10 @@
-﻿using DspSharp.Algorithms;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="UnsafeAlgorithmsTest.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using DspSharp.Algorithms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DspSharpTest
@@ -35,20 +41,20 @@ namespace DspSharpTest
             FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(ps, 5), s);
 
             Unsafe.Memset(ps, 0, 2);
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(ps, 5), new[] { 0d, 0, 3, 4, 5 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(ps, 5), new[] {0d, 0, 3, 4, 5});
 
             Unsafe.Memset(ps, 0, 5);
             Unsafe.Memcpy(ps, s, 2);
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(ps, 5), new[] { 1d, 2, 0, 0, 0 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(ps, 5), new[] {1d, 2, 0, 0, 0});
 
             double* pt = Unsafe.MallocD(5);
             Unsafe.Memcpy(ps, s);
             Unsafe.Memcpy(pt, ps, 2);
             Unsafe.Memcpy(pt + 3, ps + 2, 2);
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(pt, 5), new[] { 1d, 2, 0, 3, 4 });
+            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray(pt, 5), new[] {1d, 2, 0, 3, 4});
 
             Unsafe.Memcpy(s, pt);
-            FilterAssert.ListsAreReasonablyClose(s, new[] { 1d, 2, 0, 3, 4 });
+            FilterAssert.ListsAreReasonablyClose(s, new[] {1d, 2, 0, 3, 4});
 
             Unsafe.Free(pt);
             Unsafe.Free(ps);

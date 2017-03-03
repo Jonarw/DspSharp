@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FileImpulseResponseFactory.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -17,9 +23,7 @@ namespace DspSharpDemo.SignalFactory
             {
                 var fi = new FileInfo(this.FileName);
                 if (!fi.Exists)
-                {
                     return null;
-                }
             }
             catch (Exception)
             {
@@ -36,22 +40,19 @@ namespace DspSharpDemo.SignalFactory
 
                 double ret;
                 if (!double.TryParse(fields[0], NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
-                {
                     continue;
-                }
 
                 if (fields.Length == 1)
-                {
                     signal.Add(ret);
-                }
-                else if (fields.Length == 2)
+                else
                 {
-                    if (!double.TryParse(fields[1], NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
+                    if (fields.Length == 2)
                     {
-                        continue;
-                    }
+                        if (!double.TryParse(fields[1], NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
+                            continue;
 
-                    signal.Add(ret);
+                        signal.Add(ret);
+                    }
                 }
             }
 

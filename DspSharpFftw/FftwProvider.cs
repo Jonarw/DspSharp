@@ -1,9 +1,16 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="FftwProvider.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using DspSharp.Algorithms;
 
-namespace DspSharp.Algorithms.FftwProvider
+namespace DspSharpFftw
 {
     public class FftwProvider : IFftProvider
     {
@@ -17,7 +24,7 @@ namespace DspSharp.Algorithms.FftwProvider
             //{
             try
             {
-                FftwInterop.import_wisdom_from_filename(WisdomPath);
+                FftwInterop.ImportWisdomFromFilename(WisdomPath);
             }
             catch (Exception)
             {
@@ -163,7 +170,7 @@ namespace DspSharp.Algorithms.FftwProvider
         {
             //var fi = new FileInfo(WisdomPath);
             //fi.Directory?.Create();
-            FftwInterop.export_wisdom_to_filename(WisdomPath);
+            FftwInterop.ExportWisdomToFilename(WisdomPath);
         }
     }
 }

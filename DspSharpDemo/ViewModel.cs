@@ -1,16 +1,22 @@
-﻿using System.Collections.Generic;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ViewModel.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Input;
 using DspSharp;
 using DspSharp.Algorithms;
-using DspSharp.Algorithms.FftwProvider;
 using DspSharp.Collections;
 using DspSharp.Extensions;
 using DspSharp.LtiFilters;
 using DspSharp.Signal;
 using DspSharpDemo.SignalFactory;
+using DspSharpFftw;
 using DspSharpPlot;
 
 namespace DspSharpDemo
@@ -86,16 +92,12 @@ namespace DspSharpDemo
             set
             {
                 if (this.SelectedFilter != null)
-                {
                     this.SelectedFilter.PropertyChanged -= this.SelectedFilterChanged;
-                }
 
                 this.SetField(ref this._SelectedFilter, value);
 
                 if (this.SelectedFilter != null)
-                {
                     this.SelectedFilter.PropertyChanged += this.SelectedFilterChanged;
-                }
             }
         }
 
@@ -148,34 +150,26 @@ namespace DspSharpDemo
             if (result == true)
             {
                 if (dia.CreatedSignal != null)
-                {
                     this.Signals.Add(dia.CreatedSignal);
-                }
             }
         }
 
         private void ImpulseResponsePlotChanged(object sender, PropertyChangedEventArgs e)
         {
             if ((e.PropertyName == "XMin") || (e.PropertyName == "XMax"))
-            {
                 this.UpdateRanges();
-            }
         }
 
         private void RemoveFilter()
         {
             if (this.SelectedFilter != null)
-            {
                 this.Filters.Remove(this.SelectedFilter);
-            }
         }
 
         private void RemoveSignal()
         {
             if (this.SelectedSignal != null)
-            {
                 this.Signals.Remove(this.SelectedSignal);
-            }
         }
 
         private void SelectedFilterChanged(object sender, PropertyChangedEventArgs e)
@@ -202,9 +196,7 @@ namespace DspSharpDemo
         private void UpdateSelectedPlot()
         {
             if (this.SelectedPlot == null)
-            {
                 return;
-            }
 
             this.SelectedPlot.Signals.Clear();
 
@@ -220,16 +212,12 @@ namespace DspSharpDemo
                     }
 
                     if (filteredsignal != signal)
-                    {
                         filteredsignal.DisplayName = signal.DisplayName + " (filtered)";
-                    }
 
                     this.SelectedPlot.Signals.Add(filteredsignal);
                 }
                 else
-                {
                     this.SelectedPlot.Signals.Add(signal);
-                }
             }
 
             this.SelectedPlot.Update(true);

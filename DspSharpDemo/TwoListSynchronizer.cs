@@ -1,4 +1,10 @@
-﻿using System;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="TwoListSynchronizer.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.Linq;
@@ -73,9 +79,7 @@ namespace DspSharpDemo
             // so update the master list from the target list
             // (This is the case with a ListBox SelectedItems collection: only items from the ItemsSource can be included in SelectedItems)
             if (!this.TargetAndMasterCollectionsAreEqual())
-            {
                 this.SetListValuesFromSource(this._targetList, this._masterList, this.ConvertFromTargetToMaster);
-            }
         }
 
         /// <summary>
@@ -95,9 +99,7 @@ namespace DspSharpDemo
         {
             var source = list as INotifyCollectionChanged;
             if (source != null)
-            {
                 CollectionChangedEventManager.AddListener(source, this);
-            }
         }
 
         /// <summary>
@@ -108,9 +110,7 @@ namespace DspSharpDemo
         {
             var source = list as INotifyCollectionChanged;
             if (source != null)
-            {
                 CollectionChangedEventManager.RemoveListener(source, this);
-            }
         }
 
         private void AddItems(IList list, NotifyCollectionChangedEventArgs e, Converter<object, object> converter)
@@ -122,13 +122,9 @@ namespace DspSharpDemo
                 int insertionPoint = e.NewStartingIndex + i;
 
                 if (insertionPoint > list.Count)
-                {
                     list.Add(converter(e.NewItems[i]));
-                }
                 else
-                {
                     list.Insert(insertionPoint, converter(e.NewItems[i]));
-                }
             }
         }
 
@@ -177,16 +173,16 @@ namespace DspSharpDemo
         private void PerformActionOnAllLists(ChangeListAction action, IList sourceList, NotifyCollectionChangedEventArgs collectionChangedArgs)
         {
             if (ReferenceEquals(sourceList, this._masterList))
-            {
                 this.PerformActionOnList(this._targetList, action, collectionChangedArgs, this.ConvertFromMasterToTarget);
-            }
             else
-            {
                 this.PerformActionOnList(this._masterList, action, collectionChangedArgs, this.ConvertFromTargetToMaster);
-            }
         }
 
-        private void PerformActionOnList(IList list, ChangeListAction action, NotifyCollectionChangedEventArgs collectionChangedArgs, Converter<object, object> converter)
+        private void PerformActionOnList(
+            IList list,
+            ChangeListAction action,
+            NotifyCollectionChangedEventArgs collectionChangedArgs,
+            Converter<object, object> converter)
         {
             this.StopListeningForChangeEvents(list);
             action(list, collectionChangedArgs, converter);
@@ -237,13 +233,9 @@ namespace DspSharpDemo
         private void UpdateListsFromSource(IList sourceList)
         {
             if (ReferenceEquals(sourceList, this._masterList))
-            {
                 this.SetListValuesFromSource(this._masterList, this._targetList, this.ConvertFromMasterToTarget);
-            }
             else
-            {
                 this.SetListValuesFromSource(this._targetList, this._masterList, this.ConvertFromTargetToMaster);
-            }
         }
 
         private delegate void ChangeListAction(IList list, NotifyCollectionChangedEventArgs e, Converter<object, object> converter);
