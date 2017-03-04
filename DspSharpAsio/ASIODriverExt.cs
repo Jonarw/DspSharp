@@ -1,12 +1,12 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ASIODriverExt.cs">
-//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+//   Copyright (c) 2017 NAudio contributors, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
 
-namespace DspSharpWin.Asio
+namespace DspSharpAsio
 {
     /// <summary>
     ///     AsioDriverExt is a simplified version of the AsioDriver. It provides an easier

@@ -9,11 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpDemo", "DspSharpDem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharp", "DspSharp\DspSharp.csproj", "{17269798-53CF-4088-B7AC-157108E8EACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpWin", "DspSharpWin\DspSharpWin.csproj", "{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpAsio", "DspSharpAsio\DspSharpAsio.csproj", "{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82088441-657A-4314-B3A5-D7BB3CE2D2F5}"
 	ProjectSection(SolutionItems) = preProject
-		DspSharpFftw\FFTWLICENSE.txt = DspSharpFftw\FFTWLICENSE.txt
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
 EndProject

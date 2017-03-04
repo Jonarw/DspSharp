@@ -1,25 +1,24 @@
-MIT License
+Copyright 2017 Jonathan Arweck
 
-The DspSharp project and all of its components are licensed under the MIT license. For the applying conditions, see below.
+The DspSharp project and all of its components are licensed under the MIT license. 
+For terms and conditions, see licenses/MIT.txt.
 
-DspSharpFftw uses the FFTW library, which is licensed under the GPL. For the conditions that apply for that library, see FFTWLICENSE.txt. 
+DspSharpFftw uses the FFTW library.
+The GPL applies. For terms and conditions, see licenses/GPL.txt. 
+For more information, visit http://www.fftw.org/
 
-Copyright (c) 2017 Jonathan Arweck
+DspSharpAsio uses the ASIO wrapper from the NAudio project.
+The Ms-PL applies. For terms and conditions, see licenses/Ms-PL.txt.
+For more information, visit https://github.com/naudio/NAudio
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+DspSharp uses the CubicSpline and TriDiagonalMatrix classes by Ryan Seghers.
+The CPOL applies. For terms and conditions, see licenses/CPOL.txt.
+For more information, visit https://www.codeproject.com/Articles/560163/Csharp-Cubic-Spline-Interpolation
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+DspSharp uses PropertyTools.
+The MIT license applies. For terms and conditions, see licenses/MIT.txt. 
+For more information, visit https://github.com/objorke/PropertyTools
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+DspSharpPlot uses OxyPlot.
+The MIT license applies. For terms and conditions, see licenses/MIT.txt.
+For more information, visit https://github.com/oxyplot/oxyplot

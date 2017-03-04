@@ -7,8 +7,8 @@
     <ProjectGuid>{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DspSharpWin</RootNamespace>
-    <AssemblyName>DspSharpWin</AssemblyName>
+    <RootNamespace>DspSharpAsio</RootNamespace>
+    <AssemblyName>DspSharpAsio</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -45,18 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asio\Asio64Bit.cs" />
-    <Compile Include="Asio\AsioCallbacks.cs" />
-    <Compile Include="Asio\AsioChannelInfo.cs" />
-    <Compile Include="Asio\ASIODriver.cs" />
-    <Compile Include="Asio\AsioDriverCapability.cs" />
-    <Compile Include="Asio\ASIODriverExt.cs" />
-    <Compile Include="Asio\AsioError.cs" />
-    <Compile Include="Asio\AsioFillBufferCallback.cs" />
-    <Compile Include="Asio\AsioMessageSelector.cs" />
-    <Compile Include="Asio\ASIOSampleConvertor.cs" />
-    <Compile Include="Asio\AsioSampleType.cs" />
-    <Compile Include="Asio\ASIOStructures.cs" />
+    <Compile Include="Asio64Bit.cs" />
+    <Compile Include="AsioCallbacks.cs" />
+    <Compile Include="AsioChannelInfo.cs" />
+    <Compile Include="ASIODriver.cs" />
+    <Compile Include="AsioDriverCapability.cs" />
+    <Compile Include="ASIODriverExt.cs" />
+    <Compile Include="AsioError.cs" />
+    <Compile Include="AsioFillBufferCallback.cs" />
+    <Compile Include="AsioMessageSelector.cs" />
+    <Compile Include="ASIOSampleConvertor.cs" />
+    <Compile Include="AsioSampleType.cs" />
+    <Compile Include="ASIOStructures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

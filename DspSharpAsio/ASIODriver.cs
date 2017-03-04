@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ASIODriver.cs">
-//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+//   Copyright (c) 2017 NAudio contributors, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32;
 
-namespace DspSharpWin.Asio
+namespace DspSharpAsio
 {
     /// <summary>
     ///     Main AsioDriver Class. To use this class, you need to query first the GetAsioDriverNames() and

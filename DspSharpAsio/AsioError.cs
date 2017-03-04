@@ -1,10 +1,10 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AsioError.cs">
-//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+//   Copyright (c) 2017 NAudio contributors, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace DspSharpWin.Asio
+namespace DspSharpAsio
 {
     /// <summary>
     ///     ASIO Error Codes

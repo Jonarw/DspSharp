@@ -38,21 +38,21 @@ namespace DspSharpTest
             var test = new CircularBlockBuffer(init, 3);
             fixed (double* pRet = ret)
             {
-                test.GetBlock(pRet);
+                test.GetBlock((byte*)pRet);
             }
 
             FilterAssert.ListsAreReasonablyClose(ret, new[] {.1, .2, .3});
 
             fixed (double* pRet = ret)
             {
-                test.GetBlock(pRet);
+                test.GetBlock((byte*)pRet);
             }
 
             FilterAssert.ListsAreReasonablyClose(ret, new[] {.4, .5, .6});
 
             fixed (double* pRet = ret)
             {
-                test.GetBlock(pRet);
+                test.GetBlock((byte*)pRet);
             }
 
             FilterAssert.ListsAreReasonablyClose(ret, new[] {.7, .8, .1});
@@ -122,13 +122,15 @@ namespace DspSharpTest
             }
         }
 
-        private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, byte* buffer)
+        private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
+            var buffer = bufferSwitchEventArgs.NewWorkBuffer;
             FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.1, .2, .3, .4, .5, .6, .7, .8});
         }
 
-        private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, byte* buffer)
+        private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
+            var buffer = bufferSwitchEventArgs.NewWorkBuffer;
             FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.9, .10, .11, .12, .13, .14, .15, .16});
         }
     }

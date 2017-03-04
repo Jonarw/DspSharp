@@ -1,12 +1,12 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ASIOSampleConvertor.cs">
-//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+//   Copyright (c) 2017 NAudio contributors, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
 
-namespace DspSharpWin.Asio
+namespace DspSharpAsio
 {
     /// <summary>
     ///     This class stores convertors for different interleaved WaveFormat to ASIOSampleType separate channel

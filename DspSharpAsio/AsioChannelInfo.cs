@@ -1,12 +1,12 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="AsioChannelInfo.cs">
-//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+//   Copyright (c) 2017 NAudio contributors, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Runtime.InteropServices;
 
-namespace DspSharpWin.Asio
+namespace DspSharpAsio
 {
     /// <summary>
     ///     ASIO Channel Info
