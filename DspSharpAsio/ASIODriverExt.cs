@@ -74,7 +74,7 @@ namespace DspSharpAsio
         /// </summary>
         /// <param name="numberOfOutputChannels">The number of outputs channels.</param>
         /// <param name="numberOfInputChannels">The number of input channel.</param>
-        /// <param name="bufferSize">The buffer size.</param>
+        /// <param name="bufferSize">The buffer size. -1 (default value) -> preferred buffer size; -2 -> maximum buffer size.</param>
         public int CreateBuffers(int numberOfOutputChannels, int numberOfInputChannels, int bufferSize = -1)
         {
             if ((numberOfOutputChannels < 0) || (numberOfOutputChannels > this.Capabilities.NbOutputChannels))
@@ -89,8 +89,10 @@ namespace DspSharpAsio
                     $"Invalid number of input channels {numberOfInputChannels}, must be in the range [0,{this.Capabilities.NbInputChannels}]");
             }
 
-            if (bufferSize < 0)
+            if (bufferSize == -1)
                 bufferSize = this.Capabilities.BufferPreferredSize;
+            else if (bufferSize == -2)
+                bufferSize = this.Capabilities.BufferMaxSize;
 
             if ((bufferSize < this.Capabilities.BufferMinSize) || (bufferSize > this.Capabilities.BufferMaxSize))
                 throw new ArgumentOutOfRangeException(nameof(bufferSize));

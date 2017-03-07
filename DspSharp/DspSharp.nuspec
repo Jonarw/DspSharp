@@ -9,7 +9,6 @@
     <projectUrl>https://github.com/Jonarw/DspSharp</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes></releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>filter dsp audio digital signal processing</tags>
   </metadata>

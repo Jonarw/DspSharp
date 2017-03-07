@@ -20,7 +20,7 @@ namespace DspSharpFftw
         ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
-        protected ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftR2C1D)
+        public ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftR2C1D)
         {
         }
 

@@ -127,10 +127,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\DspSharpAsio\DspSharpAsio.csproj">
-      <Project>{8420c3e2-ca65-44a1-bbc7-f259751fae9c}</Project>
-      <Name>DspSharpAsio</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DspSharp\DspSharp.csproj">
       <Project>{17269798-53cf-4088-b7ac-157108e8eaca}</Project>
       <Name>DspSharp</Name>

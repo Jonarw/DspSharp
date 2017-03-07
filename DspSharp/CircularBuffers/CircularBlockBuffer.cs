@@ -102,7 +102,7 @@ namespace DspSharp.CircularBuffers
         /// <param name="outputBufferSize">Block size of the output buffer.</param>
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// </exception>
-        public CircularBlockBuffer(byte* items, int dataTypeSize, int bufferSize, int outputBufferSize)
+        public CircularBlockBuffer(void* items, int dataTypeSize, int bufferSize, int outputBufferSize)
         {
             if (bufferSize <= 0)
                 throw new ArgumentOutOfRangeException(nameof(bufferSize));
@@ -112,7 +112,7 @@ namespace DspSharp.CircularBuffers
             this.ownBuffer = false;
             this.DataTypeSize = dataTypeSize;
             this.OutputBufferSize = outputBufferSize;
-            this.buffer = items;
+            this.buffer = (byte*)items;
             this.BufferSize = bufferSize;
         }
 
@@ -124,7 +124,7 @@ namespace DspSharp.CircularBuffers
         /// <summary>
         ///     Gets or sets the current position (in whatever data type the buffer was initialized with).
         /// </summary>
-        public int CurrentPosition { get; set; }
+        public int BufferPosition { get; set; }
 
         /// <summary>
         ///     Gets the size of the data type the circular buffer was initialized with.
@@ -143,18 +143,18 @@ namespace DspSharp.CircularBuffers
         /// <param name="target">The target.</param>
         public void GetBlock(byte* target)
         {
-            if (this.CurrentPosition + this.OutputBufferSize < this.BufferSize)
+            if (this.BufferPosition + this.OutputBufferSize < this.BufferSize)
             {
-                Interop.memcpy(target, this.buffer + this.CurrentPosition * this.DataTypeSize, this.OutputBufferSize * this.DataTypeSize);
-                this.CurrentPosition += this.OutputBufferSize;
+                Interop.memcpy(target, this.buffer + this.BufferPosition * this.DataTypeSize, this.OutputBufferSize * this.DataTypeSize);
+                this.BufferPosition += this.OutputBufferSize;
             }
             else
             {
-                var c = this.BufferSize - this.CurrentPosition;
+                var c = this.BufferSize - this.BufferPosition;
 
-                Interop.memcpy(target, this.buffer + this.CurrentPosition * this.DataTypeSize, c * this.DataTypeSize);
-                this.CurrentPosition = this.OutputBufferSize - c;
-                Interop.memcpy(target + c * this.DataTypeSize, this.buffer, this.CurrentPosition * this.DataTypeSize);
+                Interop.memcpy(target, this.buffer + this.BufferPosition * this.DataTypeSize, c * this.DataTypeSize);
+                this.BufferPosition = this.OutputBufferSize - c;
+                Interop.memcpy(target + c * this.DataTypeSize, this.buffer, this.BufferPosition * this.DataTypeSize);
             }
         }
 
