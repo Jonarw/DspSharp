@@ -154,13 +154,13 @@ namespace DspSharpTest
             var result = provider.ComplexFft(this.xComplex);
             var inverse = provider.ComplexIfft(result);
 
-            FilterAssert.ListsAreReasonablyClose(result, this.fftxComplex);
-            FilterAssert.ListsAreReasonablyClose(this.xComplex, inverse);
+            DspAssert.ListsAreReasonablyClose(result, this.fftxComplex);
+            DspAssert.ListsAreReasonablyClose(this.xComplex, inverse);
 
             var resultlong = provider.ComplexFft(this.xComplex, 25);
             var inverselong = provider.ComplexIfft(resultlong);
 
-            FilterAssert.ListsAreReasonablyClose(this.xComplex.Concat(Enumerable.Repeat(Complex.Zero, 15)).ToReadOnlyList(), inverselong);
+            DspAssert.ListsAreReasonablyClose(this.xComplex.Concat(Enumerable.Repeat(Complex.Zero, 15)).ToReadOnlyList(), inverselong);
 
             Assert.IsTrue(provider.ComplexFft(new List<Complex>()).Count == 0);
             Assert.IsTrue(provider.ComplexIfft(new List<Complex>()).Count == 0);
@@ -180,19 +180,19 @@ namespace DspSharpTest
             var result = provider.RealFft(this.xEven);
             var inverse = provider.RealIfft(this.fftxEven);
 
-            FilterAssert.ListsAreReasonablyClose(result, this.fftxEven);
-            FilterAssert.ListsAreReasonablyClose(this.xEven, inverse);
+            DspAssert.ListsAreReasonablyClose(result, this.fftxEven);
+            DspAssert.ListsAreReasonablyClose(this.xEven, inverse);
 
             var resultlong = provider.RealFft(this.xEven, 25);
             var inverselong = provider.RealIfft(resultlong);
 
-            FilterAssert.ListsAreReasonablyClose(resultlong, this.fftxEvenLong);
-            FilterAssert.ListsAreReasonablyClose(this.xEven.Concat(Enumerable.Repeat(0.0, 5)).ToReadOnlyList(), inverselong);
+            DspAssert.ListsAreReasonablyClose(resultlong, this.fftxEvenLong);
+            DspAssert.ListsAreReasonablyClose(this.xEven.Concat(Enumerable.Repeat(0.0, 5)).ToReadOnlyList(), inverselong);
 
             var resultodd = provider.RealFft(this.xOdd);
             var inverseodd = provider.RealIfft(resultodd);
-            FilterAssert.ListsAreReasonablyClose(resultodd, this.fftxOdd);
-            FilterAssert.ListsAreReasonablyClose(this.xOdd, inverseodd);
+            DspAssert.ListsAreReasonablyClose(resultodd, this.fftxOdd);
+            DspAssert.ListsAreReasonablyClose(this.xOdd, inverseodd);
 
             Assert.IsTrue(provider.RealFft(new List<double>()).Count == 0);
             Assert.IsTrue(provider.RealIfft(new List<Complex>()).Count == 0);

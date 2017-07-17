@@ -15,10 +15,10 @@ namespace DspSharpTest
     [TestClass]
     public class MlsTest
     {
-        //[TestMethod]
-        public void TestMls()
+        [TestMethod]
+        public void TestMlsLowOrders()
         {
-            for (int i = 2; i < SignalGenerators.MlsFeedbackTaps.Count; i++)
+            for (int i = 2; i < 21; i++)
             {
                 var sequence = SignalGenerators.Mls(i);
 
@@ -27,6 +27,17 @@ namespace DspSharpTest
 
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.Mls(1).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.Mls(SignalGenerators.MlsFeedbackTaps.Count).ToReadOnlyList());
+        }
+
+        //[TestMethod]
+        public void TestMlsHighOrders()
+        {
+            for (int i = 21; i < SignalGenerators.MlsFeedbackTaps.Count; i++)
+            {
+                var sequence = SignalGenerators.Mls(i);
+
+                Assert.IsTrue(sequence.Count() == Math.Pow(2, i) - 1);
+            }
         }
     }
 }

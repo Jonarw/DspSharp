@@ -30,15 +30,7 @@ namespace DspSharp.Algorithms
             if (array != null)
                 return array;
 
-            var list = sequence.ToReadOnlyList();
-            var ret = new T[list.Count];
-
-            for (var i = 0; i < list.Count; i++)
-            {
-                ret[i] = list[i];
-            }
-
-            return ret;
+            return sequence.ToArray();
         }
 
         /// <summary>

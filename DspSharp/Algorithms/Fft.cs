@@ -122,7 +122,7 @@ namespace DspSharp.Algorithms
         /// </summary>
         /// <param name="input">The positive half of a hermitian-symmetric spectrum.</param>
         /// <returns>The computed time-domain values. Always has an even length.</returns>
-        public static IReadOnlyList<double> RealIfft(IEnumerable<Complex> input)
+        public static IReadOnlyList<double> RealIfft(IEnumerable<Complex> input, int n = -1)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
@@ -132,7 +132,7 @@ namespace DspSharp.Algorithms
             if (inputlist.Count == 0)
                 return Enumerable.Empty<double>().ToReadOnlyList();
 
-            return FftProvider.RealIfft(inputlist);
+            return FftProvider.RealIfft(inputlist, n);
         }
     }
 }

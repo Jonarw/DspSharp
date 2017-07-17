@@ -8,13 +8,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using DspSharp.CircularBuffers;
+using DspSharp.Buffers;
 using DspSharp.Signal.Windows;
 
 namespace DspSharp.Algorithms
 {
     public static class TimeDomain
     {
+        //TODO: unit test
+        public static IEnumerable<double> Normalize(this IReadOnlyList<double> signal)
+        {
+            var max = Math.Max(signal.Max(), -signal.Min());
+            return signal.Divide(max);
+        }
+
         /// <summary>
         ///     Convolves the specified finite signals.
         /// </summary>
@@ -38,7 +45,7 @@ namespace DspSharp.Algorithms
             var spectrum1 = Fft.RealFft(signal1, n);
             var spectrum2 = Fft.RealFft(signal2, n);
             var spectrum = spectrum2.Multiply(spectrum1);
-            return Fft.RealIfft(spectrum).ToReadOnlyList();
+            return Fft.RealIfft(spectrum, n).ToReadOnlyList();
         }
 
         /// <summary>
@@ -104,7 +111,7 @@ namespace DspSharp.Algorithms
             var spectrum1 = Fft.RealFft(signal1, n);
             var spectrum2 = Fft.RealFft(signal2, n);
             var spectrum = spectrum2.Multiply(spectrum1);
-            return Fft.RealIfft(spectrum).Take(l).ToReadOnlyList();
+            return Fft.RealIfft(spectrum, n).Take(l).ToReadOnlyList();
         }
 
         /// <summary>
@@ -148,7 +155,7 @@ namespace DspSharp.Algorithms
                         var sig1Fft = Fft.RealFft(sig1Buffer, n);
                         sig1Buffer.Clear();
                         var spec = sig1Fft.Multiply(sig2Fft);
-                        blockconv = Fft.RealIfft(spec);
+                        blockconv = Fft.RealIfft(spec, n);
                         ret = blockconv;
                     }
                     else
@@ -224,6 +231,18 @@ namespace DspSharp.Algorithms
             double windowBwH,
             WindowTypes windowType)
         {
+            return Fft.RealIfft(FrequencyWindowedBandpassSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH, windowType), input.Count);
+        }
+
+        public static IReadOnlyList<Complex> FrequencyWindowedBandpassSpectrum(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
             var fftinput = Fft.RealFft(input);
             var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
             var winfunc = Window.GetWindowFunction(windowType);
@@ -244,7 +263,7 @@ namespace DspSharp.Algorithms
                     return c * winfunc((fc2 - f) / windowBwH);
                 });
 
-            return Fft.RealIfft(spec);
+            return spec.ToReadOnlyList();
         }
 
         //TODO: unit test
@@ -266,7 +285,29 @@ namespace DspSharp.Algorithms
                         fc2,
                         windowBwL,
                         windowBwH,
-                        windowType));
+                        windowType), input.Count);
+        }
+
+        //TODO: unit test
+        public static IReadOnlyList<double> FrequencyWindowedInversionAlt(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
+            return
+                Fft.RealIfft(
+                    FrequencyWindowedInversionSpectrumAlt(
+                        input,
+                        samplerate,
+                        fc1,
+                        fc2,
+                        windowBwL,
+                        windowBwH,
+                        windowType), input.Count);
         }
 
         //TODO: unit test
@@ -287,6 +328,9 @@ namespace DspSharp.Algorithms
                 frequencies,
                 (c, f) =>
                 {
+                    if (c.Magnitude < 1e-10)
+                        return 0;
+
                     if ((f <= fc1) || (f >= fc2))
                         return 0;
 
@@ -300,6 +344,40 @@ namespace DspSharp.Algorithms
                 });
 
             return spec.ToReadOnlyList();
+        }
+
+        //TODO: unit test
+        public static IReadOnlyList<Complex> FrequencyWindowedInversionSpectrumAlt(
+            IReadOnlyList<double> input,
+            double samplerate,
+            double fc1,
+            double fc2,
+            double windowBwL,
+            double windowBwH,
+            WindowTypes windowType)
+        {
+            var fftinput = Fft.RealFft(input);
+
+            var startbin = Convert.ToInt32(Math.Ceiling(fc1 / samplerate * fftinput.Count * 2));
+            var stopbin = Convert.ToInt32(Math.Floor(fc2 / samplerate * fftinput.Count * 2));
+            var ret = new Complex[fftinput.Count];
+
+            for (int i = startbin; i <= stopbin; i++)
+            {
+                ret[i] = 1 / fftinput[i];
+            }
+
+            for (int i = 0; i < startbin; i++)
+            {
+                ret[i] = 0;
+            }
+
+            for (int i = stopbin + 1; i < fftinput.Count; i++)
+            {
+                ret[i] = 0;
+            }
+
+            return ret.ToReadOnlyList();
         }
 
         /// <summary>

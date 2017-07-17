@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using DspSharp;
 using DspSharp.Signal;
+using DspSharp.Utilities;
 
 namespace DspSharpDemo.SignalFactory
 {

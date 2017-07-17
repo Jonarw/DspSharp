@@ -13,6 +13,16 @@ namespace DspSharp.Algorithms
 {
     public static class Interpolation
     {
+        public static double LinearInterpolation(double xactual, double x1, double x2, double y1, double y2)
+        {
+            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
+        }
+
+        public static Complex LinearInterpolation(double xactual, double x1, double x2, Complex y1, Complex y2)
+        {
+            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
+        }
+
         /// <summary>
         ///     Interpolates a data series with x and y values to a new series with the specified x values.
         ///     Depending on the local point density of the original and new x values either spline interpolation, linear

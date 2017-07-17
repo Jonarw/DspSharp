@@ -13,6 +13,22 @@ namespace DspSharp.Algorithms
     public static class Statistics
     {
         /// <summary>
+        ///     Enumerates the different normalisation modes for computing Variance and Standard Deviation.
+        /// </summary>
+        public enum NormalisationMode
+        {
+            /// <summary>
+            ///     Population mode; normalisation by N.
+            /// </summary>
+            Population,
+
+            /// <summary>
+            ///     Sample mode; normalisation by N-1.
+            /// </summary>
+            Sample
+        }
+
+        /// <summary>
         ///     Calculates the mean of the specified sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
@@ -30,14 +46,15 @@ namespace DspSharp.Algorithms
         ///     Calculates the standard deviation of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
+        /// <param name="mode">The normalisation mode.</param>
         /// <returns>The standard deviation of the sequence.</returns>
-        public static double StandardDeviation(this IEnumerable<double> values)
+        public static double StandardDeviation(this IEnumerable<double> values, NormalisationMode mode = NormalisationMode.Population)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
             var valueslist = values.ToReadOnlyList();
-            return StandardDeviation(valueslist, valueslist.Average());
+            return StandardDeviation(valueslist, valueslist.Average(), mode);
         }
 
         /// <summary>
@@ -45,28 +62,30 @@ namespace DspSharp.Algorithms
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mean">The mean of the sequence.</param>
+        /// <param name="mode">The normalisation mode.</param>
         /// <returns>The standard deviation of the sequence.</returns>
-        public static double StandardDeviation(this IEnumerable<double> values, double mean)
+        public static double StandardDeviation(this IEnumerable<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
             var valueslist = values.ToReadOnlyList();
-            return Math.Sqrt(valueslist.Variance(mean));
+            return Math.Sqrt(valueslist.Variance(mean, mode));
         }
 
         /// <summary>
         ///     Calculates the variance of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
+        /// <param name="mode">The normalisation mode.</param>
         /// <returns>The variance of the sequence.</returns>
-        public static double Variance(this IEnumerable<double> values)
+        public static double Variance(this IEnumerable<double> values, NormalisationMode mode = NormalisationMode.Population)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
             var valueslist = values.ToReadOnlyList();
-            return Variance(valueslist, valueslist.Average());
+            return Variance(valueslist, valueslist.Average(), mode);
         }
 
         /// <summary>
@@ -74,8 +93,9 @@ namespace DspSharp.Algorithms
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mean">The mean of the sequence.</param>
+        /// <param name="mode">The normalisation mode.</param>
         /// <returns>The variance of the sequence.</returns>
-        public static double Variance(this IEnumerable<double> values, double mean)
+        public static double Variance(this IEnumerable<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
@@ -86,7 +106,26 @@ namespace DspSharp.Algorithms
                 return 0;
 
             var variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
-            return variance / valueslist.Count;
+
+            if (mode == NormalisationMode.Population)
+                return variance / valueslist.Count;
+            if (mode == NormalisationMode.Sample)
+                return variance / Math.Max(valueslist.Count - 1, 1);
+
+            throw new ArgumentException();
+        }
+
+        //TODO: unit test
+        public static double Rms(this IEnumerable<double> values)
+        {
+            var valueslist = values.ToReadOnlyList();
+            return Math.Sqrt(valueslist.Aggregate(0d, (d, d1) => d + Math.Pow(d1, 2)) / valueslist.Count);
+        }
+
+        //TODO: unit test
+        public static double GetCrestFactor(this IReadOnlyList<double> values)
+        {
+            return 1 / values.Normalize().Rms();
         }
     }
 }

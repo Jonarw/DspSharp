@@ -44,20 +44,50 @@ namespace DspSharpTest
                 new Complex(4.4, 0)
             };
 
-            FilterAssert.ListsAreReasonablyClose(target, this.list1.Add(this.list2).ToReadOnlyList());
-            FilterAssert.ListsAreReasonablyClose(target, this.list2.Add(this.list1).ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, this.list1.Add(this.list2).ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, this.list2.Add(this.list1).ToReadOnlyList());
         }
 
         [TestMethod]
         public void TestDivide()
         {
-            throw new NotImplementedException();
+            var target = new[]
+            {
+                new Complex(10, 0),
+                new Complex(10, 0),
+                new Complex(10, 0),
+                new Complex(10, 0),
+            };
+
+            var target2 = new[]
+            {
+                new Complex(.1, 0),
+                new Complex(.1, 0),
+                new Complex(.1, 0),
+                new Complex(.1, 0),
+            };
+
+            var result = this.list1.Divide(this.list2).ToReadOnlyList();
+            DspAssert.ListsAreReasonablyClose(target, result);
+            var result2 = this.list2.Divide(this.list1).ToReadOnlyList();
+            DspAssert.ListsAreReasonablyClose(target2, result2);
         }
 
         [TestMethod]
         public void TestMultiply()
         {
-            throw new NotImplementedException();
+              var target = new[]
+            {
+                new Complex(-.8, -.6),
+                new Complex(0, -.8),
+                new Complex(.8, -.6),
+                new Complex(1.6, 0),
+            };
+
+            var result = this.list1.Multiply(this.list2).ToReadOnlyList();
+            var result2 = this.list2.Multiply(this.list1).ToReadOnlyList();
+            DspAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result2);
         }
 
         [TestMethod]
@@ -71,7 +101,7 @@ namespace DspSharpTest
                 new Complex(-4, 0)
             };
 
-            FilterAssert.ListsAreReasonablyClose(target, this.list1.Negate().ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, this.list1.Negate().ToReadOnlyList());
         }
 
         [TestMethod]
@@ -85,8 +115,8 @@ namespace DspSharpTest
                 new Complex(3.6, 0)
             };
 
-            FilterAssert.ListsAreReasonablyClose(target, this.list1.Subtract(this.list2).ToReadOnlyList());
-            FilterAssert.ListsAreReasonablyClose(target, this.list2.Subtract(this.list1).Negate().ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, this.list1.Subtract(this.list2).ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, this.list2.Subtract(this.list1).Negate().ToReadOnlyList());
         }
     }
 }

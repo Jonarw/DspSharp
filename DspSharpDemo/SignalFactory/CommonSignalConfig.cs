@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using DspSharp;
+using DspSharp.Utilities;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory

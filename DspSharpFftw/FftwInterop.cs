@@ -12,12 +12,35 @@ namespace DspSharpFftw
     /// <summary>
     ///     Contains the Basic Interface FFTW functions for double-precision (double) operations
     /// </summary>
-    public unsafe class FftwInterop
+    public static unsafe class FftwInterop
     {
         private const string Fftw32LibraryName = "libfftw3-3-32";
         private const string Fftw64LibraryName = "libfftw3-3-64";
         private static readonly bool Is64Bit = sizeof(IntPtr) == 8;
         private static readonly object FftwLock = new object();
+        public static string WisdomPath { get; } = "fftwisdom";
+
+        static FftwInterop()
+        {
+            try
+            {
+                ImportWisdomFromFilename(WisdomPath);
+            }
+            catch (Exception)
+            {
+                // wisdom file could not be read...
+            }
+        }
+
+        /// <summary>
+        ///     Exports the accumulated wisdom to a file for later use.
+        /// </summary>
+        public static void ExportWisdom()
+        {
+            //var fi = new FileInfo(WisdomPath);
+            //fi.Directory?.Create();
+            ExportWisdomToFilename(WisdomPath);
+        }
 
         /// <summary>
         ///     Clears all memory used by FFTW, resets it to initial state. Does not replace destroy_plan and free

@@ -53,6 +53,16 @@ namespace DspSharp.Signal.Windows
         {
         }
 
+        /// <summary>
+        /// Creates the window.
+        /// </summary>
+        /// <param name="type">The window type.</param>
+        /// <param name="length">The window length.</param>
+        /// <param name="mode">The window mode.</param>
+        /// <param name="ratio">
+        ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
+        ///     rectangular window and everyting between a tapered window.
+        /// </param>
         public static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length, double ratio)
         {
             var l = Convert.ToInt32(length * ratio);

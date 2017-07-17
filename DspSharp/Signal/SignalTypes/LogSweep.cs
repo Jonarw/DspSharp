@@ -15,7 +15,7 @@ namespace DspSharp.Signal
     public class LogSweep : FiniteSignal
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Sinc" /> Class.
+        ///     Initializes a new instance of the <see cref="LogSweep" /> Class.
         /// </summary>
         /// <param name="from">The start frequency.</param>
         /// <param name="to">The stop frequency.</param>

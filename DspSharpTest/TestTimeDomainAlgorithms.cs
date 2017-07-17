@@ -22,7 +22,78 @@ namespace DspSharpTest
         [TestMethod]
         public void TestCircularConvolve()
         {
-            throw new NotImplementedException();
+            Fft.FftProvider = new FftwProvider();
+
+            double[] x =
+            {
+                0.814723686393179,
+                0.905791937075619,
+                0.126986816293506,
+                0.913375856139019,
+                0.632359246225410,
+                0.097540404999410,
+                0.278498218867048,
+                0.546881519204984,
+                0.957506835434298,
+                0.964888535199277,
+            };
+
+            double[] y =
+            {
+                0.157613081677548,
+                0.970592781760616,
+                0.957166948242946,
+                0.485375648722841,
+                0.800280468888800,
+                0.141886338627215,
+                0.421761282626275,
+                0.915735525189067,
+                0.792207329559554,
+                0.959492426392903,
+            };
+
+            double[] target =
+            {
+                4.556393918484424,
+                4.264651724078043,
+                4.575316744471095,
+                3.607392496105358,
+                3.555148746578472,
+                4.389748340514129,
+                3.927789539974260,
+                4.316984545134884,
+                4.085545491259646,
+                3.908653395918341,
+            };
+
+            double[] y2 =
+            {
+                0.655740699156587,
+                0.035711678574190,
+                0.849129305868777,
+                0.933993247757551,
+                0.678735154857773,
+            };
+
+            double[] target2 =
+            {
+                2.081562561471973,
+                2.707867552261903,
+                2.358516459454473,
+                2.788457304892876,
+                1.954095266955865,
+                1.595515689887880,
+                1.662338014872647,
+                1.661942094317720,
+                1.404193788584711,
+                1.457603541640849,
+            };
+
+            var result = TimeDomain.CircularConvolve(x, y);
+            DspAssert.ListsAreReasonablyClose(result, target);
+
+            var result2 = TimeDomain.CircularConvolve(x, y2);
+            DspAssert.ListsAreReasonablyClose(result2, target2);
         }
 
         [TestMethod]
@@ -103,7 +174,7 @@ namespace DspSharpTest
 
             var result = TimeDomain.Convolve(x, y);
 
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             Assert.IsTrue(TimeDomain.Convolve(new List<double>(), y).Count == 0);
             Assert.IsTrue(TimeDomain.Convolve(x, new List<double>()).Count == 0);
@@ -206,16 +277,16 @@ namespace DspSharpTest
             };
 
             var result = TimeDomain.Convolve(y, x).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             result = TimeDomain.Convolve(y, x2).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target2, result);
+            DspAssert.ListsAreReasonablyClose(target2, result);
 
             result = TimeDomain.Convolve((IEnumerable<double>)x, y.ToReadOnlyList()).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             result = TimeDomain.Convolve((IEnumerable<double>)x2, y.ToReadOnlyList()).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target2, result);
+            DspAssert.ListsAreReasonablyClose(target2, result);
 
             Assert.IsTrue(TimeDomain.Convolve(Enumerable.Empty<double>(), x).ToReadOnlyList().Count == 0);
             Assert.IsTrue(TimeDomain.Convolve(y, new List<double>()).ToReadOnlyList().Count == 0);
@@ -281,7 +352,7 @@ namespace DspSharpTest
 
             var result = TimeDomain.CrossCorrelate(x, y);
 
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             Assert.IsTrue(TimeDomain.CrossCorrelate(new List<double>(), y).Count == 0);
             Assert.IsTrue(TimeDomain.CrossCorrelate(x, new List<double>()).Count == 0);
@@ -347,7 +418,7 @@ namespace DspSharpTest
 
             var result = TimeDomain.CrossCorrelate((IEnumerable<double>)x, y).ToReadOnlyList();
 
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             Assert.IsTrue(TimeDomain.CrossCorrelate(Enumerable.Empty<double>(), y).ToReadOnlyList().Count == 0);
             Assert.IsTrue(TimeDomain.CrossCorrelate((IEnumerable<double>)x, new List<double>()).ToReadOnlyList().Count == 0);
@@ -451,12 +522,12 @@ namespace DspSharpTest
             };
 
             var result = TimeDomain.IirFilter(input, a, b).Take(20).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
-            FilterAssert.ListContainsPlausibleValues(TimeDomain.IirFilter(input, new[] {1.0}, b).Take(20).ToReadOnlyList());
+            DspAssert.ListContainsPlausibleValues(TimeDomain.IirFilter(input, new[] {1.0}, b).Take(20).ToReadOnlyList());
 
-            FilterAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(Enumerable.Empty<double>(), a, b).Take(10).ToReadOnlyList());
-            FilterAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(input, a, Enumerable.Empty<double>().ToReadOnlyList()).Take(10).ToReadOnlyList());
+            DspAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(Enumerable.Empty<double>(), a, b).Take(10).ToReadOnlyList());
+            DspAssert.ListContainsOnlyZeroes(TimeDomain.IirFilter(input, a, Enumerable.Empty<double>().ToReadOnlyList()).Take(10).ToReadOnlyList());
 
             ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.IirFilter(null, a, b).Take(20).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentNullException>(() => TimeDomain.IirFilter(input, null, b).Take(20).ToReadOnlyList());

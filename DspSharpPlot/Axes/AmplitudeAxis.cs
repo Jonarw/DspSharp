@@ -17,7 +17,7 @@ namespace DspSharpPlot.Axes
         /// </summary>
         public AmplitudeAxis()
         {
-            this.Title = "magnitude [dB]";
+            this.Title = "Magnitude [dB]";
             //Me.Zoom(-50, 50)
         }
     }

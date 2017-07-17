@@ -7,6 +7,7 @@
 using System;
 using System.Numerics;
 using DspSharp;
+using DspSharp.Algorithms;
 
 namespace DspSharpFftw
 {
@@ -23,12 +24,15 @@ namespace DspSharpFftw
         public ComplexToComplexFftPlan(int fftLength, FftwDirection direction)
             : base(fftLength, CreatePlan(fftLength, direction))
         {
-            this.NormalizationFactor = 1D / this.FftLength;
             this.Direction = direction;
+            this.NFactor = 1D / fftLength;
+            this.SqrNFactor = Math.Sqrt(this.NFactor);
         }
 
         public FftwDirection Direction { get; }
-        private double NormalizationFactor { get; }
+
+        private double NFactor { get; }
+        private double SqrNFactor { get; }
 
         /// <summary>
         ///     Executes the plan for the specified input, writing to an already existing array.
@@ -37,7 +41,7 @@ namespace DspSharpFftw
         /// <param name="output">The output array.</param>
         /// <exception cref="ArgumentException">
         /// </exception>
-        public void Execute(Complex[] input, Complex[] output)
+        public void Execute(Complex[] input, Complex[] output, NormalizationKind normalization)
         {
             if (input.Length > this.FftLength)
                 throw new ArgumentException();
@@ -66,22 +70,11 @@ namespace DspSharpFftw
                     }
                 }
 
-                FftwInterop.ExecuteDft(this.Plan, pInput, pOutput);
+                this.ExecuteUnsafe(pInput, pOutput, normalization);
 
                 fixed (Complex* pRet = output)
                 {
-                    if (this.Direction == FftwDirection.Forward)
-                        Interop.memcpy(pRet, pOutput, this.FftLength * 2 * sizeof(double));
-                    else
-                    {
-                        var dpOutput = (double*)pOutput;
-                        var dpRet = (double*)pRet;
-
-                        for (var i = 0; i < this.FftLength * 2; i++)
-                        {
-                            *(dpRet + i) = *(dpOutput + i) * this.NormalizationFactor;
-                        }
-                    }
+                    Interop.memcpy(pRet, pOutput, this.FftLength * 2 * sizeof(double));
                 }
             }
             finally
@@ -96,23 +89,24 @@ namespace DspSharpFftw
         /// </summary>
         /// <param name="input">The input data.</param>
         /// <returns>The (I)FFT of the input data.</returns>
-        public Complex[] Execute(Complex[] input)
+        public Complex[] Execute(Complex[] input, NormalizationKind normalization)
         {
             var ret = new Complex[this.FftLength];
-            this.Execute(input, ret);
+            this.Execute(input, ret, normalization);
             return ret;
         }
 
-        public override void ExecuteUnsafe(void* pInput, void* pOutput)
+        public override void ExecuteUnsafe(void* pInput, void* pOutput, NormalizationKind normalization)
         {
             FftwInterop.ExecuteDft(this.Plan, pInput, pOutput);
-            if (this.Direction == FftwDirection.Backward)
+
+            if (normalization != NormalizationKind.None)
             {
                 var dpOutput = (double*)pOutput;
-
+                var factor = normalization == NormalizationKind.N ? this.NFactor : this.SqrNFactor;
                 for (var i = 0; i < this.FftLength * 2; i++)
                 {
-                    *(dpOutput + i) *= this.NormalizationFactor;
+                    dpOutput[i] *= factor;
                 }
             }
         }

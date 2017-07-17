@@ -4,6 +4,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Algorithms;
+
 namespace DspSharpFftw
 {
     public abstract unsafe class FftPlan
@@ -12,13 +14,13 @@ namespace DspSharpFftw
         {
             this.FftLength = fftLength;
             this.Plan = plan;
-            FftwProvider.ExportWisdom();
+            FftwInterop.ExportWisdom();
         }
 
         public int FftLength { get; }
         public void* Plan { get; }
 
-        public abstract void ExecuteUnsafe(void* input, void* output);
+        public abstract void ExecuteUnsafe(void* input, void* output, NormalizationKind normalization);
 
         ~FftPlan()
         {

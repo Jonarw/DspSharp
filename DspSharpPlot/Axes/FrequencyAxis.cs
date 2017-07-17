@@ -21,7 +21,7 @@ namespace DspSharpPlot.Axes
         public FrequencyAxis()
         {
             this.MajorGridlineStyle = LineStyle.Solid;
-            this.Title = "frequency [Hz]";
+            this.Title = "Frequency [Hz]";
             this.MinorGridlineStyle = LineStyle.Solid;
             this.Base = 10;
             //Me.IsZoomEnabled = False

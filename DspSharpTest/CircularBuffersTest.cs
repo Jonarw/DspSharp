@@ -24,8 +24,8 @@ namespace DspSharpTest
             Assert.AreEqual(test.GetValue(), .1);
             Assert.AreEqual(test.GetValue(), .2);
             Assert.AreEqual(test.GetValue(), .3);
-            FilterAssert.ListsAreReasonablyClose(test.GetRange(10), new[] {.4, .5, .6, .7, .8, .1, .2, .3, .4, .5});
-            FilterAssert.ListsAreReasonablyClose(test.GetRange(2), new[] {.6, .7});
+            DspAssert.ListsAreReasonablyClose(test.GetRange(10), new[] {.4, .5, .6, .7, .8, .1, .2, .3, .4, .5});
+            DspAssert.ListsAreReasonablyClose(test.GetRange(2), new[] {.6, .7});
             Assert.IsTrue(test.Position == 7);
         }
 
@@ -41,21 +41,21 @@ namespace DspSharpTest
                 test.GetBlock((byte*)pRet);
             }
 
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {.1, .2, .3});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {.1, .2, .3});
 
             fixed (double* pRet = ret)
             {
                 test.GetBlock((byte*)pRet);
             }
 
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {.4, .5, .6});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {.4, .5, .6});
 
             fixed (double* pRet = ret)
             {
                 test.GetBlock((byte*)pRet);
             }
 
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {.7, .8, .1});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {.7, .8, .1});
         }
 
         [TestMethod]
@@ -74,8 +74,8 @@ namespace DspSharpTest
             Assert.AreEqual(test.Peek(-2), .7);
             Assert.AreEqual(test.Peek(2), .3);
 
-            FilterAssert.ListsAreReasonablyClose(test.StoreAndRetrieve(input1), new[] {.1d, .2, .3, .4, .5});
-            FilterAssert.ListsAreReasonablyClose(test.StoreAndRetrieve(input2), new[] {.6d, .7, .8, 1, 2, 3, 4, 5, 1});
+            DspAssert.ListsAreReasonablyClose(test.StoreAndRetrieve(input1), new[] {.1d, .2, .3, .4, .5});
+            DspAssert.ListsAreReasonablyClose(test.StoreAndRetrieve(input2), new[] {.6d, .7, .8, 1, 2, 3, 4, 5, 1});
         }
 
         [TestMethod]
@@ -125,13 +125,13 @@ namespace DspSharpTest
         private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
             var buffer = bufferSwitchEventArgs.NewWorkBuffer;
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.1, .2, .3, .4, .5, .6, .7, .8});
+            DspAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.1, .2, .3, .4, .5, .6, .7, .8});
         }
 
         private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
             var buffer = bufferSwitchEventArgs.NewWorkBuffer;
-            FilterAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.9, .10, .11, .12, .13, .14, .15, .16});
+            DspAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.9, .10, .11, .12, .13, .14, .15, .16});
         }
     }
 }

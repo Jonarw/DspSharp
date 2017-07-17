@@ -6,7 +6,9 @@
 
 using System.Collections.Generic;
 using DspSharp;
+using DspSharp.Filter;
 using DspSharp.Signal;
+using DspSharp.Utilities;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharpDemo.SignalFactory

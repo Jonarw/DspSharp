@@ -28,7 +28,7 @@ namespace DspSharpTest
 
             Assert.IsTrue(y2.Count == x2.Length);
             Assert.IsTrue(y2[0] == y[0]);
-            FilterAssert.ListIsMonotonouslyRising(y2);
+            DspAssert.ListIsMonotonouslyRising(y2);
             Assert.IsTrue(y2[y2.Count - 1] < 9.0);
             Assert.IsTrue(y2[y2.Count - 1] > 8.0);
 
@@ -69,7 +69,7 @@ namespace DspSharpTest
 
             Assert.IsTrue(y2.Count == x2.Length);
             Assert.IsTrue(y2[0] == y[0]);
-            FilterAssert.ListIsMonotonouslyRising(y2.Select(c => c.Magnitude));
+            DspAssert.ListIsMonotonouslyRising(y2.Select(c => c.Magnitude));
             Assert.IsTrue(y2[y2.Count - 1].Magnitude < 9.0);
             Assert.IsTrue(y2[y2.Count - 1].Magnitude > 8.0);
 
@@ -102,7 +102,7 @@ namespace DspSharpTest
             var result = Interpolation.InterpolateComplex(x, y, x2).ToReadOnlyList();
 
             Assert.IsTrue(result.Count == x2.Length);
-            FilterAssert.ListIsMonotonouslyRising(result.Select(c => c.Magnitude));
+            DspAssert.ListIsMonotonouslyRising(result.Select(c => c.Magnitude));
             Assert.IsTrue(result[0].Magnitude >= 0);
             Assert.IsTrue(result[result.Count - 1].Magnitude >= 4);
             Assert.IsTrue(result[0].Magnitude <= 1);
@@ -125,9 +125,9 @@ namespace DspSharpTest
             Assert.IsTrue(result.Count == x.Length);
             Assert.IsTrue(result[0] >= 1);
             Assert.IsTrue(result[result.Count - 1] <= 9);
-            FilterAssert.ListIsMonotonouslyRising(result);
+            DspAssert.ListIsMonotonouslyRising(result);
 
-            FilterAssert.ListsAreReasonablyClose(Interpolation.Smooth(x, y, 0).ToReadOnlyList(), y);
+            DspAssert.ListsAreReasonablyClose(Interpolation.Smooth(x, y, 0).ToReadOnlyList(), y);
 
             ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(null, y, 1).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(x, null, 1).ToReadOnlyList());

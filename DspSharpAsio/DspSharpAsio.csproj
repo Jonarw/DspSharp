@@ -54,10 +54,10 @@
     <Compile Include="AsioError.cs" />
     <Compile Include="AsioFillBufferCallback.cs" />
     <Compile Include="AsioMessageSelector.cs" />
-    <Compile Include="ASIOSampleConvertor.cs" />
     <Compile Include="AsioSampleType.cs" />
     <Compile Include="ASIOStructures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SampleTypeConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DspSharp\DspSharp.csproj">

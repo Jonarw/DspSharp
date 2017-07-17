@@ -26,7 +26,7 @@ namespace DspSharpTest
         public void TestComplexConjugate()
         {
             var ret = this.input.ComplexConjugate().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(
+            DspAssert.ListsAreReasonablyClose(
                 ret,
                 new[]
                 {
@@ -41,43 +41,43 @@ namespace DspSharpTest
         public void TestImaginary()
         {
             var ret = this.input.Imaginary().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {2d, 1, 0, -1});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {2d, 1, 0, -1});
         }
 
         [TestMethod]
         public void TestInterleave()
         {
             var ret = this.input.Interleave().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {1, 2, 0, 1, -1, 0, 2, -1d});
-            FilterAssert.ListsAreReasonablyClose(ret.UnInterleaveComplex().ToReadOnlyList(), this.input);
+            DspAssert.ListsAreReasonablyClose(ret, new[] {1, 2, 0, 1, -1, 0, 2, -1d});
+            DspAssert.ListsAreReasonablyClose(ret.UnInterleaveComplex().ToReadOnlyList(), this.input);
         }
 
         [TestMethod]
         public void TestMagnitude()
         {
             var ret = this.input.Magitude().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {Math.Sqrt(5), 1, 1, Math.Sqrt(5)});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {Math.Sqrt(5), 1, 1, Math.Sqrt(5)});
         }
 
         [TestMethod]
         public void TestPhase()
         {
             var ret = this.input.Phase().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {Math.Atan2(2, 1), Math.PI / 2, Math.PI, Math.Atan2(-1, 2)});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {Math.Atan2(2, 1), Math.PI / 2, Math.PI, Math.Atan2(-1, 2)});
         }
 
         [TestMethod]
         public void TestReal()
         {
             var ret = this.input.Real().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {1d, 0, -1, 2});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {1d, 0, -1, 2});
         }
 
         [TestMethod]
         public void TestToComplex()
         {
             var ret = this.input.Real().ToComplex().ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(ret, new[] {Complex.One, 0, -1, 2});
+            DspAssert.ListsAreReasonablyClose(ret, new[] {Complex.One, 0, -1, 2});
         }
     }
 }

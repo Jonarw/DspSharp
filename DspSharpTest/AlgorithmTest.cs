@@ -21,13 +21,13 @@ namespace DspSharpTest
             var x = new[] {1.0, 2, 3, 4, 5, 6, 7, 8};
 
             var output = x.CircularShift(0).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(x, output);
+            DspAssert.ListsAreEqual(x, output);
 
             output = x.CircularShift(-2).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(new[] {7, 8, 1.0, 2, 3, 4, 5, 6}, output);
+            DspAssert.ListsAreEqual(new[] {7, 8, 1.0, 2, 3, 4, 5, 6}, output);
 
             output = x.CircularShift(2).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(new[] {3, 4, 5, 6, 7, 8, 1.0, 2}, output);
+            DspAssert.ListsAreEqual(new[] {3, 4, 5, 6, 7, 8, 1.0, 2}, output);
 
             Assert.IsTrue(new List<double>().CircularShift(2).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => VectorOperations.CircularShift<double>(null, 2).ToReadOnlyList());

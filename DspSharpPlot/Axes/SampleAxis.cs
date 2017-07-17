@@ -17,7 +17,7 @@ namespace DspSharpPlot.Axes
         /// </summary>
         public SampleAxis()
         {
-            this.Title = "time [samples]";
+            this.Title = "Time [samples]";
             this.MinimumMajorStep = 1;
             this.MinimumMinorStep = 1;
         }

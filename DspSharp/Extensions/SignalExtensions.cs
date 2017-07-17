@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Algorithms;
 using DspSharp.Exceptions;
+using DspSharp.Filter;
 using DspSharp.Signal;
 
 namespace DspSharp.Extensions
@@ -18,6 +19,26 @@ namespace DspSharp.Extensions
     /// </summary>
     public static class SignalExtensions
     {
+        public static IEnumerable<double> Process(this IEnumerable<double> input, Func<IEnumerable<double>, IEnumerable<double>> function)
+        {
+            return function(input);
+        }
+
+        public static IReadOnlyList<double> Process(this IReadOnlyList<double> input, Func<IReadOnlyList<double>, IReadOnlyList<double>> function)
+        {
+            return function(input);
+        }
+
+        public static IEnumerable<double> Process(this IEnumerable<double> input, IFilter filter)
+        {
+            return filter.Process(input);
+        }
+
+        public static IReadOnlyList<double> Process(this IReadOnlyList<double> input, IFiniteFilter filter)
+        {
+            return filter.Process(input);
+        }
+
         /// <summary>
         ///     Adds the specified signals.
         /// </summary>
@@ -72,6 +93,19 @@ namespace DspSharp.Extensions
             {
                 DisplayName = "convolution result"
             };
+        }
+
+        //TODO unit test
+        public static IFiniteSignal CircularConvolve(this IFiniteSignal s1, IFiniteSignal s2)
+        {
+            if (s1 == null)
+                throw new ArgumentNullException(nameof(s1));
+            if (s2 == null)
+                throw new ArgumentNullException(nameof(s2));
+            if (s1.Length != s2.Length)
+                throw new ArgumentException();
+
+            return new FiniteSignal(s1.Spectrum.Multiply(s2.Spectrum));
         }
 
         /// <summary>
@@ -392,6 +426,13 @@ namespace DspSharp.Extensions
                 new InfiniteSignal(
                     (start, length) => signal.GetWindowedSamples(-start - length + 1, length).Reverse(),
                     signal.SampleRate);
+        }
+
+        //TODO: unit test
+        public static IFiniteSignal CircularShift(this IFiniteSignal signal, int offset)
+        {
+            var values = signal.Signal.CircularShift(offset).ToReadOnlyList();
+            return new FiniteSignal(values, signal.SampleRate, signal.Start - offset);
         }
 
         /// <summary>

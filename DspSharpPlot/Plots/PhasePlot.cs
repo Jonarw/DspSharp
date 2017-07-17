@@ -18,7 +18,7 @@ namespace DspSharpPlot
             this.DisplayName = "phase";
         }
 
-        protected override Axis YAxis { get; } = new PhaseAxis();
+        public override Axis YAxis { get; } = new PhaseAxis();
 
         protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
         {

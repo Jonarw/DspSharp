@@ -11,6 +11,8 @@ namespace DspSharpAsio
     /// </summary>
     public enum AsioSampleType
     {
+        Undefined = -1,
+
         /// <summary>
         ///     Int 16 MSB
         /// </summary>

@@ -19,7 +19,7 @@ namespace DspSharpPlot
             this.DisplayName = "magnitude";
         }
 
-        protected override Axis YAxis { get; } = new AmplitudeAxis();
+        public override Axis YAxis { get; } = new AmplitudeAxis();
 
         protected override IEnumerable<double> GetYValues(ISpectrum spectrum)
         {

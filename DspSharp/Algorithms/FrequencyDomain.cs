@@ -13,6 +13,21 @@ namespace DspSharp.Algorithms
 {
     public static class FrequencyDomain
     {
+        //TODO: unit test
+        public static IReadOnlyList<double> PinkenSpectrum(IReadOnlyList<double> signal, double samplerate, double f0)
+        {
+            var spec = Fft.RealFft(signal);
+            var freq = Fft.GetFrequencies(samplerate, signal.Count);
+            var spec1 = PinkenSpectrum(freq, spec, f0);
+            return Fft.RealIfft(spec1, signal.Count);
+        }
+
+        //TODO: unit test
+        public static IEnumerable<Complex> PinkenSpectrum(IEnumerable<double> frequencies, IEnumerable<Complex> spectrum, double f0)
+        {
+            return frequencies.Zip(spectrum, (f, c) => c / Math.Sqrt(Math.Max(1, f / f0)));
+        }
+
         /// <summary>
         ///     Applies a time delay to a complex frequency spectrum by representing the constant group delay in the complex phase
         ///     information.
@@ -77,6 +92,36 @@ namespace DspSharp.Algorithms
 
             yield return (phaselist[phaselist.Count - 2] - phaselist[phaselist.Count - 1]) /
                          (2 * Math.PI * (frequencylist[frequencylist.Count - 1] - frequencylist[frequencylist.Count - 2]));
+        }
+
+        //TODO: unit test
+        public static double CalculateEnergy(IReadOnlyList<Complex> spectrum, IReadOnlyList<double> frequencies, double fc1, double fc2)
+        {
+            if (spectrum == null)
+                throw new ArgumentNullException(nameof(spectrum));
+            if (frequencies == null)
+                throw new ArgumentNullException(nameof(frequencies));
+            if (frequencies.Count != spectrum.Count)
+                throw new ArgumentException();
+            if (fc1 <= 0)
+                throw new ArgumentOutOfRangeException(nameof(fc1));
+            if (fc2 <= fc1)
+                throw new ArgumentOutOfRangeException(nameof(fc2));
+
+            var energy = 0d;
+            var i = 0;
+            while ((i < spectrum.Count) && frequencies[i] < fc1)
+            {
+                i++;
+            }
+
+            while ((i < spectrum.Count) && frequencies[i] < fc2)
+            {
+                energy += spectrum[i].Magnitude * spectrum[i].Magnitude;
+                i++;
+            }
+
+            return energy;
         }
 
         /// <summary>

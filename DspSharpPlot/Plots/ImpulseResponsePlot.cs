@@ -23,12 +23,8 @@ namespace DspSharpPlot
             this.XAxis.AxisChanged += this.XAxisChanged;
         }
 
-        public int XMax => (int)Math.Floor(this.XAxis.ActualMaximum);
-
-        public int XMin => (int)Math.Ceiling(this.XAxis.ActualMinimum);
-
-        protected sealed override Axis XAxis { get; } = new SampleAxis();
-        protected sealed override Axis YAxis { get; } = new ImpulseResponseAxis();
+        public sealed override Axis XAxis { get; } = new SampleAxis();
+        public sealed override Axis YAxis { get; } = new ImpulseResponseAxis();
         private int DataMax { get; set; }
         private int DataMin { get; set; }
 

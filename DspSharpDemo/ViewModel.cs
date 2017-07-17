@@ -9,12 +9,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Input;
-using DspSharp;
 using DspSharp.Algorithms;
-using DspSharp.Collections;
 using DspSharp.Extensions;
-using DspSharp.LtiFilters;
+using DspSharp.Filter;
+using DspSharp.Filter.LtiFilters.Primitive;
 using DspSharp.Signal;
+using DspSharp.Utilities;
+using DspSharp.Utilities.Collections;
 using DspSharpDemo.SignalFactory;
 using DspSharpFftw;
 using DspSharpPlot;
@@ -27,7 +28,6 @@ namespace DspSharpDemo
         private ICommand _AddSignalCommand;
         private ICommand _RemoveFilterCommand;
         private ICommand _RemoveSignalCommand;
-
         private double _Samplerate;
         private IFilter _SelectedFilter;
         private FilterTypes _SelectedFilterType;
@@ -61,7 +61,7 @@ namespace DspSharpDemo
         public ICommand AddFilterCommand => this._AddFilterCommand ?? (this._AddFilterCommand = new RelayCommand(param => this.AddFilter()));
         public ICommand AddSignalCommand => this._AddSignalCommand ?? (this._AddSignalCommand = new RelayCommand(param => this.AddSignal()));
         public IEnumerable<double> AvailableSamplerates { get; } = FilterBase.DefaultSampleRates;
-        public ObservableCollection<IFilter> Filters { get; } = new ObservableCollection<IFilter>();
+        public IObservableList Filters { get; } = new ObservableList<IFilter>();
         public ImpulseResponsePlot ImpulseResponsePlot { get; set; }
         public MagnitudePlot MagnitudePlot { get; set; }
         public PhasePlot PhasePlot { get; set; }
@@ -114,7 +114,7 @@ namespace DspSharpDemo
             get { return this._SelectedPlot; }
             set
             {
-                if ((value != null) && (this.SelectedPlot != null))
+                if (value != null && this.SelectedPlot != null)
                 {
                     value.Signals.Clear();
                     foreach (var signal in this.SelectedPlot.Signals)
@@ -134,9 +134,9 @@ namespace DspSharpDemo
             set { this.SetField(ref this._SelectedSignal, value); }
         }
 
-        public ObservableCollection<ISignal> SelectedSignals { get; } = new ObservableCollection<ISignal>();
+        public IObservableList<ISignal> SelectedSignals { get; } = new ObservableList<ISignal>();
 
-        public ObservableCollection<ISignal> Signals { get; } = new ObservableCollection<ISignal>();
+        public IObservableList<ISignal> Signals { get; } = new ObservableList<ISignal>();
 
         private void AddFilter()
         {
@@ -156,7 +156,7 @@ namespace DspSharpDemo
 
         private void ImpulseResponsePlotChanged(object sender, PropertyChangedEventArgs e)
         {
-            if ((e.PropertyName == "XMin") || (e.PropertyName == "XMax"))
+            if (e.PropertyName == "XMin" || e.PropertyName == "XMax")
                 this.UpdateRanges();
         }
 
@@ -189,8 +189,8 @@ namespace DspSharpDemo
 
         private void UpdateRanges()
         {
-            this.MagnitudePlot.ViewStart = this.PhasePlot.ViewStart = this.ImpulseResponsePlot.XMin;
-            this.MagnitudePlot.ViewLength = this.PhasePlot.ViewLength = this.ImpulseResponsePlot.XMax - this.ImpulseResponsePlot.XMin;
+            this.MagnitudePlot.ViewStart = this.PhasePlot.ViewStart = (int)this.ImpulseResponsePlot.XMin;
+            this.MagnitudePlot.ViewLength = this.PhasePlot.ViewLength = (int)(this.ImpulseResponsePlot.XMax - this.ImpulseResponsePlot.XMin);
         }
 
         private void UpdateSelectedPlot()

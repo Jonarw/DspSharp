@@ -17,7 +17,7 @@ namespace DspSharpPlot.Axes
         /// </summary>
         public ImpulseResponseAxis()
         {
-            this.Title = "value";
+            this.Title = "Value";
         }
     }
 }

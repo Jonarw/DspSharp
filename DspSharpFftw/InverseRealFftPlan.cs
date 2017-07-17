@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using DspSharp;
+using DspSharp.Algorithms;
 
 namespace DspSharpFftw
 {
@@ -22,15 +23,17 @@ namespace DspSharpFftw
         /// <param name="fftLength">The FFT length the plan is used for.</param>
         public InverseRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftC2R1D)
         {
-            this.NormalizationFactor = 1D / fftLength;
+            this.NFactor = 1D / fftLength;
+            this.SqrNFactor = Math.Sqrt(this.NFactor);
         }
 
-        private double NormalizationFactor { get; }
+        private double NFactor { get; }
+        private double SqrNFactor { get; }
 
         private static Dictionary<int, InverseRealFftPlan> PlanCache { get; } =
             new Dictionary<int, InverseRealFftPlan>();
 
-        public void Execute(Complex[] input, double[] output)
+        public void Execute(Complex[] input, double[] output, NormalizationKind normalization)
         {
             if (input.Length != this.SpectrumLength)
                 throw new ArgumentException();
@@ -50,16 +53,11 @@ namespace DspSharpFftw
                     Interop.memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
                 }
 
-                FftwInterop.ExecuteDftC2R(this.Plan, pInput, pOutput);
+                this.ExecuteUnsafe(pInput, pOutput, normalization);
 
                 fixed (double* pRet = output)
                 {
-                    var dpOutput = (double*)pOutput;
-
-                    for (var i = 0; i < this.FftLength; i++)
-                    {
-                        *(pRet + i) = *(dpOutput + i) * this.NormalizationFactor;
-                    }
+                    Interop.memcpy(pRet, pOutput, this.FftLength * sizeof(double));
                 }
             }
             finally
@@ -69,30 +67,34 @@ namespace DspSharpFftw
             }
         }
 
-        public double[] Execute(Complex[] input)
+        public double[] Execute(Complex[] input, NormalizationKind normalization)
         {
             var ret = new double[this.FftLength];
-            this.Execute(input, ret);
+            this.Execute(input, ret, normalization);
             return ret;
         }
 
-        public override void ExecuteUnsafe(void* pInput, void* pOutput)
+        public override void ExecuteUnsafe(void* pInput, void* pOutput, NormalizationKind normalization)
         {
             FftwInterop.ExecuteDftC2R(this.Plan, pInput, pOutput);
-            var dpOutput = (double*)pOutput;
 
-            for (var i = 0; i < this.FftLength; i++)
+            if (normalization != NormalizationKind.None)
             {
-                *(dpOutput + i) *= this.NormalizationFactor;
+                var dpOutput = (double*)pOutput;
+                var factor = normalization == NormalizationKind.N ? this.NFactor : this.SqrNFactor;
+                for (var i = 0; i < this.FftLength; i++)
+                {
+                    dpOutput[i] *= factor;
+                }
             }
         }
 
         public static InverseRealFftPlan GetPlan(int length)
         {
+            return new InverseRealFftPlan(length);
             if (!PlanCache.ContainsKey(length))
                 PlanCache.Add(length, new InverseRealFftPlan(length));
 
-            return PlanCache[length];
         }
     }
 }

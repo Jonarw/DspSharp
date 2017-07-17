@@ -3,14 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.0-pre</Version>
+    <Version>0.1.1-pre</Version>
     <Authors>Jonathan Arweck</Authors>
     <Company></Company>
     <Description>FFTW-based FFT support for DspSharp</Description>
     <Copyright>© 2017 Jonathan Arweck</Copyright>
     <PackageLicenseUrl>https://github.com/Jonarw/DspSharp/blob/dev/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Jonarw/DspSharp/</PackageProjectUrl>
-    <PackageTags>audio signal processing dsp filter fft fir iir</PackageTags>
+    <PackageTags>audio signal processing dsp fft fftw</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,17 +27,23 @@
 
   <ItemGroup>
     <Reference Include="DspSharp.Interop">
-      <HintPath>..\DspSharp\DspSharp.Interop.dll</HintPath>
+      <HintPath>DspSharp.Interop.dll</HintPath>
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="libfftw3-3-32.dll">
+  <ItemGroup>    
+    <Content Include="DspSharp.Interop.dll">
+      <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libfftw3-3-64.dll">
+    </Content>    
+    <Content Include="libfftw3-3-32.dll">
+      <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>    
+    <Content Include="libfftw3-3-64.dll">
+      <Pack>true</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
 </Project>

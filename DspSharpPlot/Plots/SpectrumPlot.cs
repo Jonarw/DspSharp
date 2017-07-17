@@ -98,7 +98,7 @@ namespace DspSharpPlot
             set { this.SetField(ref this._ViewStart, value); }
         }
 
-        protected override Axis XAxis { get; } = new FrequencyAxis();
+        public override Axis XAxis { get; } = new FrequencyAxis();
 
         private UniformSeries CustomFrequencies { get; set; }
 

@@ -17,7 +17,7 @@ namespace DspSharpPlot.Axes
         /// </summary>
         public GroupDelayAxis()
         {
-            this.Title = "Group delay in ms";
+            this.Title = "Group Delay [ms]";
             //Me.Zoom(0, 50)
         }
     }

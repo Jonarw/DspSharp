@@ -3,14 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.0-pre</Version>
+    <Version>0.1.1-pre</Version>
     <Authors>Jonathan Arweck</Authors>
     <Company></Company>
     <Description>DspSharp - Digital Audio Signal Processing in C#</Description>
     <Copyright>© 2017 Jonathan Arweck</Copyright>
     <PackageLicenseUrl>https://github.com/Jonarw/DspSharp/blob/dev/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Jonarw/DspSharp/</PackageProjectUrl>
-    <PackageTags>audio signal processing dsp filter fft fir iir</PackageTags>
+    <PackageTags>audio signal processing dsp filter fir iir</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,7 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNet.Contracts" Version="1.10.20606.1" />
     <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.2" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,8 +28,18 @@
       <HintPath>DspSharp.Interop.dll</HintPath>
     </Reference>
     <Reference Include="PropertyTools">
-      <HintPath>..\packages\PropertyTools.Wpf.3.0.0-unstable0105\lib\portable-net45+win8+wpa81+wp8\PropertyTools.dll</HintPath>
+      <HintPath>PropertyTools.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DspSharp.Interop.dll">
+      <Pack>true</Pack>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>    
+    <Content Include="PropertyTools.dll">
+      <Pack>true</Pack>
+    </Content>
   </ItemGroup>
   
 </Project>

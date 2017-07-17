@@ -55,7 +55,7 @@ namespace DspSharpTest
 
             var output = input.Select(Mathematic.LambertW).ToReadOnlyList();
 
-            FilterAssert.ListsAreReasonablyClose(output, target, 1e-13);
+            DspAssert.ListsAreReasonablyClose(output, target, 1e-13);
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => Mathematic.LambertW(-1));
         }
 
@@ -105,7 +105,7 @@ namespace DspSharpTest
             };
 
             var result = input.Select(Mathematic.ModBessel0).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result, 1e-13);
+            DspAssert.ListsAreReasonablyClose(target, result, 1e-13);
 
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => Mathematic.ModBessel0(-1));
         }

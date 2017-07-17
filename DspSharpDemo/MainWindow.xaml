@@ -8,8 +8,9 @@
         xmlns:ptd="clr-namespace:PropertyTools.DataAnnotations;assembly=PropertyTools"
         xmlns:dspSharpDemo="clr-namespace:DspSharpDemo"
         xmlns:dspSharp="clr-namespace:DspSharp;assembly=DspSharp"
+        xmlns:filter="clr-namespace:DspSharp.Filter;assembly=DspSharp"
         mc:Ignorable="d"
-        Title="Filter test and demo tool" Height="800" Width="1200">
+        Title="DspSharp Demo Tool (J. Arweck 2016)" Height="800" Width="1200">
 
     <Window.Resources>
         <dspSharpDemo:LocalPropertyGridControlFactory x:Key="PropertyControlFactory" />
@@ -94,7 +95,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <dspSharpDemo:EnumCombo Grid.Column="0" Margin="5" Enum="{x:Type dspSharp:FilterTypes}"
+                            <dspSharpDemo:EnumCombo Grid.Column="0" Margin="5" Enum="{x:Type filter:FilterTypes}"
                                                     SelectedValue="{Binding SelectedFilterType}" />
 
                         </Grid>

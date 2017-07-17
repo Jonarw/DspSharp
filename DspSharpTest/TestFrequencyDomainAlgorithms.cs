@@ -26,7 +26,7 @@ namespace DspSharpTest
 
             var output = FrequencyDomain.ApplyDelayToSpectrum(x, y, 0.001).ToReadOnlyList();
 
-            FilterAssert.ListsAreReasonablyClose(target, output);
+            DspAssert.ListsAreReasonablyClose(target, output);
 
             var y2 = new[] {4.0 * Complex.One, 5, 6, 7};
             output = FrequencyDomain.ApplyDelayToSpectrum(x, y2, 2).ToReadOnlyList();
@@ -117,7 +117,7 @@ namespace DspSharpTest
             };
 
             var result = FrequencyDomain.CalculateGroupDelay(frequencies, phase).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result, 1e-4);
+            DspAssert.ListsAreReasonablyClose(target, result, 1e-4);
 
             var p2 = new[] {4.0, 5, 6, 7};
             result = FrequencyDomain.CalculateGroupDelay(frequencies, p2).ToReadOnlyList();
@@ -137,7 +137,7 @@ namespace DspSharpTest
             var target = new[] {1.0, 10, 2};
 
             var result = FrequencyDomain.DbToLinear(input).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
             Assert.IsTrue(FrequencyDomain.DbToLinear(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.DbToLinear(null).ToReadOnlyList());
         }
@@ -149,7 +149,7 @@ namespace DspSharpTest
             var target = new[] {0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI};
 
             var result = FrequencyDomain.DegToRad(input).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
             Assert.IsTrue(FrequencyDomain.DegToRad(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.DegToRad(null).ToReadOnlyList());
         }
@@ -190,7 +190,7 @@ namespace DspSharpTest
             };
 
             var result = FrequencyDomain.IirFrequencyResponse(a, b, frequencies, 44100).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(result, target);
+            DspAssert.ListsAreReasonablyClose(result, target);
 
             Assert.IsTrue(FrequencyDomain.IirFrequencyResponse(a, b, Enumerable.Empty<double>().ToReadOnlyList(), 44100).ToReadOnlyList().Count == 0);
 
@@ -211,7 +211,7 @@ namespace DspSharpTest
             var target = new[] {0, 20, 6.020599913279624, -100};
 
             var result = FrequencyDomain.LinearToDb(input, -100).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
             Assert.IsTrue(FrequencyDomain.LinearToDb(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.LinearToDb(null).ToReadOnlyList());
         }
@@ -231,7 +231,7 @@ namespace DspSharpTest
             };
 
             var result = FrequencyDomain.PolarToComplex(amp, phase).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(result, target);
+            DspAssert.ListsAreReasonablyClose(result, target);
 
             Assert.IsTrue(FrequencyDomain.PolarToComplex(Enumerable.Empty<double>(), phase).ToReadOnlyList().Count == 0);
             Assert.IsTrue(FrequencyDomain.PolarToComplex(amp, Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
@@ -247,7 +247,7 @@ namespace DspSharpTest
             var input = new[] {0, -Math.PI * 0.5, Math.PI, 1.5 * Math.PI};
 
             var result = FrequencyDomain.RadToDeg(input).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             Assert.IsTrue(FrequencyDomain.RadToDeg(Enumerable.Empty<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.RadToDeg(null).ToReadOnlyList());
@@ -264,8 +264,8 @@ namespace DspSharpTest
             var result = FrequencyDomain.UnwrapPhase(input, true).ToReadOnlyList();
             var result2 = FrequencyDomain.UnwrapPhase(input2, false).ToReadOnlyList();
 
-            FilterAssert.ListsAreReasonablyClose(result, target);
-            FilterAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
+            DspAssert.ListsAreReasonablyClose(result, target);
+            DspAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
 
             Assert.IsTrue(FrequencyDomain.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.UnwrapPhase(null).ToReadOnlyList());
@@ -282,8 +282,8 @@ namespace DspSharpTest
             var result = FrequencyDomain.WrapPhase(input, true).ToReadOnlyList();
             var result2 = FrequencyDomain.WrapPhase(input2, false).ToReadOnlyList();
 
-            FilterAssert.ListsAreReasonablyClose(result, target);
-            FilterAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
+            DspAssert.ListsAreReasonablyClose(result, target);
+            DspAssert.ListsAreReasonablyClose(FrequencyDomain.RadToDeg(result2).ToReadOnlyList(), target, 1e-13);
 
             Assert.IsTrue(FrequencyDomain.UnwrapPhase(new List<double>()).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => FrequencyDomain.UnwrapPhase(null).ToReadOnlyList());

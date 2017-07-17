@@ -24,7 +24,7 @@ namespace DspSharpPlot.Axes
             this.FormatAsFractions = true;
             this.FractionUnit = Math.PI;
             this.FractionUnitSymbol = "π";
-            this.Title = "phase [rad]";
+            this.Title = "Phase [rad]";
             this.IsPanEnabled = false;
             this.IsZoomEnabled = false;
             this.MajorStep = Math.PI / 2;

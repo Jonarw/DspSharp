@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using DspSharp.Algorithms;
+using DspSharp.Utilities;
 using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal

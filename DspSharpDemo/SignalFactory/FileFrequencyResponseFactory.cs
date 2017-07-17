@@ -53,7 +53,7 @@ namespace DspSharpDemo.SignalFactory
                 if (fields.Length == 2)
                 {
                     frequencies.Add(frequency);
-                    values.Add(mag);
+                    values.Add(FrequencyDomain.DbToLinear(mag));
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace DspSharpDemo.SignalFactory
                             continue;
 
                         frequencies.Add(frequency);
-                        values.Add(Complex.FromPolarCoordinates(mag, phase));
+                        values.Add(Complex.FromPolarCoordinates(FrequencyDomain.DbToLinear(mag), phase));
                     }
                 }
             }

@@ -16,7 +16,7 @@ namespace DspSharpAsio
     ///     http://www.codeproject.com/KB/mcpp/Asio.Net.aspx
     ///     Contributor: Alexandre Mutel - email: alexandre_mutel at yahoo.fr
     /// </summary>
-    public class AsioDriverExt
+    public class AsioDriverExt : IDisposable
     {
         private AsioBufferInfo[] bufferInfos;
         private AsioCallbacks callbacks;
@@ -63,11 +63,19 @@ namespace DspSharpAsio
         public AsioFillBufferCallback FillBufferCallback { get; set; }
 
         private int BufferSize { get; set; }
+        private bool CreatedBuffers { get; set; }
         private int InputChannelOffset { get; set; }
         private bool IsOutputReadySupported { get; set; }
+        private bool IsStarted { get; set; }
         private int NumberOfInputChannels { get; set; }
         private int NumberOfOutputChannels { get; set; }
         private int OutputChannelOffset { get; set; }
+
+        public void Dispose()
+        {
+            this.ReleaseDriver();
+            GC.SuppressFinalize(this);
+        }
 
         /// <summary>
         ///     Creates the buffers for playing.
@@ -77,12 +85,15 @@ namespace DspSharpAsio
         /// <param name="bufferSize">The buffer size. -1 (default value) -> preferred buffer size; -2 -> maximum buffer size.</param>
         public int CreateBuffers(int numberOfOutputChannels, int numberOfInputChannels, int bufferSize = -1)
         {
-            if ((numberOfOutputChannels < 0) || (numberOfOutputChannels > this.Capabilities.NbOutputChannels))
+            if (this.CreatedBuffers)
+                throw new Exception();
+
+            if (numberOfOutputChannels < 0 || numberOfOutputChannels > this.Capabilities.NbOutputChannels)
             {
                 throw new ArgumentException(
                     $"Invalid number of channels {numberOfOutputChannels}, must be in the range [0,{this.Capabilities.NbOutputChannels}]");
             }
-            if ((numberOfInputChannels < 0) || (numberOfInputChannels > this.Capabilities.NbInputChannels))
+            if (numberOfInputChannels < 0 || numberOfInputChannels > this.Capabilities.NbInputChannels)
             {
                 throw new ArgumentException(
                     "numberOfInputChannels",
@@ -94,7 +105,7 @@ namespace DspSharpAsio
             else if (bufferSize == -2)
                 bufferSize = this.Capabilities.BufferMaxSize;
 
-            if ((bufferSize < this.Capabilities.BufferMinSize) || (bufferSize > this.Capabilities.BufferMaxSize))
+            if (bufferSize < this.Capabilities.BufferMinSize || bufferSize > this.Capabilities.BufferMaxSize)
                 throw new ArgumentOutOfRangeException(nameof(bufferSize));
 
             // each channel needs a buffer info
@@ -140,6 +151,8 @@ namespace DspSharpAsio
 
             // Check if outputReady is supported
             this.IsOutputReadySupported = this.Driver.OutputReady() == AsioError.ASE_OK;
+
+            this.CreatedBuffers = true;
             return this.BufferSize;
         }
 
@@ -153,22 +166,6 @@ namespace DspSharpAsio
         public bool IsSampleRateSupported(double sampleRate)
         {
             return this.Driver.CanSampleRate(sampleRate);
-        }
-
-        /// <summary>
-        ///     Releases this instance.
-        /// </summary>
-        public void ReleaseDriver()
-        {
-            try
-            {
-                this.Driver.DisposeBuffers();
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLine(ex.ToString());
-            }
-            this.Driver.ReleaseComAsioDriver();
         }
 
         /// <summary>
@@ -212,7 +209,11 @@ namespace DspSharpAsio
         /// </summary>
         public void Start()
         {
-            this.Driver.Start();
+            if (!this.IsStarted)
+            {
+                this.Driver.Start();
+                this.IsStarted = true;
+            }
         }
 
         /// <summary>
@@ -220,7 +221,11 @@ namespace DspSharpAsio
         /// </summary>
         public void Stop()
         {
-            this.Driver.Stop();
+            if (this.IsStarted)
+            {
+                this.Driver.Stop();
+                this.IsStarted = false;
+            }
         }
 
         /// <summary>
@@ -284,9 +289,7 @@ namespace DspSharpAsio
         private void BufferSwitchCallBack(int doubleBufferIndex, bool directProcess)
         {
             for (var i = 0; i < this.NumberOfInputChannels; i++)
-            {
                 this.currentInputBuffers[i] = this.bufferInfos[i + this.InputChannelOffset].Buffer(doubleBufferIndex);
-            }
 
             for (var i = 0; i < this.NumberOfOutputChannels; i++)
             {
@@ -330,15 +333,11 @@ namespace DspSharpAsio
 
             // Get ChannelInfo for Inputs
             for (int i = 0; i < this.Capabilities.NbInputChannels; i++)
-            {
                 this.Capabilities.InputChannelInfos[i] = this.Driver.GetChannelInfo(i, true);
-            }
 
             // Get ChannelInfo for Output
             for (int i = 0; i < this.Capabilities.NbOutputChannels; i++)
-            {
                 this.Capabilities.OutputChannelInfos[i] = this.Driver.GetChannelInfo(i, false);
-            }
 
             // Get the current SampleRate
             this.Capabilities.SampleRate = this.Driver.GetSampleRate();
@@ -346,7 +345,7 @@ namespace DspSharpAsio
             var error = this.Driver.GetLatencies(out this.Capabilities.InputLatency, out this.Capabilities.OutputLatency);
             // focusrite scarlett 2i4 returns ASE_NotPresent here
 
-            if ((error != AsioError.ASE_OK) && (error != AsioError.ASE_NotPresent))
+            if (error != AsioError.ASE_OK && error != AsioError.ASE_NotPresent)
             {
                 var ex = new AsioException("ASIOgetLatencies");
                 ex.Error = error;
@@ -362,6 +361,17 @@ namespace DspSharpAsio
         }
 
         /// <summary>
+        ///     Releases this instance.
+        /// </summary>
+        private void ReleaseDriver()
+        {
+            if (this.CreatedBuffers)
+                this.Driver.DisposeBuffers();
+
+            this.Driver.ReleaseComAsioDriver();
+        }
+
+        /// <summary>
         ///     Callback called by the AsioDriver on event "Samples rate changed".
         /// </summary>
         /// <param name="sRate">The sample rate.</param>
@@ -369,6 +379,11 @@ namespace DspSharpAsio
         {
             // Check when this is called?
             this.Capabilities.SampleRate = sRate;
+        }
+
+        ~AsioDriverExt()
+        {
+            this.ReleaseDriver();
         }
     }
 }

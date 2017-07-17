@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DspSharpTest
 {
-    internal static class FilterAssert
+    internal static class DspAssert
     {
         internal static void ListContainsOnlyZeroes(IReadOnlyList<double> list)
         {

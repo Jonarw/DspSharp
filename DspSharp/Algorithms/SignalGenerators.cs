@@ -68,40 +68,50 @@ namespace DspSharp.Algorithms
         /// <summary>
         ///     Feedback taps for MLS orders 2 to 31.
         /// </summary>
+        /// <remarks>Taps 5 through 18 are brute-force optimized to allow the maximum possible crest factor when filtering the sequence.</remarks>
         public static readonly IReadOnlyList<uint> MlsFeedbackTaps = new List<uint>
         {
-            0,
-            0,
-            (1 << 1) | (1 << 0),
-            (1 << 2) | (1 << 1),
-            (1 << 3) | (1 << 2),
-            (1 << 4) | (1 << 2),
-            (1 << 5) | (1 << 4),
-            (1 << 6) | (1 << 5),
-            (1 << 7) | (1 << 5) | (1 << 4) | (1 << 3),
-            (1 << 8) | (1 << 4),
-            (1 << 9) | (1 << 6),
-            (1 << 10) | (1 << 8),
-            (1 << 11) | (1 << 10) | (1 << 9) | (1 << 3),
-            (1 << 12) | (1 << 11) | (1 << 10) | (1 << 7),
-            (1 << 13) | (1 << 12) | (1 << 11) | (1 << 1),
-            (1 << 14) | (1 << 13),
-            (1 << 15) | (1 << 14) | (1 << 12) | (1 << 3),
-            (1 << 16) | (1 << 13),
-            (1 << 17) | (1 << 10),
-            (1 << 18) | (1 << 17) | (1 << 16) | (1 << 13),
-            (1 << 19) | (1 << 16),
-            (1 << 20) | (1 << 18),
-            (1 << 21) | (1 << 20),
-            (1 << 22) | (1 << 17),
-            (1 << 23) | (1 << 22) | (1 << 21) | (1 << 16),
-            (1 << 24) | (1 << 21),
-            (1 << 25) | (1 << 5) | (1 << 1) | (1 << 0),
-            (1 << 26) | (1 << 4) | (1 << 1) | (1 << 0),
-            (1 << 27) | (1 << 24),
-            (1 << 28) | (1 << 26),
-            (1 << 29) | (1 << 5) | (1 << 3) | (1 << 0),
-            (1 << 30) | (1 << 27)
+            0, //dummy
+
+            0b0000_0000_0000_0000_0000_0000_0000_0001u, //dummy
+            0b0000_0000_0000_0000_0000_0000_0000_0011u, //2,1
+            0b0000_0000_0000_0000_0000_0000_0000_0110u, //3,2
+            0b0000_0000_0000_0000_0000_0000_0000_1100u, //4,3
+
+            0b0000_0000_0000_0000_0000_0000_0001_0100u, //5,3
+            0b0000_0000_0000_0000_0000_0000_0011_0110u, //6,5,3,2
+            0b0000_0000_0000_0000_0000_0000_0101_1100u, //7,5,4,3
+            0b0000_0000_0000_0000_0000_0000_1101_0100u, //8,7,5,3
+
+            0b0000_0000_0000_0000_0000_0001_1011_1001u, //9,8,6,5,4,1
+            0b0000_0000_0000_0000_0000_0011_1011_0001u, //10,9,8,6,5,1
+            0b0000_0000_0000_0000_0000_0110_1010_0000u, //11,10,8,6
+            0b0000_0000_0000_0000_0000_1110_0110_0010u, //12,11,10,7,6,2
+
+            0b0000_0000_0000_0000_0001_0101_0101_1000u, //13,11,9,7,5,4
+            0b0000_0000_0000_0000_0011_1001_0110_0000u, //14,13,12,9,7,6
+            0b0000_0000_0000_0000_0100_1000_0011_0000u, //15,12,6,5
+            0b0000_0000_0000_0000_1110_0010_1101_1000u, //16,15,14,10,8,7,5,4
+
+            0b0000_0000_0000_0001_1101_1101_0001_1010u, //17,16,15,13,12,11,9,5,4,2
+            0b0000_0000_0000_0010_0000_0100_0000_0000u, //18,17,16,13,12,11,9,8,7,5,4,2
+            0b0000_0000_0000_0100_0000_0000_0010_0011u, //19,6,2,1
+            0b0000_0000_0000_1001_0000_0000_0000_0000u, //20,17
+
+            0b0000_0000_0001_0100_0000_0000_0000_0000u, //21,19
+            0b0000_0000_0011_0000_0000_0000_0000_0000u, //22,21
+            0b0000_0000_0100_0010_0000_0000_0000_0000u, //23,18
+            0b0000_0000_1110_0001_0000_0000_0000_0000u, //24,23,22,17
+
+            0b0000_0001_0010_0000_0000_0000_0000_0000u, //25,22
+            0b0000_0010_0000_0000_0000_0000_0010_0011u, //26,6,2,1
+            0b0000_0100_0000_0000_0000_0000_0001_0011u, //27,5,2,1
+            0b0000_1001_0000_0000_0000_0000_0000_0000u, //28,25
+
+            0b0001_0100_0000_0000_0000_0000_0000_0000u, //29,27
+            0b0010_0000_0000_0000_0000_0000_0010_1001u, //30,6,4,1
+            0b0100_1000_0000_0000_0000_0000_0000_0000u //31,28
+            //0b1000_0000_0010_0000_0000_0000_0000_0011u //32,22,2,1 not working due to overflow
         }.AsReadOnly();
 
         private static int WhiteNoiseSeedNumber { get; set; }
@@ -150,26 +160,14 @@ namespace DspSharp.Algorithms
 
             if (alignment == SweepAlignments.Zero)
                 k = Convert.ToInt32(k);
-            else
-            {
-                if (alignment == SweepAlignments.NegativeZero)
-                    k = Convert.ToInt32(0.5 * k) * 2;
-                else
-                {
-                    if (alignment == SweepAlignments.PositiveZero)
-                        k = Convert.ToInt32(0.5 * (k + 1)) * 2 - 1;
-                    else
-                    {
-                        if (alignment == SweepAlignments.NegativeOne)
-                            k = Convert.ToInt32(0.5 * (k + 0.5)) * 2 - 0.5;
-                        else
-                        {
-                            if (alignment == SweepAlignments.PositiveOne)
-                                k = Convert.ToInt32(0.5 * (k - 0.5)) * 2 + 0.5;
-                        }
-                    }
-                }
-            }
+            else if (alignment == SweepAlignments.NegativeZero)
+                k = Convert.ToInt32(0.5 * k) * 2;
+            else if (alignment == SweepAlignments.PositiveZero)
+                k = Convert.ToInt32(0.5 * (k + 1)) * 2 - 1;
+            else if (alignment == SweepAlignments.NegativeOne)
+                k = Convert.ToInt32(0.5 * (k + 0.5)) * 2 - 0.5;
+            else if (alignment == SweepAlignments.PositiveOne)
+                k = Convert.ToInt32(0.5 * (k - 0.5)) * 2 + 0.5;
 
             w2 = Mathematic.FindRoot(w2N => length * (w2N - w1) / (Math.PI * Math.Log(w2N / w1)) - k, w2, 1);
 
@@ -200,6 +198,16 @@ namespace DspSharp.Algorithms
             return ret.ToReadOnlyList();
         }
 
+        public static int GetMlsLength(int order)
+        {
+            return (1 << order) - 1;
+        }
+
+        public static int GetIrsLength(int order)
+        {
+            return (1 << (order + 1)) - 2;
+        }
+
         /// <summary>
         ///     Generates the positive half of the Sinc function.
         /// </summary>
@@ -226,6 +234,48 @@ namespace DspSharp.Algorithms
             }
             // ReSharper disable once FunctionNeverReturns
             // Output is meant to be infinte
+        }
+
+        //TODO: unit test
+        /// <summary>
+        ///     Generates an inverse repeated MLS sequence of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The IRS sequence.</returns>
+        public static IEnumerable<double> Irs(int order)
+        {
+            if (order < 2 || order > MlsFeedbackTaps.Count - 1)
+                throw new ArgumentOutOfRangeException(nameof(order));
+
+            var mls = Mls(order).ToReadOnlyList();
+
+            using (var e = mls.GetEnumerator())
+            {
+                while (true)
+                {
+                    e.MoveNext();
+                    yield return e.Current;
+
+                    if (e.MoveNext())
+                        yield return -e.Current;
+                    else
+                        break;
+                }
+            }
+
+            using (var e = mls.GetEnumerator())
+            {
+                while (true)
+                {
+                    e.MoveNext();
+                    yield return -e.Current;
+
+                    if (e.MoveNext())
+                        yield return e.Current;
+                    else
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -372,8 +422,10 @@ namespace DspSharp.Algorithms
             var c = sweep.Count;
 
             //var fftsw = Fft.RealFft(sweep.Reverse());
-            inverse = sweep.Reverse().Select(
-                (d, i) => d * Math.Pow(to / from, -(double)i / c)).ToReadOnlyList();
+            inverse = sweep.Reverse()
+                .Select(
+                    (d, i) => d * Math.Pow(to / from, -(double)i / c))
+                .ToReadOnlyList();
 
             //var frequencies = Fft.GetFrequencies(samplerate, sweep.Count);
             //var fftinv = fftsw.Zip(frequencies,
@@ -397,18 +449,8 @@ namespace DspSharp.Algorithms
             //inverse = Fft.RealIfft(fftinv);
         }
 
-        /// <summary>
-        ///     Generates a maximum length sequence of the specified order.
-        /// </summary>
-        /// <param name="order">The order.</param>
-        /// <returns>The maximum length sequence.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public static IEnumerable<double> Mls(int order)
+        public static IEnumerable<double> Mls(uint taps)
         {
-            if ((order < 2) || (order > MlsFeedbackTaps.Count - 1))
-                throw new ArgumentOutOfRangeException(nameof(order));
-
-            var taps = MlsFeedbackTaps[order];
             const uint startState = 1 << 1;
             var state = startState;
 
@@ -426,6 +468,20 @@ namespace DspSharp.Algorithms
                     yield return -1;
             }
             while (state != startState);
+        }
+
+        /// <summary>
+        ///     Generates a maximum length sequence of the specified order.
+        /// </summary>
+        /// <param name="order">The order.</param>
+        /// <returns>The maximum length sequence.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
+        public static IEnumerable<double> Mls(int order)
+        {
+            if (order < 2 || order > MlsFeedbackTaps.Count - 1)
+                throw new ArgumentOutOfRangeException(nameof(order));
+
+            return Mls(MlsFeedbackTaps[order]);
         }
 
         /// <summary>
@@ -480,7 +536,7 @@ namespace DspSharp.Algorithms
             if (actualX.Count == 0)
                 yield break;
 
-            Func<double, double> smoothSlope = input => -0.5 * (Math.Cos(Math.PI * input) - 1);
+            double SmoothSlope(double input) => -0.5 * (Math.Cos(Math.PI * input) - 1);
 
             var deltaF = actualStopX - actualStartX;
             var deltaV = stopValue - startValue;
@@ -498,7 +554,7 @@ namespace DspSharp.Algorithms
                     {
                         var tmpgain = (f - actualStartX) / deltaF;
                         if (mode == SlopeModes.Smooth)
-                            tmpgain = smoothSlope(tmpgain);
+                            tmpgain = SmoothSlope(tmpgain);
 
                         tmpgain = deltaV * tmpgain + startValue;
                         actualGain = tmpgain;
@@ -537,6 +593,36 @@ namespace DspSharp.Algorithms
             // ReSharper disable once IteratorNeverReturns
         }
 
+        //TODO: unit test
+        public static IReadOnlyList<double> FadedLogSweep(
+            double from,
+            double to,
+            double length,
+            int fadeIn,
+            int fadeOut,
+            WindowTypes fadeWindowType,
+            double samplerate = 44100)
+        {
+            var ret = LogSweep(from, to, length, samplerate).ToList();
+            var startWin = Window.GetAntiCausalHalfWindow(fadeWindowType, fadeIn).ToReadOnlyList();
+            var endWin = Window.GetCausalHalfWindow(fadeWindowType, fadeOut).ToReadOnlyList();
+
+            fadeIn = Math.Min(fadeIn, ret.Count);
+            fadeOut = Math.Min(fadeOut, ret.Count);
+
+            for (int i = 0; i < fadeIn; i++)
+            {
+                ret[i] *= startWin[i];
+            }
+
+            for (int i = 0; i < fadeOut; i++)
+            {
+                ret[ret.Count - fadeOut + i] *= endWin[i];
+            }
+
+            return ret.ToReadOnlyList();
+        }
+
         /// <summary>
         ///     Generates a sinc pulse, multiplied by a symmetrical rectangle window to make its length finite.
         /// </summary>
@@ -557,15 +643,16 @@ namespace DspSharp.Algorithms
                 throw new ArgumentOutOfRangeException(nameof(length));
 
             var factor = 2 * Math.PI * frequency / samplerate;
-            return Enumerable.Range(start, length).Select(
-                i =>
-                {
-                    if (i == 0)
-                        return 1;
+            return Enumerable.Range(start, length)
+                .Select(
+                    i =>
+                    {
+                        if (i == 0)
+                            return 1;
 
-                    var omega = i * factor;
-                    return Math.Sin(omega) / omega;
-                });
+                        var omega = i * factor;
+                        return Math.Sin(omega) / omega;
+                    });
         }
     }
 }

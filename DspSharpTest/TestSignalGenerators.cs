@@ -23,7 +23,7 @@ namespace DspSharpTest
 
             Assert.IsTrue(sweep.Count == 4410);
             Assert.IsTrue(sweep[0] == 0);
-            FilterAssert.ListContainsPlausibleValues(sweep);
+            DspAssert.ListContainsPlausibleValues(sweep);
 
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(
                 () => SignalGenerators.AlignedLogSweep(-1, 2000, .1, SignalGenerators.SweepAlignments.NegativeOne, 44100).ToReadOnlyList());
@@ -47,10 +47,10 @@ namespace DspSharpTest
             Assert.IsTrue(output.Count == x.Length);
             Assert.IsTrue(output[0] == -10);
             Assert.IsTrue(output[output.Count - 1] == 20);
-            FilterAssert.ListIsMonotonouslyRising(output);
+            DspAssert.ListIsMonotonouslyRising(output);
 
             var output2 = SignalGenerators.Slope(x, 7, 2, 20, -10).ToReadOnlyList();
-            FilterAssert.ListsAreEqual(output, output2);
+            DspAssert.ListsAreEqual(output, output2);
 
             Assert.IsTrue(SignalGenerators.Slope(new List<double>(), 2, 7, 10, 20).ToReadOnlyList().Count == 0);
             ThrowsAssert.Throws<ArgumentNullException>(() => SignalGenerators.Slope(null, 2, 7, 10, 20).ToReadOnlyList());
@@ -75,7 +75,7 @@ namespace DspSharpTest
             };
 
             var result = SignalGenerators.HalfSinc(1000, 44100);
-            FilterAssert.ListsAreReasonablyClose(target, result.Take(11).ToReadOnlyList());
+            DspAssert.ListsAreReasonablyClose(target, result.Take(11).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.HalfSinc(-1, 44100).Take(1).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.HalfSinc(1000, -1).Take(1).ToReadOnlyList());
         }
@@ -85,7 +85,7 @@ namespace DspSharpTest
         {
             double[] target = {1, 2, 3, 4, 5};
             var result = SignalGenerators.LinSeries(1, 5, 5).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LinSeries(1, 5, -1));
         }
 
@@ -94,7 +94,7 @@ namespace DspSharpTest
         {
             double[] target = {1, 2, 4, 8, 16};
             var result = SignalGenerators.LogSeries(1, 16, 5).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LogSeries(1, 16, 1));
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LogSeries(-1, 16, 5));
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LogSeries(1, -1, 5));
@@ -129,10 +129,10 @@ namespace DspSharpTest
             };
 
             var result = SignalGenerators.LogSweep(5000, 10000, 21.0 / 44100, 44100).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target, result);
+            DspAssert.ListsAreReasonablyClose(target, result);
 
             result = SignalGenerators.LogSweep(10000, 5000, 21.0 / 44100, 44100).ToReadOnlyList();
-            FilterAssert.ListsAreReasonablyClose(target.Reverse().ToReadOnlyList(), result);
+            DspAssert.ListsAreReasonablyClose(target.Reverse().ToReadOnlyList(), result);
 
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LogSweep(-1, 10000, .1, 44100).ToReadOnlyList());
             ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => SignalGenerators.LogSweep(5000, -1, .1, 44100).ToReadOnlyList());
@@ -181,7 +181,7 @@ namespace DspSharpTest
             };
 
             var result = SignalGenerators.WindowedSinc(5000, 44100, 21, -10);
-            FilterAssert.ListsAreReasonablyClose(result.ToReadOnlyList(), target);
+            DspAssert.ListsAreReasonablyClose(result.ToReadOnlyList(), target);
 
             Assert.IsTrue(SignalGenerators.WindowedSinc(5000, 44100, 0, -10).ToReadOnlyList().Count == 0);
 
