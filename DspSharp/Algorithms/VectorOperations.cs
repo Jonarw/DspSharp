@@ -13,6 +13,41 @@ namespace DspSharp.Algorithms
     public static class VectorOperations
     {
         /// <summary>
+        ///     Appends the specified element to the sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="element">The element.</param>
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> sequence, T element)
+        {
+            foreach (var item in sequence)
+            {
+                yield return item;
+            }
+
+            yield return element;
+        }
+
+        /// <summary>
+        ///     Appends the specified elements to the sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="elements">The elements.</param>
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> sequence, params T[] elements)
+        {
+            foreach (var item in sequence)
+            {
+                yield return item;
+            }
+
+            foreach (var item in elements)
+            {
+                yield return item;
+            }
+        }
+
+        /// <summary>
         ///     Performs a circular shift on an array.
         /// </summary>
         /// <param name="input">The array to be circularly shifted.</param>
@@ -87,7 +122,7 @@ namespace DspSharp.Algorithms
 
             var c = start;
             var i = 0;
-            while ((c < 0) && (i < length))
+            while (c < 0 && i < length)
             {
                 yield return 0.0;
                 i++;
@@ -97,7 +132,7 @@ namespace DspSharp.Algorithms
             c = 0;
             using (var e = input.GetEnumerator())
             {
-                while ((c < start) && e.MoveNext())
+                while (c < start && e.MoveNext())
                 {
                     c++;
                 }
@@ -107,7 +142,7 @@ namespace DspSharp.Algorithms
                     c++;
                 }
 
-                while (e.MoveNext() && (i < length))
+                while (e.MoveNext() && i < length)
                 {
                     yield return e.Current;
                     i++;
@@ -147,7 +182,7 @@ namespace DspSharp.Algorithms
 
                 using (var e = input.Skip(startindex).GetEnumerator())
                 {
-                    while (e.MoveNext() && (c++ < length))
+                    while (e.MoveNext() && c++ < length)
                     {
                         yield return e.Current;
                     }
@@ -255,6 +290,41 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
+        ///     Prepends the specified elements to the sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="elements">The elements.</param>
+        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> sequence, params T[] elements)
+        {
+            foreach (var item in elements)
+            {
+                yield return item;
+            }
+
+            foreach (var item in sequence)
+            {
+                yield return item;
+            }
+        }
+
+        /// <summary>
+        ///     Prepends the specified element to the sequence.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="element">The element.</param>
+        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> sequence, T element)
+        {
+            yield return element;
+
+            foreach (var item in sequence)
+            {
+                yield return item;
+            }
+        }
+
+        /// <summary>
         ///     Computes a sub-portion of a sequence by only including every xth element.
         /// </summary>
         /// <param name="series">The sequence.</param>
@@ -294,7 +364,7 @@ namespace DspSharp.Algorithms
             using (var e = input.GetEnumerator())
             {
                 var c = 0;
-                while (e.MoveNext() && (c < length))
+                while (e.MoveNext() && c < length)
                 {
                     yield return e.Current;
                     c++;

@@ -13,14 +13,11 @@ namespace DspSharp.Algorithms
 {
     public static class Interpolation
     {
-        public static double LinearInterpolation(double xactual, double x1, double x2, double y1, double y2)
+        public enum ExtrapolationMode
         {
-            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
-        }
-
-        public static Complex LinearInterpolation(double xactual, double x1, double x2, Complex y1, Complex y2)
-        {
-            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
+            Hold,
+            Zero,
+            NaN
         }
 
         /// <summary>
@@ -32,12 +29,19 @@ namespace DspSharp.Algorithms
         /// <param name="y">The original y values; must be the same length as <paramref name="x" />.</param>
         /// <param name="xtarget">The new x values.</param>
         /// <param name="logX">Determines whether the calculation should be performed with logarithmic scaling along the x axis.</param>
+        /// <param name="useSpline">
+        ///     If true, spline interpolation is used when the local point density is low. Otherwise, linar
+        ///     interpolation is used.
+        /// </param>
+        /// <param name="extrapolationMode">Determines the behaviour outside of the input value range.</param>
         /// <returns>The interpolated y values.</returns>
         public static IEnumerable<double> AdaptiveInterpolation(
             IReadOnlyList<double> x,
             IReadOnlyList<double> y,
             IReadOnlyList<double> xtarget,
-            bool logX = true)
+            bool logX = true,
+            bool useSpline = true,
+            ExtrapolationMode extrapolationMode = ExtrapolationMode.Hold)
         {
             if (x == null)
                 throw new ArgumentNullException(nameof(x));
@@ -88,13 +92,25 @@ namespace DspSharp.Algorithms
             {
                 if (actualTargetX[c] < actualX.First())
                 {
-                    yield return y[0];
+                    if (extrapolationMode == ExtrapolationMode.Zero)
+                        yield return 0;
+                    else if (extrapolationMode == ExtrapolationMode.NaN)
+                        yield return double.NaN;
+                    else if (extrapolationMode == ExtrapolationMode.Hold)
+                        yield return y[0];
+
                     continue;
                 }
 
                 if (actualTargetX[c] > actualX.Last())
                 {
-                    yield return y[y.Count - 1];
+                    if (extrapolationMode == ExtrapolationMode.Zero)
+                        yield return 0;
+                    else if (extrapolationMode == ExtrapolationMode.NaN)
+                        yield return double.NaN;
+                    else if (extrapolationMode == ExtrapolationMode.Hold)
+                        yield return y[y.Count - 1];
+
                     continue;
                 }
 
@@ -105,39 +121,36 @@ namespace DspSharp.Algorithms
                     xlim = (actualTargetX[c + 1] + actualTargetX[c]) / 2;
 
                 var pointCounter = 0;
-                while ((xCurrent < xMax) && (actualX[xCurrent] < xlim))
+                while (xCurrent < xMax && actualX[xCurrent] < xlim)
                 {
                     pointCounter += 1;
                     xCurrent += 1;
                 }
 
-                if (pointCounter < 2) // spline
+                if (useSpline && pointCounter < 2) // spline
                 {
                     if (spline == null)
                         spline = CubicSpline.CubicSpline.Compute(actualX.ToArray(), y.ToArray(), actualTargetX.ToArray());
 
                     yield return spline[c];
                 }
-                else
+                else if (pointCounter < 3) // linear interpolation
                 {
-                    if (pointCounter < 3) // linear interpolation
+                    var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
+                    tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
+                    tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
+                    yield return tmp;
+                }
+                else // average
+                {
+                    double tmp = 0;
+                    for (var c2 = 1; c2 <= pointCounter; c2++)
                     {
-                        var tmp = (actualTargetX[c] - actualX[xCurrent - 1]) * y[xCurrent];
-                        tmp += (actualX[xCurrent] - actualTargetX[c]) * y[xCurrent - 1];
-                        tmp /= actualX[xCurrent] - actualX[xCurrent - 1];
-                        yield return tmp;
+                        tmp += y[xCurrent - c2];
                     }
-                    else // average
-                    {
-                        double tmp = 0;
-                        for (var c2 = 1; c2 <= pointCounter; c2++)
-                        {
-                            tmp += y[xCurrent - c2];
-                        }
 
-                        tmp /= pointCounter;
-                        yield return tmp;
-                    }
+                    tmp /= pointCounter;
+                    yield return tmp;
                 }
             }
         }
@@ -240,6 +253,30 @@ namespace DspSharp.Algorithms
             return FrequencyDomain.PolarToComplex(mspline, pspline);
         }
 
+        public static double LinearInterpolation(double xactual, double x1, double x2, double y1, double y2, bool logX = false)
+        {
+            if (logX)
+            {
+                xactual = Math.Log(xactual);
+                x1 = Math.Log(x1);
+                x2 = Math.Log(x2);
+            }
+
+            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
+        }
+
+        public static Complex LinearInterpolation(double xactual, double x1, double x2, Complex y1, Complex y2, bool logX = false)
+        {
+            if (logX)
+            {
+                xactual = Math.Log(xactual);
+                x1 = Math.Log(x1);
+                x2 = Math.Log(x2);
+            }
+
+            return (xactual - x1) / (x2 - x1) * y2 + (x2 - xactual) / (x2 - x1) * y1;
+        }
+
         /// <summary>
         ///     Smooths the y-values of a set of xy-related data with a moving average filter.
         /// </summary>
@@ -282,14 +319,14 @@ namespace DspSharp.Algorithms
                 yield break;
             }
 
-            Func<double, double, double, double> smoothWindow = (logF, logF0, bw) =>
+            double SmoothWindow(double logF, double logF0, double bw)
             {
                 var argument = (logF - logF0) / bw * Math.PI;
                 if (Math.Abs(argument) >= Math.PI)
                     return 0;
 
                 return 0.5 * (1.0 + Math.Cos(argument));
-            };
+            }
 
             double bandwidth;
             IReadOnlyList<double> actualX;
@@ -316,7 +353,7 @@ namespace DspSharp.Algorithms
                     if (!(actualX[fc2] > actualX[fc] - bandwidth))
                         break;
 
-                    factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
+                    factor = SmoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
                     sum += factor * y[fc2];
                     fc2 -= 1;
@@ -328,7 +365,7 @@ namespace DspSharp.Algorithms
                     if (!(actualX[fc2] < actualX[fc] + bandwidth))
                         break;
 
-                    factor = smoothWindow(actualX[fc2], actualX[fc], bandwidth);
+                    factor = SmoothWindow(actualX[fc2], actualX[fc], bandwidth);
                     factorSum += factor;
                     sum += factor * y[fc2];
                     fc2 += 1;

@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using PropertyTools.DataAnnotations;
+using System.ComponentModel;
 
 namespace DspSharp.Filter
 {

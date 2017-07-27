@@ -28,6 +28,12 @@ namespace DspSharp.Algorithms
             Sample
         }
 
+        //TODO: unit test
+        public static double GetCrestFactor(this IReadOnlyList<double> values)
+        {
+            return 1 / values.Normalize().Rms();
+        }
+
         /// <summary>
         ///     Calculates the mean of the specified sequence.
         /// </summary>
@@ -40,6 +46,50 @@ namespace DspSharp.Algorithms
                 throw new ArgumentNullException(nameof(input));
 
             return input.Average();
+        }
+
+        /// <summary>
+        ///     Gets the median.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Cannot compute median for an empty set.</exception>
+        //TODO: unit test
+        public static double Median(this IEnumerable<double> source)
+        {
+            var enumerable = source.ToReadOnlyList();
+
+            if (enumerable.Count == 0)
+                throw new InvalidOperationException("Cannot compute median for an empty set.");
+
+            var sortedList = enumerable.OrderBy(number => number);
+
+            var itemIndex = sortedList.Count() / 2;
+
+            if (sortedList.Count() % 2 == 0)
+                return (sortedList.ElementAt(itemIndex) + sortedList.ElementAt(itemIndex - 1)) / 2;
+
+            return sortedList.ElementAt(itemIndex);
+        }
+
+        /// <summary>
+        ///     Gets the median.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="numbers">The numbers.</param>
+        /// <param name="selector">The selector.</param>
+        /// <returns></returns>
+        //TODO: unit test
+        public static double Median<T>(this IEnumerable<T> numbers, Func<T, double> selector)
+        {
+            return numbers.Select(selector).Median();
+        }
+
+        //TODO: unit test
+        public static double Rms(this IEnumerable<double> values)
+        {
+            var valueslist = values.ToReadOnlyList();
+            return Math.Sqrt(valueslist.Aggregate(0d, (d, d1) => d + Math.Pow(d1, 2)) / valueslist.Count);
         }
 
         /// <summary>
@@ -113,19 +163,6 @@ namespace DspSharp.Algorithms
                 return variance / Math.Max(valueslist.Count - 1, 1);
 
             throw new ArgumentException();
-        }
-
-        //TODO: unit test
-        public static double Rms(this IEnumerable<double> values)
-        {
-            var valueslist = values.ToReadOnlyList();
-            return Math.Sqrt(valueslist.Aggregate(0d, (d, d1) => d + Math.Pow(d1, 2)) / valueslist.Count);
-        }
-
-        //TODO: unit test
-        public static double GetCrestFactor(this IReadOnlyList<double> values)
-        {
-            return 1 / values.Normalize().Rms();
         }
     }
 }

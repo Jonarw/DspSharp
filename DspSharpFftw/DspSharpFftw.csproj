@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFrameworks>netstandard1.3;net45;net46</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.1-pre</Version>
+    <Version>0.1.3-pre</Version>
     <Authors>Jonathan Arweck</Authors>
     <Company></Company>
     <Description>FFTW-based FFT support for DspSharp</Description>
@@ -37,11 +37,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
     <Content Include="libfftw3-3-32.dll">
-      <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    
     <Content Include="libfftw3-3-64.dll">
-      <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -42,6 +42,81 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
+        ///     Returns the maximal element of the given sequence, based on
+        ///     the given projection.
+        /// </summary>
+        /// <remarks>
+        ///     If more than one element has the maximal projected value, the first
+        ///     one encountered will be returned. This overload uses the default comparer
+        ///     for the projected type. This operator uses immediate execution, but
+        ///     only buffers a single result (the current maximal element).
+        /// </remarks>
+        /// <typeparam name="TSource">Type of the source sequence</typeparam>
+        /// <typeparam name="TKey">Type of the projected element</typeparam>
+        /// <param name="source">Source sequence</param>
+        /// <param name="selector">Selector to use to pick the results to compare</param>
+        /// <returns>The maximal element, according to the projection.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source" /> or <paramref name="selector" /> is null</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source" /> is empty</exception>
+        public static TSource MaxBy<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> selector)
+        {
+            return source.MaxBy(selector, null);
+        }
+
+        /// <summary>
+        ///     Returns the maximal element of the given sequence, based on
+        ///     the given projection and the specified comparer for projected values.
+        /// </summary>
+        /// <remarks>
+        ///     If more than one element has the maximal projected value, the first
+        ///     one encountered will be returned. This operator uses immediate execution, but
+        ///     only buffers a single result (the current maximal element).
+        /// </remarks>
+        /// <typeparam name="TSource">Type of the source sequence</typeparam>
+        /// <typeparam name="TKey">Type of the projected element</typeparam>
+        /// <param name="source">Source sequence</param>
+        /// <param name="selector">Selector to use to pick the results to compare</param>
+        /// <param name="comparer">Comparer to use to compare projected values</param>
+        /// <returns>The maximal element, according to the projection.</returns>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="source" />, <paramref name="selector" />
+        ///     or <paramref name="comparer" /> is null
+        /// </exception>
+        /// <exception cref="InvalidOperationException"><paramref name="source" /> is empty</exception>
+        public static TSource MaxBy<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> selector,
+            IComparer<TKey> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
+            comparer = comparer ?? Comparer<TKey>.Default;
+
+            using (var sourceIterator = source.GetEnumerator())
+            {
+                if (!sourceIterator.MoveNext())
+                    throw new InvalidOperationException("Sequence contains no elements");
+                TSource max = sourceIterator.Current;
+                TKey maxKey = selector(max);
+                while (sourceIterator.MoveNext())
+                {
+                    TSource candidate = sourceIterator.Current;
+                    TKey candidateProjected = selector(candidate);
+                    if (comparer.Compare(candidateProjected, maxKey) > 0)
+                    {
+                        max = candidate;
+                        maxKey = candidateProjected;
+                    }
+                }
+                return max;
+            }
+        }
+
+        /// <summary>
         ///     Finds the index with the maximum value in a sequence.
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -107,6 +182,30 @@ namespace DspSharp.Algorithms
 
                     return i;
                 });
+        }
+
+        public static double MinimumDifference(this IEnumerable<double> sequence1, IEnumerable<double> sequence2)
+        {
+            return sequence1.Zip(sequence2, (d, d1) => d - d1).Min();
+        }
+
+        public static int MinimumDifferenceIndex(this IEnumerable<double> sequence1, IEnumerable<double> sequence2)
+        {
+            return sequence1.Zip(sequence2, (d, d1) => d - d1).MinIndex();
+        }
+
+        public static bool IsStrictlyMonotonicIncreasing(this IEnumerable<double> sequence)
+        {
+            var prev = double.NegativeInfinity;
+            foreach (var d in sequence)
+            {
+                if (d <= prev)
+                    return false;
+
+                prev = d;
+            }
+
+            return true;
         }
 
         /// <summary>
