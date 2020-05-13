@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DspSharp.Algorithms;
 using DspSharp.Series;
+using UTilities.Extensions;
 
 namespace DspSharp.Spectrum
 {

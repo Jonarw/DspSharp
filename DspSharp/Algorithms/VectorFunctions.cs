@@ -116,72 +116,92 @@ namespace DspSharp.Algorithms
             }
         }
 
-        /// <summary>
-        ///     Finds the index with the maximum value in a sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <returns></returns>
-        public static int MaxIndex<T>(this IEnumerable<T> sequence)
-            where T : IComparable<T>
+        public static int AbsMaxIndex(this IEnumerable<double> sequence)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            var sequencelist = sequence.ToReadOnlyList();
-            if (sequencelist.Count == 0)
-                return -1;
-
-            var index = -1;
-            var maxValue = sequencelist.First(); // Immediately overwritten anyway
-
-            return sequencelist.Aggregate(
-                0,
-                (i, value) =>
+            double currentMax = 0;
+            int currentIndex = -1;
+            int i = 0;
+            foreach (var item in sequence)
+            {
+                var abs = Math.Abs(item);
+                if (abs > currentMax)
                 {
-                    index++;
-                    if (value.CompareTo(maxValue) > 0)
-                    {
-                        maxValue = value;
-                        return index;
-                    }
+                    currentMax = abs;
+                    currentIndex = i;
+                }
 
-                    return i;
-                });
+                i++;
+            }
+
+            return currentIndex;
+        }
+
+        public static int AbsMinIndex(this IEnumerable<double> sequence)
+        {
+            if (sequence == null)
+                throw new ArgumentNullException(nameof(sequence));
+
+            double currentMin = double.PositiveInfinity;
+            int currentIndex = -1;
+            int i = 0;
+            foreach (var item in sequence)
+            {
+                var abs = Math.Abs(item);
+                if (abs < currentMin)
+                {
+                    currentMin = abs;
+                    currentIndex = i;
+                }
+
+                i++;
+            }
+
+            return currentIndex;
+        }
+
+        public static double AbsMin(this IEnumerable<double> sequence)
+        {
+            if (sequence == null)
+                throw new ArgumentNullException(nameof(sequence));
+
+            return sequence.Select(Math.Abs).Min();
+        }
+
+        public static double AbsMax(this IEnumerable<double> sequence)
+        {
+            if (sequence == null)
+                throw new ArgumentNullException(nameof(sequence));
+
+            return sequence.Select(Math.Abs).Max();
         }
 
         /// <summary>
         ///     Finds the index with the minimum value in a sequence.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="sequence">The sequence.</param>
-        /// <returns></returns>
-        public static int MinIndex<T>(this IEnumerable<T> sequence)
-            where T : IComparable<T>
+        public static int MinIndex(this IEnumerable<double> sequence)
         {
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            var sequencelist = sequence.ToReadOnlyList();
-            if (sequencelist.Count == 0)
-                return -1;
-
-            var index = -1;
-            var minValue = sequencelist.First(); // Immediately overwritten anyway
-
-            return sequencelist.Aggregate(
-                0,
-                (i, value) =>
+            var currentMin = double.PositiveInfinity;
+            int currentIndex = 0;
+            int i = 0;
+            foreach (var item in sequence)
+            {
+                if (!double.IsNaN(item) && item.CompareTo(currentMin) < 0)
                 {
-                    index++;
-                    if (value.CompareTo(minValue) < 0)
-                    {
-                        minValue = value;
-                        return index;
-                    }
+                    currentMin = item;
+                    currentIndex = i;
+                }
 
-                    return i;
-                });
+                i++;
+            }
+
+            return currentIndex;
         }
 
         public static double MinimumDifference(this IEnumerable<double> sequence1, IEnumerable<double> sequence2)
@@ -200,6 +220,20 @@ namespace DspSharp.Algorithms
             foreach (var d in sequence)
             {
                 if (d <= prev)
+                    return false;
+
+                prev = d;
+            }
+
+            return true;
+        }
+
+        public static bool IsStrictlyMonotonicFalling(this IEnumerable<double> sequence)
+        {
+            var prev = double.PositiveInfinity;
+            foreach (var d in sequence)
+            {
+                if (d >= prev)
                     return false;
 
                 prev = d;

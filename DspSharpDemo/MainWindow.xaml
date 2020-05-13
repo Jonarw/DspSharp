@@ -7,14 +7,13 @@
         xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:ptd="clr-namespace:PropertyTools.DataAnnotations;assembly=PropertyTools"
         xmlns:dspSharpDemo="clr-namespace:DspSharpDemo"
-        xmlns:dspSharp="clr-namespace:DspSharp;assembly=DspSharp"
         xmlns:filter="clr-namespace:DspSharp.Filter;assembly=DspSharp"
+        xmlns:viewModel="clr-namespace:DspSharpDemo.ViewModel"
+        xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+        xmlns:dspSharpPlot="clr-namespace:DspSharpPlot;assembly=DspSharpPlot"
+        xmlns:signal="clr-namespace:DspSharp.Signal;assembly=DspSharp"
         mc:Ignorable="d"
         Title="DspSharp Demo Tool (J. Arweck 2016)" Height="800" Width="1200">
-
-    <Window.Resources>
-        <dspSharpDemo:LocalPropertyGridControlFactory x:Key="PropertyControlFactory" />
-    </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -22,102 +21,92 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Grid.DataContext>
-            <dspSharpDemo:ViewModel />
+            <viewModel:DspSharpDemoViewModel />
         </Grid.DataContext>
         <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <TextBlock Margin="5" VerticalAlignment="Center" HorizontalAlignment="Right">Samplerate:</TextBlock>
-                <ComboBox Grid.Column="1" Margin="5" ItemsSource="{Binding AvailableSamplerates}"
-                          SelectedItem="{Binding Samplerate}" />
-
-            </Grid>
-
-            <TabControl Grid.Row="1">
+            <TabControl>
                 <TabItem Header="Signals">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="35" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Grid Grid.Row="0">
+                        <StackPanel>
+                            <u:PropGroupControl Header="Settings">
+                                <u:PropControl Header="Sample Rate">
+                                    <ComboBox ItemsSource="{Binding AvailableSamplerates}" SelectedItem="{Binding SignalsViewModel.SignalFactory.SampleRate}" />
+                                </u:PropControl>
+                                <u:PropControl Header="Signal Type">
+                                    <u:EnumControl Value="{Binding SignalsViewModel.SignalFactory.SignalType}" />
+                                </u:PropControl>
+                                <ContentPresenter Content="{Binding SignalsViewModel.SignalFactory.InternalFactory}">
+                                    <ContentPresenter.Resources>
+                                        <ResourceDictionary Source="View/SignalFactoryResources.xaml" />
+                                    </ContentPresenter.Resources>
+                                </ContentPresenter>
+                            </u:PropGroupControl>
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Margin="5" Command="{Binding AddSignalCommand}">Add Signal</Button>
-                                <Button Grid.Column="1" Margin="5" Command="{Binding RemoveSignalCommand}">Remove Signal</Button>
+                                <ListBox Background="White" Margin="5" ItemsSource="{Binding SignalsViewModel.Items}"
+                                         SelectedItem="{Binding SignalsViewModel.SelectedItem}" DisplayMemberPath="DisplayName"
+                                         SelectionMode="Extended"
+                                         dspSharpDemo:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SignalsViewModel.SelectedSignals}" />
+                                <ContentPresenter Grid.Column="1" Content="{Binding SignalsViewModel}" ContentTemplate="{StaticResource CollectionEditorButtons}" />
+
                             </Grid>
-                            <ListBox Grid.Row="1" Background="White" Margin="5" SelectionMode="Extended"
-                                     ItemsSource="{Binding Signals}" DisplayMemberPath="DisplayName"
-                                     dspSharpDemo:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedSignals}"
-                                     SelectedItem="{Binding SelectedSignal}" />
-
-                            <pt:PropertyGrid Grid.Row="2" SelectedObject="{Binding SelectedSignal}" Margin="5"
-                                             TabVisibility="VisibleIfMoreThanOne"
-                                             RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"
-                                             EnumAsRadioButtonsLimit="0"
-                                             ControlFactory="{StaticResource PropertyControlFactory}" />
-
-                        </Grid>
+                        </StackPanel>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Filters">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="35" />
-                            <RowDefinition Height="35" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="2*" />
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
+                    <StackPanel>
+                        <u:PropGroupControl Header="Settings">
+                            <u:PropControl Header="Sample Rate">
+                                <ComboBox ItemsSource="{Binding AvailableSamplerates}" SelectedItem="{Binding FiltersViewModel.FilterFactory.SampleRate}" />
+                            </u:PropControl>
+                            <u:PropControl Header="Filter Type">
+                                <u:EnumControl Value="{Binding FiltersViewModel.FilterFactory.SelectedParameter}" />
+                            </u:PropControl>
+                        </u:PropGroupControl>
+
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Margin="5" Command="{Binding AddFilterCommand}">Add Filter</Button>
-                            <Button Grid.Column="1" Margin="5" Command="{Binding RemoveFilterCommand}">Remove Filter</Button>
-                        </Grid>
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <dspSharpDemo:EnumCombo Grid.Column="0" Margin="5" Enum="{x:Type filter:FilterTypes}"
-                                                    SelectedValue="{Binding SelectedFilterType}" />
-
+                            <ListBox Background="White" Margin="5" ItemsSource="{Binding FiltersViewModel.Items}"
+                                     SelectedItem="{Binding FiltersViewModel.SelectedItem}" DisplayMemberPath="DisplayName"
+                                     SelectionMode="Extended"
+                                     dspSharpDemo:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding FiltersViewModel.SelectedFilters}" />
+                            <ContentPresenter Grid.Column="1" Content="{Binding FiltersViewModel}" ContentTemplate="{StaticResource CollectionEditorButtons}" />
                         </Grid>
 
-                        <ListBox Grid.Row="2" Background="White" Margin="5" ItemsSource="{Binding Filters}"
-                                 SelectedItem="{Binding SelectedFilter}" DisplayMemberPath="Name"
-                                 SelectionMode="Extended"
-                                 dspSharpDemo:MultiSelectorBehaviours.SynchronizedSelectedItems="{Binding SelectedFilters}" />
-                        <pt:PropertyGrid Grid.Row="3" SelectedObject="{Binding SelectedFilter}" Margin="5"
-                                         TabVisibility="VisibleIfMoreThanOne" EnumAsRadioButtonsLimit="0"
-                                         RequiredAttribute="{x:Type ptd:DisplayNameAttribute }"
-                                         ControlFactory="{StaticResource PropertyControlFactory}" />
+                        <ContentPresenter Content="{Binding FiltersViewModel.SelectedItem}" Margin="5">
+                            <ContentPresenter.Resources>
+                                <ResourceDictionary Source="View/FilterResources.xaml" />
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
 
-                    </Grid>
+                    </StackPanel>
 
                 </TabItem>
                 <TabItem Header="Plot settings">
-                    <pt:PropertyGrid SelectedObject="{Binding SelectedPlot}" Margin="5"
-                                     TabVisibility="VisibleIfMoreThanOne"
-                                     RequiredAttribute="{x:Type ptd:DisplayNameAttribute }" EnumAsRadioButtonsLimit="0"
-                                     ControlFactory="{StaticResource PropertyControlFactory}" />
+                    <ScrollViewer>
+                        <ContentPresenter Content="{Binding SelectedPlot}">
+                            <ContentPresenter.Resources>
+                                <ResourceDictionary Source="View/PlotResources.xaml" />
+                            </ContentPresenter.Resources>
+                        </ContentPresenter>
+                    </ScrollViewer>
+                </TabItem>
 
+                <TabItem Header="Auto Biquad">
+                    <ContentPresenter Content="{Binding AutoBiquadViewModel}">
+                        <ContentPresenter.Resources>
+                            <ResourceDictionary Source="View/AutoBiquadResources.xaml" />
+                        </ContentPresenter.Resources>
+                    </ContentPresenter>
                 </TabItem>
             </TabControl>
 
@@ -130,9 +119,8 @@
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
-                <DataTemplate>
-                    <oxy:PlotView Model="{Binding Model}" MinWidth="200"
-                                  MinHeight="200" />
+                <DataTemplate DataType="{x:Type dspSharpPlot:SignalPlot}">
+                    <oxy:PlotView Model="{Binding Model}" MinWidth="200" MinHeight="200" />
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

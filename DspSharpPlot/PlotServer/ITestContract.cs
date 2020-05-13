@@ -9,7 +9,7 @@ namespace DspSharpPlot.PlotServer
     public class PlotClient : ClientBase<IPlotContract>
     {
         public PlotClient() : base(new ServiceEndpoint(ContractDescription.GetContract(typeof(IPlotContract)),
-            new NetNamedPipeBinding(), new EndpointAddress("net.pipe://localhost/DspSharp/PlotService")))
+            new NetNamedPipeBinding() {MaxReceivedMessageSize = 50000000}, new EndpointAddress("net.pipe://localhost/DspSharp/PlotService")))
         {
         }
 

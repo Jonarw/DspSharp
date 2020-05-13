@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using DspSharp.Algorithms;
 using DspSharp.Extensions;
@@ -17,7 +18,7 @@ using DspSharpPlot.Axes;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using PropertyTools.DataAnnotations;
+using UTilities.Extensions;
 
 namespace DspSharpPlot
 {
@@ -31,7 +32,8 @@ namespace DspSharpPlot
 
         public enum FiniteModes
         {
-            [Description("regular (FFT length = signal length)")] Regular,
+            [Description("regular (FFT length = signal length)")]
+            Regular,
             [Description("oversampled")] Oversampled,
             [Description("fixed FFT length")] Fixed,
             [Description("same as view")] View
@@ -47,13 +49,15 @@ namespace DspSharpPlot
         public enum SyntheticModes
         {
             [Description("ideal synthetic")] Ideal,
-            [Description("FFT-based, fixed length")] Fixed,
+
+            [Description("FFT-based, fixed length")]
+            Fixed,
             [Description("same as view")] View,
             [Description("fixed, symmetric")] FixedSymmetric
         }
 
         private bool _CustomResulutionEnabled;
-        private WindowTypes _EnumerableFiniteWindowType = WindowTypes.Hann;
+        private WindowType _EnumerableFiniteWindowType = WindowType.Hann;
         private int _EnumerableFixedLength = 1024;
         private int _EnumerableFixedStart;
         private EnumerableModes _EnumerableMode;
@@ -63,8 +67,8 @@ namespace DspSharpPlot
         private FiniteModes _FiniteMode;
         private int _FiniteOversampling = 4;
         private WindowModes _FiniteWindowMode = WindowModes.Causal;
-        private WindowTypes _FiniteWindowType = WindowTypes.Rectangular;
-        private WindowTypes _InfiniteFiniteWindowType = WindowTypes.Hann;
+        private WindowType _FiniteWindowType = WindowType.Rectangular;
+        private WindowType _InfiniteFiniteWindowType = WindowType.Hann;
         private int _InfiniteFixedLength = 1024;
         private int _InfiniteFixedStart = -512;
         private int _InfiniteFixedSymmetricLength = 1024;
@@ -75,7 +79,7 @@ namespace DspSharpPlot
         private int _Smoothing;
         private double _StartFrequency = 20;
         private double _StopFrequency = 20000;
-        private WindowTypes _SyntheticFiniteWindowType = WindowTypes.Hann;
+        private WindowType _SyntheticFiniteWindowType = WindowType.Hann;
         private int _SyntheticFixedLength = 1024;
         private int _SyntheticFixedStart = -512;
         private int _SyntheticFixedSymmetricLength = 1024;
@@ -83,19 +87,210 @@ namespace DspSharpPlot
         private WindowModes _SyntheticWindowMode = WindowModes.Symmetric;
         private int _ViewLength;
         private int _ViewStart;
-        public Window CausalWindow { get; set; } = new Window(WindowTypes.Hann, 8192, 44100, WindowModes.Causal);
-        public Window SymmetricWindow { get; set; } = new Window(WindowTypes.Hann, 8192, 44100, WindowModes.Symmetric);
+        public Window CausalWindow { get; set; } = new Window(WindowType.Hann, 8192, 44100, WindowModes.Causal);
+
+        public bool CustomResulutionEnabled
+        {
+            get => this._CustomResulutionEnabled;
+            set => this.SetField(ref this._CustomResulutionEnabled, value);
+        }
+
+        public int EnumerableFixedLength
+        {
+            get => this._EnumerableFixedLength;
+            set => this.SetField(ref this._EnumerableFixedLength, value);
+        }
+
+        public int EnumerableFixedStart
+        {
+            get => this._EnumerableFixedStart;
+            set => this.SetField(ref this._EnumerableFixedStart, value);
+        }
+
+        public EnumerableModes EnumerableMode
+        {
+            get => this._EnumerableMode;
+            set => this.SetField(ref this._EnumerableMode, value);
+        }
+
+        public WindowModes EnumerableWindowMode
+        {
+            get => this._EnumerableWindowMode;
+            set => this.SetField(ref this._EnumerableWindowMode, value);
+        }
+
+        public WindowType EnumerableWindowType
+        {
+            get => this._EnumerableFiniteWindowType;
+            set => this.SetField(ref this._EnumerableFiniteWindowType, value);
+        }
+
+        public int FiniteFixedLength
+        {
+            get => this._FiniteFixedLength;
+            set => this.SetField(ref this._FiniteFixedLength, value);
+        }
+
+        public int FiniteFixedStart
+        {
+            get => this._FiniteFixedStart;
+            set => this.SetField(ref this._FiniteFixedStart, value);
+        }
+
+        public FiniteModes FiniteMode
+        {
+            get => this._FiniteMode;
+            set => this.SetField(ref this._FiniteMode, value);
+        }
+
+        public int FiniteOversampling
+        {
+            get => this._FiniteOversampling;
+            set => this.SetField(ref this._FiniteOversampling, value);
+        }
+
+        public WindowModes FiniteWindowMode
+        {
+            get => this._FiniteWindowMode;
+            set => this.SetField(ref this._FiniteWindowMode, value);
+        }
+
+        public WindowType FiniteWindowType
+        {
+            get => this._FiniteWindowType;
+            set => this.SetField(ref this._FiniteWindowType, value);
+        }
+
+        public int InfiniteFixedLength
+        {
+            get => this._InfiniteFixedLength;
+            set => this.SetField(ref this._InfiniteFixedLength, value);
+        }
+
+        public int InfiniteFixedStart
+        {
+            get => this._InfiniteFixedStart;
+            set => this.SetField(ref this._InfiniteFixedStart, value);
+        }
+
+        public int InfiniteFixedSymmetricLength
+        {
+            get => this._InfiniteFixedSymmetricLength;
+            set => this.SetField(ref this._InfiniteFixedSymmetricLength, value);
+        }
+
+        public InfiniteModes InfiniteMode
+        {
+            get => this._InfiniteMode;
+            set => this.SetField(ref this._InfiniteMode, value);
+        }
+
+        public WindowModes InfiniteWindowMode
+        {
+            get => this._InfiniteWindowMode;
+            set => this.SetField(ref this._InfiniteWindowMode, value);
+        }
+
+        public WindowType InfiniteWindowType
+        {
+            get => this._InfiniteFiniteWindowType;
+            set => this.SetField(ref this._InfiniteFiniteWindowType, value);
+        }
+
+        public bool Logarithmic
+        {
+            get => this._Logarithmic;
+            set
+            {
+                this.SetField(ref this._Logarithmic, value);
+                this.CustomFrequencies = null;
+            }
+        }
+
+        public int NumberOfPoints
+        {
+            get => this._NumberOfPoints;
+            set
+            {
+                this.SetField(ref this._NumberOfPoints, value);
+                this.CustomFrequencies = null;
+            }
+        }
+
+        public int Smoothing
+        {
+            get => this._Smoothing;
+            set => this.SetField(ref this._Smoothing, value);
+        }
+
+        public double StartFrequency
+        {
+            get => this._StartFrequency;
+            set
+            {
+                this.SetField(ref this._StartFrequency, value);
+                this.CustomFrequencies = null;
+            }
+        }
+
+        public double StopFrequency
+        {
+            get => this._StopFrequency;
+            set
+            {
+                this.SetField(ref this._StopFrequency, value);
+                this.CustomFrequencies = null;
+            }
+        }
+
+        public Window SymmetricWindow { get; set; } = new Window(WindowType.Hann, 8192, 44100, WindowModes.Symmetric);
+
+        public int SyntheticFixedLength
+        {
+            get => this._SyntheticFixedLength;
+            set => this.SetField(ref this._SyntheticFixedLength, value);
+        }
+
+        public int SyntheticFixedStart
+        {
+            get => this._SyntheticFixedStart;
+            set => this.SetField(ref this._SyntheticFixedStart, value);
+        }
+
+        public int SyntheticFixedSymmetricLength
+        {
+            get => this._SyntheticFixedSymmetricLength;
+            set => this.SetField(ref this._SyntheticFixedSymmetricLength, value);
+        }
+
+        public SyntheticModes SyntheticMode
+        {
+            get => this._SyntheticMode;
+            set => this.SetField(ref this._SyntheticMode, value);
+        }
+
+        public WindowModes SyntheticWindowMode
+        {
+            get => this._SyntheticWindowMode;
+            set => this.SetField(ref this._SyntheticWindowMode, value);
+        }
+
+        public WindowType SyntheticWindowType
+        {
+            get => this._SyntheticFiniteWindowType;
+            set => this.SetField(ref this._SyntheticFiniteWindowType, value);
+        }
 
         public int ViewLength
         {
-            get { return this._ViewLength; }
-            set { this.SetField(ref this._ViewLength, value); }
+            get => this._ViewLength;
+            set => this.SetField(ref this._ViewLength, value);
         }
 
         public int ViewStart
         {
-            get { return this._ViewStart; }
-            set { this.SetField(ref this._ViewStart, value); }
+            get => this._ViewStart;
+            set => this.SetField(ref this._ViewStart, value);
         }
 
         public override Axis XAxis { get; } = new FrequencyAxis();
@@ -104,7 +299,7 @@ namespace DspSharpPlot
 
         protected override Series CreateGraph(ISignal signal)
         {
-            var ret = new LineSeries();
+            var ret = new LineSeriesEx();
             var fsignal = signal as IFiniteSignal;
             var esignal = signal as IEnumerableSignal;
             var ssignal = signal as ISyntheticSignal;
@@ -112,7 +307,7 @@ namespace DspSharpPlot
             int winstart;
             int winlength;
             WindowModes winmode;
-            WindowTypes wintype;
+            WindowType wintype;
 
             if (fsignal != null)
             {
@@ -187,6 +382,7 @@ namespace DspSharpPlot
                                 this.GetYValues(ssignal.Spectrum).Zip(ssignal.Spectrum.Frequencies.Values, (m, f) => new DataPoint(f, m)));
                             return ret;
                         }
+
                         if (this.SyntheticMode == SyntheticModes.Fixed)
                         {
                             winstart = this.SyntheticFixedStart;
@@ -262,251 +458,12 @@ namespace DspSharpPlot
             }
 
             if (this.Smoothing > 0)
-                values = Interpolation.Smooth(frequencies, values, this.Smoothing, this.Logarithmic).ToReadOnlyList();
+                values = Interpolation.MovingAverage(frequencies, values, this.Smoothing).ToReadOnlyList();
 
             ret.Points.AddRange(values.Zip(frequencies, (m, f) => new DataPoint(f, m)));
             return ret;
         }
 
         protected abstract IEnumerable<double> GetYValues(ISpectrum spectrum);
-
-        [Category("display")]
-        [DisplayName("smoothing")]
-        public int Smoothing
-        {
-            get { return this._Smoothing; }
-            set { this.SetField(ref this._Smoothing, value); }
-        }
-
-        [DisplayName("custom resolution")]
-        public bool CustomResulutionEnabled
-        {
-            get { return this._CustomResulutionEnabled; }
-            set { this.SetField(ref this._CustomResulutionEnabled, value); }
-        }
-
-        [DisplayName("number of points")]
-        [VisibleBy(nameof(CustomResulutionEnabled))]
-        public int NumberOfPoints
-        {
-            get { return this._NumberOfPoints; }
-            set
-            {
-                this.SetField(ref this._NumberOfPoints, value);
-                this.CustomFrequencies = null;
-            }
-        }
-
-        [DisplayName("logarithmic")]
-        [VisibleBy(nameof(CustomResulutionEnabled))]
-        public bool Logarithmic
-        {
-            get { return this._Logarithmic; }
-            set
-            {
-                this.SetField(ref this._Logarithmic, value);
-                this.CustomFrequencies = null;
-            }
-        }
-
-        [DisplayName("start frequency")]
-        [VisibleBy(nameof(CustomResulutionEnabled))]
-        public double StartFrequency
-        {
-            get { return this._StartFrequency; }
-            set
-            {
-                this.SetField(ref this._StartFrequency, value);
-                this.CustomFrequencies = null;
-            }
-        }
-
-        [DisplayName("stop frequency")]
-        [VisibleBy(nameof(CustomResulutionEnabled))]
-        public double StopFrequency
-        {
-            get { return this._StopFrequency; }
-            set
-            {
-                this.SetField(ref this._StopFrequency, value);
-                this.CustomFrequencies = null;
-            }
-        }
-
-        [Category("finite signals")]
-        [DisplayName("window type")]
-        public WindowTypes FiniteWindowType
-        {
-            get { return this._FiniteWindowType; }
-            set { this.SetField(ref this._FiniteWindowType, value); }
-        }
-
-        [DisplayName("window mode")]
-        public WindowModes FiniteWindowMode
-        {
-            get { return this._FiniteWindowMode; }
-            set { this.SetField(ref this._FiniteWindowMode, value); }
-        }
-
-        [DisplayName("window length mode")]
-        public FiniteModes FiniteMode
-        {
-            get { return this._FiniteMode; }
-            set { this.SetField(ref this._FiniteMode, value); }
-        }
-
-        [DisplayName("window start")]
-        [VisibleBy(nameof(FiniteMode), FiniteModes.Fixed)]
-        public int FiniteFixedStart
-        {
-            get { return this._FiniteFixedStart; }
-            set { this.SetField(ref this._FiniteFixedStart, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(FiniteMode), FiniteModes.Fixed)]
-        public int FiniteFixedLength
-        {
-            get { return this._FiniteFixedLength; }
-            set { this.SetField(ref this._FiniteFixedLength, value); }
-        }
-
-        [DisplayName("oversampling factor")]
-        [VisibleBy(nameof(FiniteMode), FiniteModes.Oversampled)]
-        public int FiniteOversampling
-        {
-            get { return this._FiniteOversampling; }
-            set { this.SetField(ref this._FiniteOversampling, value); }
-        }
-
-        [Category("enumerable signals")]
-        [DisplayName("window type")]
-        public WindowTypes EnumerableWindowType
-        {
-            get { return this._EnumerableFiniteWindowType; }
-            set { this.SetField(ref this._EnumerableFiniteWindowType, value); }
-        }
-
-        [DisplayName("window mode")]
-        public WindowModes EnumerableWindowMode
-        {
-            get { return this._EnumerableWindowMode; }
-            set { this.SetField(ref this._EnumerableWindowMode, value); }
-        }
-
-        [DisplayName("window length mode")]
-        public EnumerableModes EnumerableMode
-        {
-            get { return this._EnumerableMode; }
-            set { this.SetField(ref this._EnumerableMode, value); }
-        }
-
-        [DisplayName("window start")]
-        [VisibleBy(nameof(EnumerableMode), EnumerableModes.Fixed)]
-        public int EnumerableFixedStart
-        {
-            get { return this._EnumerableFixedStart; }
-            set { this.SetField(ref this._EnumerableFixedStart, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(EnumerableMode), EnumerableModes.Fixed)]
-        public int EnumerableFixedLength
-        {
-            get { return this._EnumerableFixedLength; }
-            set { this.SetField(ref this._EnumerableFixedLength, value); }
-        }
-
-        [Category("infinite signals")]
-        [DisplayName("window type")]
-        public WindowTypes InfiniteWindowType
-        {
-            get { return this._InfiniteFiniteWindowType; }
-            set { this.SetField(ref this._InfiniteFiniteWindowType, value); }
-        }
-
-        [DisplayName("window mode")]
-        public WindowModes InfiniteWindowMode
-        {
-            get { return this._InfiniteWindowMode; }
-            set { this.SetField(ref this._InfiniteWindowMode, value); }
-        }
-
-        [DisplayName("window length mode")]
-        public InfiniteModes InfiniteMode
-        {
-            get { return this._InfiniteMode; }
-            set { this.SetField(ref this._InfiniteMode, value); }
-        }
-
-        [DisplayName("window start")]
-        [VisibleBy(nameof(InfiniteMode), InfiniteModes.Fixed)]
-        public int InfiniteFixedStart
-        {
-            get { return this._InfiniteFixedStart; }
-            set { this.SetField(ref this._InfiniteFixedStart, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(InfiniteMode), InfiniteModes.Fixed)]
-        public int InfiniteFixedLength
-        {
-            get { return this._InfiniteFixedLength; }
-            set { this.SetField(ref this._InfiniteFixedLength, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(InfiniteMode), InfiniteModes.FixedSymmetric)]
-        public int InfiniteFixedSymmetricLength
-        {
-            get { return this._InfiniteFixedSymmetricLength; }
-            set { this.SetField(ref this._InfiniteFixedSymmetricLength, value); }
-        }
-
-        [Category("synthetic signals")]
-        [DisplayName("window type")]
-        public WindowTypes SyntheticWindowType
-        {
-            get { return this._SyntheticFiniteWindowType; }
-            set { this.SetField(ref this._SyntheticFiniteWindowType, value); }
-        }
-
-        [DisplayName("window mode")]
-        public WindowModes SyntheticWindowMode
-        {
-            get { return this._SyntheticWindowMode; }
-            set { this.SetField(ref this._SyntheticWindowMode, value); }
-        }
-
-        [DisplayName("window length mode")]
-        public SyntheticModes SyntheticMode
-        {
-            get { return this._SyntheticMode; }
-            set { this.SetField(ref this._SyntheticMode, value); }
-        }
-
-        [DisplayName("window start")]
-        [VisibleBy(nameof(SyntheticMode), SyntheticModes.Fixed)]
-        public int SyntheticFixedStart
-        {
-            get { return this._SyntheticFixedStart; }
-            set { this.SetField(ref this._SyntheticFixedStart, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(SyntheticMode), SyntheticModes.Fixed)]
-        public int SyntheticFixedLength
-        {
-            get { return this._SyntheticFixedLength; }
-            set { this.SetField(ref this._SyntheticFixedLength, value); }
-        }
-
-        [DisplayName("window length")]
-        [VisibleBy(nameof(SyntheticMode), SyntheticModes.FixedSymmetric)]
-        public int SyntheticFixedSymmetricLength
-        {
-            get { return this._SyntheticFixedSymmetricLength; }
-            set { this.SetField(ref this._SyntheticFixedSymmetricLength, value); }
-        }
     }
 }

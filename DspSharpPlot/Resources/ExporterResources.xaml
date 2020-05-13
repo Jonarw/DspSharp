@@ -1,0 +1,65 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+                    xmlns:oxy="http://oxyplot.org/wpf"
+                    xmlns:oxyPlot="clr-namespace:OxyPlot;assembly=OxyPlot"
+                    xmlns:pdf="clr-namespace:OxyPlot.Pdf;assembly=OxyPlot.Pdf">
+
+    <DataTemplate DataType="{x:Type oxy:PngExporter}">
+        <DataTemplate.Resources>
+            <oxy:OxyColorConverter x:Key="OxyColorConverter" />
+        </DataTemplate.Resources>
+        <StackPanel>
+            <u:PropGroupControl Header="Exporter Settings">
+                <u:PropControl Header="Width">
+                    <u:IntControl Value="{Binding Width}" />
+                </u:PropControl>
+                <u:PropControl Header="Height">
+                    <u:IntControl Value="{Binding Height}" />
+                </u:PropControl>
+                <u:PropControl Header="Resolution">
+                    <u:IntControl Value="{Binding Resolution}" />
+                </u:PropControl>
+                <u:PropControl Header="Background Color">
+                    <u:ColorControl Value="{Binding Background, Converter={StaticResource OxyColorConverter}}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type pdf:PdfExporter}">
+        <DataTemplate.Resources>
+            <oxy:OxyColorConverter x:Key="OxyColorConverter" />
+        </DataTemplate.Resources>
+        <StackPanel>
+            <u:PropGroupControl Header="Exporter Settings">
+                <u:PropControl Header="Width">
+                    <u:IntControl Value="{Binding Width}" />
+                </u:PropControl>
+                <u:PropControl Header="Height">
+                    <u:IntControl Value="{Binding Height}" />
+                </u:PropControl>
+                <u:PropControl Header="Background Color">
+                    <u:ColorControl Value="{Binding Background, Converter={StaticResource OxyColorConverter}}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type oxyPlot:SvgExporter}">
+        <StackPanel>
+            <u:PropGroupControl Header="Exporter Settings">
+                <u:PropControl Header="Width">
+                    <u:IntControl Value="{Binding Width}" />
+                </u:PropControl>
+                <u:PropControl Header="Height">
+                    <u:IntControl Value="{Binding Height}" />
+                </u:PropControl>
+                <u:PropControl Header="Is Document">
+                    <u:BoolControl Value="{Binding IsDocument}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

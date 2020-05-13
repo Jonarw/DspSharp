@@ -11,6 +11,7 @@ using DspSharp.Algorithms;
 using DspSharp.Exceptions;
 using DspSharp.Filter;
 using DspSharp.Signal;
+using UTilities.Extensions;
 
 namespace DspSharp.Extensions
 {

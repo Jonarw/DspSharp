@@ -6,11 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
     public static class Mathematic
-    {
+    { 
         /// <summary>
         ///     Uses a simple iterative algorithm to find the root of a (locally) monotonous function.
         /// </summary>

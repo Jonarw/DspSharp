@@ -430,7 +430,7 @@ namespace DspSharpTest
         public void TestFrequencyWindowedBandpass()
         {
             var sig = SignalGenerators.GetDirac(1000).Multiply(2).ToReadOnlyList();
-            var inv = TimeDomain.FrequencyWindowedBandpass(sig, 44100, 100, 1000, 10, 10, WindowTypes.BlackmanHarris).ToSignal(44100);
+            var inv = TimeDomain.FrequencyWindowedBandpass(sig, 44100, 100, 1000, 10, 10, WindowType.BlackmanHarris).ToSignal(44100);
             var spec = inv.Spectrum;
 
             Assert.AreEqual(spec.GetValue(50).Magnitude, 0d, 1e-3);
@@ -450,7 +450,7 @@ namespace DspSharpTest
         public void TestFrequencyWindowedInversion()
         {
             var sig = SignalGenerators.GetDirac(1000).Multiply(2).ToReadOnlyList();
-            var inv = TimeDomain.FrequencyWindowedInversion(sig, 44100, 100, 1000, 10, 10, WindowTypes.BlackmanHarris).ToSignal(44100);
+            var inv = TimeDomain.FrequencyWindowedInversion(sig, 44100, 100, 1000, 10, 10, WindowType.BlackmanHarris).ToSignal(44100);
             var spec = inv.Spectrum;
 
             Assert.AreEqual(spec.GetValue(50).Magnitude, 0d, 1e-3);

@@ -11,51 +11,51 @@ namespace DspSharp.Signal.Windows
     /// <summary>
     ///     Enumeration of all supported window types.
     /// </summary>
-    public enum WindowTypes
+    public enum WindowType
     {
         /// <summary>
         ///     The rectangular window.
         /// </summary>
-        [Description("rectangular")] Rectangular,
+        Rectangular,
 
         /// <summary>
         ///     The Hann window.
         /// </summary>
-        [Description("Hann")] Hann,
+        Hann,
 
         /// <summary>
         ///     The Hamming window.
         /// </summary>
-        [Description("Hamming")] Hamming,
+        Hamming,
 
         /// <summary>
         ///     The triangular window.
         /// </summary>
-        [Description("triangular")] Triangular,
+        Triangular,
 
         /// <summary>
         ///     The Welch window.
         /// </summary>
-        [Description("Welch")] Welch,
+        Welch,
 
         /// <summary>
         ///     The Blackman window.
         /// </summary>
-        [Description("Blackman")] Blackman,
+        Blackman,
 
         /// <summary>
         ///     The Blackman-Harris window.
         /// </summary>
-        [Description("Blackman-Harris")] BlackmanHarris,
+        BlackmanHarris,
 
         /// <summary>
         ///     The Kaiser window with alpha=2.
         /// </summary>
-        [Description("Kaiser, alpha = 2")] KaiserAlpha2,
+        KaiserAlpha2,
 
         /// <summary>
         ///     The Kaiser window with alpha=3.
         /// </summary>
-        [Description("Kaiser, alpha = 3")] KaiserAlpha3
+        KaiserAlpha3
     }
 }

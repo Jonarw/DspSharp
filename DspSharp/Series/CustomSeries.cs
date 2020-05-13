@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using DspSharp.Utilities;
+using UTilities.Helpers;
 
 namespace DspSharp.Series
 {

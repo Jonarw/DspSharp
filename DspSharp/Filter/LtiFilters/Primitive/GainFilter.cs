@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
@@ -19,7 +18,16 @@ namespace DspSharp.Filter.LtiFilters.Primitive
 
         public GainFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "Gain Filter";
+            this.DisplayName = "Gain Filter";
+        }
+
+        /// <summary>
+        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
+        /// </summary>
+        public double Gain
+        {
+            get { return this._Gain; }
+            set { this.SetField(ref this._Gain, value); }
         }
 
         /// <summary>
@@ -39,17 +47,6 @@ namespace DspSharp.Filter.LtiFilters.Primitive
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal.Multiply(this.Gain);
-        }
-
-        /// <summary>
-        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
-        /// </summary>
-        [Category("Gain Filter")]
-        [DisplayName("Gain")]
-        public double Gain
-        {
-            get { return this._Gain; }
-            set { this.SetField(ref this._Gain, value); }
         }
     }
 }

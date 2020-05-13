@@ -115,25 +115,46 @@ namespace DspSharpTest
         }
 
         [TestMethod]
-        public void TestSmooth()
+        public void TestMovingAverage()
         {
             double[] x = {1, 2, 3, 4, 5, 6, 7, 8, 9};
             double[] y = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-            var result = Interpolation.Smooth(x, y, 1).ToReadOnlyList();
+            var result = Interpolation.MovingAverage(x, y, 1).ToReadOnlyList();
 
             Assert.IsTrue(result.Count == x.Length);
             Assert.IsTrue(result[0] >= 1);
             Assert.IsTrue(result[result.Count - 1] <= 9);
             DspAssert.ListIsMonotonouslyRising(result);
 
-            DspAssert.ListsAreReasonablyClose(Interpolation.Smooth(x, y, 0).ToReadOnlyList(), y);
+            DspAssert.ListsAreReasonablyClose(Interpolation.MovingAverage(x, y, 0).ToReadOnlyList(), y);
 
-            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(null, y, 1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.Smooth(x, null, 1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => Interpolation.Smooth(x, y, -1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.Smooth(new List<double> {1}, y, -1).ToReadOnlyList());
-            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.Smooth(new List<double>(), new List<double>(), -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.MovingAverage(null, y, 1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentNullException>(() => Interpolation.MovingAverage(x, null, 1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentOutOfRangeException>(() => Interpolation.MovingAverage(x, y, -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.MovingAverage(new List<double> {1}, y, -1).ToReadOnlyList());
+            ThrowsAssert.Throws<ArgumentException>(() => Interpolation.MovingAverage(new List<double>(), new List<double>(), -1).ToReadOnlyList());
+        }
+
+        [TestMethod]
+        public void TestSmooth()
+        {
+            double[] x = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+            double[] y = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+            double[] xt1 = {0.1, 0.2, 1, 2, 2.5, 2.7, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+            double[] xt2 = {3, 5, 10};
+
+            var result = Interpolation.Smooth(x, y, xt1, 1).ToReadOnlyList();
+            Assert.IsTrue(result.Count == xt1.Length);
+            Assert.IsTrue(result.Min() >= 1);
+            Assert.IsTrue(result.Max() <= 9);
+            DspAssert.ListIsMonotonouslyRising(result);
+
+            var result2 = Interpolation.Smooth(x, y, xt2, 1).ToReadOnlyList();
+            Assert.IsTrue(result2.Count == xt2.Length);
+            Assert.IsTrue(result2.Min() >= 1);
+            Assert.IsTrue(result2.Max() <= 9);
+            DspAssert.ListIsMonotonouslyRising(result2);
         }
     }
 }

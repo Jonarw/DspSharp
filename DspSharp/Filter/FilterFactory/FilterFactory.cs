@@ -10,7 +10,7 @@ using DspSharp.Filter.LtiFilters.Iir;
 using DspSharp.Filter.LtiFilters.Primitive;
 using DspSharp.Filter.NonlinearFilters;
 using DspSharp.Signal;
-using DspSharp.Utilities.Collections;
+using UTilities.Collections;
 
 namespace DspSharp.Filter
 {
@@ -28,42 +28,35 @@ namespace DspSharp.Filter
         /// <returns></returns>
         /// <exception cref="System.ArgumentOutOfRangeException">null</exception>
         public static IFilter CreateFilter(
-            FilterTypes type,
+            FilterType type,
             double samplerate,
             IReadOnlyObservableList<ISignal> availableSignals = null)
         {
-            if (type == FilterTypes.Distortion)
+            switch (type)
+            {
+            case FilterType.Distortion:
                 return new DistortionFilter(samplerate);
-
-            if (type == FilterTypes.Biquad)
+            case FilterType.Biquad:
                 return new BiquadFilter(samplerate);
-
-            if (type == FilterTypes.CustomConvolver)
+            case FilterType.CustomConvolver:
                 return new CustomConvolver(samplerate) {AvailableSignals = availableSignals};
-
-            if (type == FilterTypes.Correcting)
+            case FilterType.Correcting:
                 return new CorrectingFilter(samplerate);
-
-            if (type == FilterTypes.Delay)
+            case FilterType.Delay:
                 return new DelayFilter(samplerate);
-
-            if (type == FilterTypes.Dirac)
+            case FilterType.Dirac:
                 return new DiracFilter(samplerate);
-
-            if (type == FilterTypes.Fir)
+            case FilterType.Fir:
                 return new FirFilter(samplerate);
-
-            if (type == FilterTypes.Gain)
+            case FilterType.Gain:
                 return new GainFilter(samplerate);
-
-            if (type == FilterTypes.Iir)
+            case FilterType.Iir:
                 return new IirFilter(samplerate);
-
-            if (type == FilterTypes.Invert)
+            case FilterType.Invert:
                 return new InvertFilter(samplerate);
-
-            if (type == FilterTypes.Zero)
+            case FilterType.Zero:
                 return new ZeroFilter(samplerate);
+            }
 
             throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }

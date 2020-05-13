@@ -6,9 +6,11 @@
 
 using System.Collections.Generic;
 using DspSharp.Algorithms;
+using DspSharp.Signal;
 using DspSharp.Spectrum;
 using DspSharpPlot.Axes;
 using OxyPlot.Axes;
+using OxyPlot.Series;
 
 namespace DspSharpPlot
 {

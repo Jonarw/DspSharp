@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
@@ -22,7 +21,32 @@ namespace DspSharp.Filter.LtiFilters.Primitive
 
         public DelayFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "delay filter";
+            this.DisplayName = "delay filter";
+        }
+
+        /// <summary>
+        ///     Gets the delay of the <see cref="DelayFilter" /> in seconds.
+        /// </summary>
+        public double Delay
+        {
+            get { return this._delay; }
+            private set { this.SetField(ref this._delay, value); }
+        }
+
+        /// <summary>
+        ///     Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
+        /// </summary>
+        public int SampleDelay
+        {
+            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
+            set
+            {
+                if (!this.SetField(ref this._SampleDelay, value))
+                    return;
+
+                this.Delay = value / this.Samplerate;
+                this.RaiseChangedEvent();
+            }
         }
 
         /// <summary>
@@ -41,34 +65,6 @@ namespace DspSharp.Filter.LtiFilters.Primitive
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return SignalGenerators.GetZeros(this.SampleDelay).Concat(signal);
-        }
-
-        /// <summary>
-        ///     Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
-        /// </summary>
-        [Category("delay")]
-        [DisplayName("delay in samples")]
-        public int SampleDelay
-        {
-            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
-            set
-            {
-                if (!this.SetField(ref this._SampleDelay, value))
-                    return;
-
-                this.Delay = value / this.Samplerate;
-                this.RaiseChangedEvent();
-            }
-        }
-
-        /// <summary>
-        ///     Gets the delay of the <see cref="DelayFilter" /> in seconds.
-        /// </summary>
-        [DisplayName("delay in seconds")]
-        public double Delay
-        {
-            get { return this._delay; }
-            private set { this.SetField(ref this._delay, value); }
         }
     }
 }

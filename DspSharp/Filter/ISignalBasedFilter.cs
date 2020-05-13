@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using DspSharp.Signal;
-using DspSharp.Utilities.Collections;
+using UTilities.Collections;
 
 namespace DspSharp.Filter
 {

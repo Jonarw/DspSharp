@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
+using UTilities.Extensions;
 
 namespace DspSharp.Signal
 {
@@ -25,8 +25,6 @@ namespace DspSharp.Signal
             this.DisplayName = "dirac, gain = " + gain;
         }
 
-        [Category("dirac")]
-        [DisplayName("gain")]
         public double Gain { get; }
     }
 }

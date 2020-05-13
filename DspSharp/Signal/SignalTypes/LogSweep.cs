@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
+using UTilities.Extensions;
 
 namespace DspSharp.Signal
 {
@@ -29,11 +29,8 @@ namespace DspSharp.Signal
             this.DisplayName = "logarithmic sweep";
         }
 
-        [Category("logarithmic sweep")]
-        [DisplayName("start frequency")]
         public double From { get; }
 
-        [DisplayName("stop frequency")]
         public double To { get; }
     }
 }

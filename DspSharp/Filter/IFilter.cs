@@ -30,5 +30,8 @@ namespace DspSharp.Filter
         /// </summary>
         /// <param name="input">The input.</param>
         IEnumerable<double> Process(IEnumerable<double> input);
+
+        string DisplayName { get; set; }
+        bool Enabled { get; set; }
     }
 }

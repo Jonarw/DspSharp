@@ -32,20 +32,16 @@ namespace DspSharpPlot
         {
             var ret = new ImpulseResponseGraph();
 
-            var fsignal = signal as IFiniteSignal;
-            if (fsignal != null)
+            switch (signal)
             {
-                ret.Points.AddRange(fsignal.Signal.Zip(Enumerable.Range(fsignal.Start, fsignal.Length), (m, t) => new DataPoint(t, m)));
-                return ret;
-            }
-
-            var esignal = signal as IEnumerableSignal;
-            if (esignal != null)
-            {
-                ret.Points.AddRange(
-                    signal.GetWindowedSamples(esignal.Start, this.DataMax - esignal.Start)
-                        .Zip(Enumerable.Range(esignal.Start, this.DataMax - esignal.Start), (m, t) => new DataPoint(t, m)));
-                return ret;
+                case IFiniteSignal fsignal:
+                    ret.Points.AddRange(fsignal.Signal.Zip(Enumerable.Range(fsignal.Start, fsignal.Length), (m, t) => new DataPoint(t, m)));
+                    return ret;
+                case IEnumerableSignal esignal:
+                    ret.Points.AddRange(
+                        signal.GetWindowedSamples(esignal.Start, this.DataMax - esignal.Start)
+                            .Zip(Enumerable.Range(esignal.Start, this.DataMax - esignal.Start), (m, t) => new DataPoint(t, m)));
+                    return ret;
             }
 
             ret.Points.AddRange(
@@ -71,8 +67,8 @@ namespace DspSharpPlot
                 this.Update(true);
             }
 
-            this.RaisePropertyChanged(nameof(this.XMin));
-            this.RaisePropertyChanged(nameof(this.XMax));
+            this.OnPropertyChanged(nameof(this.XMin));
+            this.OnPropertyChanged(nameof(this.XMax));
         }
     }
 }

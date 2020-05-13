@@ -1,0 +1,130 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+                    xmlns:pt="http://propertytools.org/wpf"
+                    xmlns:signalFactories="clr-namespace:DspSharpDemo.ViewModel.Signal.SignalFactories">
+
+
+    <DataTemplate x:Key="SignalBase" DataType="{x:Type signalFactories:SignalFactory}">
+        <u:PropControl Header="Time Offset [samples]">
+            <u:StringControl Value="{Binding TimeOffset}" />
+        </u:PropControl>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:DiracFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Gain [linear]">
+                <u:StringControl Value="{Binding Gain}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:FileFrequencyResponseFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Source File">
+                <pt:FilePicker UseOpenDialog="True" Filter="*.csv-Files|*.csv" FilePath="{Binding FileName}" />
+            </u:PropControl>
+            <u:PropControl Header="Time Domain Length [samples]">
+                <u:StringControl Value="{Binding SignalLength}" />
+            </u:PropControl>
+            <u:PropControl Header="CSV Separator">
+                <u:StringControl Value="{Binding Separator}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:FileImpulseResponseFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Source File">
+                <pt:FilePicker UseOpenDialog="True" Filter="*.csv-Files|*.csv" FilePath="{Binding FileName}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:IdealHighpassFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Cut-Off Frequency [Hz]">
+                <u:StringControl Value="{Binding Frequency}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:IdealLowpassFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Cut-Off Frequency [Hz]">
+                <u:StringControl Value="{Binding Frequency}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:LogSweepFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Start Frequency [Hz]">
+                <u:StringControl Value="{Binding StartFrequency}" />
+            </u:PropControl>
+            <u:PropControl Header="Stop Frequency [Hz]">
+                <u:StringControl Value="{Binding StopFrequency}" />
+            </u:PropControl>
+            <u:PropControl Header="Duration [s]">
+                <u:StringControl Value="{Binding Length}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:SincFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Frequency [Hz]">
+                <u:StringControl Value="{Binding Frequency}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:SinusFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Frequency [Hz]">
+                <u:StringControl Value="{Binding Frequency}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:WhiteNoiseFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Mean">
+                <u:StringControl Value="{Binding Mean}" />
+            </u:PropControl>
+            <u:PropControl Header="Variance">
+                <u:StringControl Value="{Binding Variance}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type signalFactories:WindowFactory}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource SignalBase}" />
+            <u:PropControl Header="Type">
+                <u:EnumControl Value="{Binding Type}" />
+            </u:PropControl>
+            <u:PropControl Header="Mode">
+                <u:EnumControl Value="{Binding Mode}" />
+            </u:PropControl>
+            <u:PropControl Header="Custom Start">
+                <u:BoolControl Value="{Binding CustomStart}" />
+            </u:PropControl>
+            <u:PropControl Header="Start [samples]" IsEnabled="{Binding CustomStart}">
+                <u:StringControl Value="{Binding Start}" />
+            </u:PropControl>
+            <u:PropControl Header="Length [samples]">
+                <u:StringControl Value="{Binding Length}" />
+            </u:PropControl>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

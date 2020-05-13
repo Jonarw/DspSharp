@@ -17,14 +17,11 @@ namespace DspSharp.Filter.LtiFilters.Iir
     public class ButterworthFilter : FilterBase
     {
         private double _Fc;
-
         private int _FilterOrder;
-
         private ButterworthFilterType _FilterType;
-
         private IFilter internalFilter;
 
-        public ButterworthFilter(double samplerate) : base(samplerate)
+        public ButterworthFilter(double samplerate) : this(samplerate, ButterworthFilterType.Highpass, 2, 1000)
         {
         }
 
@@ -33,13 +30,16 @@ namespace DspSharp.Filter.LtiFilters.Iir
             this._FilterType = filterType;
             this._FilterOrder = filterOrder;
             this._Fc = fc;
-            this.UpdateInternalFilter();
         }
 
         public double Fc
         {
             get => this._Fc;
-            set => this.SetField(ref this._Fc, value);
+            set
+            {
+                this.internalFilter = null;
+                this.SetField(ref this._Fc, value);
+            }
         }
 
         public int FilterOrder
@@ -47,21 +47,28 @@ namespace DspSharp.Filter.LtiFilters.Iir
             get => this._FilterOrder;
             set
             {
+                this.internalFilter = null;
                 this.SetField(ref this._FilterOrder, value);
-                this.UpdateInternalFilter();
             }
         }
 
         public ButterworthFilterType FilterType
         {
             get => this._FilterType;
-            set => this.SetField(ref this._FilterType, value);
+            set
+            {
+                this.internalFilter = null;
+                this.SetField(ref this._FilterType, value);
+            }
         }
 
         protected override bool HasEffectOverride => true;
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
+            if (this.internalFilter == null)
+                this.UpdateInternalFilter();
+
             return this.internalFilter.Process(signal);
         }
 

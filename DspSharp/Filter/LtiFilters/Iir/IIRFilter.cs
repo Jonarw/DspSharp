@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using DspSharp.Algorithms;
+using UTilities.Extensions;
 
 namespace DspSharp.Filter.LtiFilters.Iir
 {
@@ -21,7 +23,7 @@ namespace DspSharp.Filter.LtiFilters.Iir
 
         public IirFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "IIR filter";
+            this.DisplayName = "IIR filter";
         }
 
         /// <summary>
@@ -64,6 +66,19 @@ namespace DspSharp.Filter.LtiFilters.Iir
                     return false;
                 return true;
             }
+        }
+
+        protected override void OnChange()
+        {
+            this.frequencyResponseCache = null;
+            base.OnChange();
+        }
+
+        private IReadOnlyList<Complex> frequencyResponseCache;
+
+        public IReadOnlyList<Complex> GetFrequencyResponse(IReadOnlyList<double> frequencies)
+        {
+            return this.frequencyResponseCache ?? (this.frequencyResponseCache = FrequencyDomain.IirFrequencyResponse(this.A, this.B, frequencies, this.Samplerate).ToReadOnlyList());
         }
 
         public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)

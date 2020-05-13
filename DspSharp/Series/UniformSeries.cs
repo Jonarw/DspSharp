@@ -6,7 +6,7 @@
 
 using System;
 using DspSharp.Algorithms;
-using DspSharp.Utilities;
+using UTilities.Helpers;
 
 namespace DspSharp.Series
 {

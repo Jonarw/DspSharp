@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Signal.Windows;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
@@ -285,6 +286,18 @@ namespace DspSharp.Algorithms
         /// <param name="to">The stopping point of the series.</param>
         /// <param name="length">The number of steps (including starting and stopping points).</param>
         /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
+        public static IEnumerable<double> Series(double from, double to, int length, bool logarithmic)
+        {
+            return logarithmic ? LogSeries(from, to, length) : LinSeries(from, to, length);
+        }
+
+        /// <summary>
+        ///     Generates a linear series of values between two points with a specified number of steps.
+        /// </summary>
+        /// <param name="from">The starting point of the series.</param>
+        /// <param name="to">The stopping point of the series.</param>
+        /// <param name="length">The number of steps (including starting and stopping points).</param>
+        /// <returns>An array of length <paramref name="length" /> containing the result.</returns>
         public static IEnumerable<double> LinSeries(double from, double to, int length)
         {
             if (length < 1)
@@ -416,7 +429,7 @@ namespace DspSharp.Algorithms
             out IReadOnlyList<double> inverse)
         {
             var sw = AlignedLogSweep(from, to, length, SweepAlignments.Zero, samplerate).ToReadOnlyList();
-            var win = Window.CreateWindow(WindowTypes.Hann, WindowModes.Symmetric, sw.Count, .1);
+            var win = Window.CreateWindow(WindowType.Hann, WindowModes.Symmetric, sw.Count, .1);
 
             sweep = sw.Multiply(win).ToReadOnlyList();
             var c = sweep.Count;
@@ -593,6 +606,14 @@ namespace DspSharp.Algorithms
             // ReSharper disable once IteratorNeverReturns
         }
 
+        public static IEnumerable<double> SineWave(double frequency, double sampleRate, double phaseOffset = 0)
+        {
+            var i = 0;
+            while (true)
+                yield return Math.Sin(2 * Math.PI * i++ * frequency / sampleRate + phaseOffset);
+            // ReSharper disable once IteratorNeverReturns
+        }
+
         //TODO: unit test
         public static IReadOnlyList<double> FadedLogSweep(
             double from,
@@ -600,7 +621,7 @@ namespace DspSharp.Algorithms
             double length,
             int fadeIn,
             int fadeOut,
-            WindowTypes fadeWindowType,
+            WindowType fadeWindowType,
             double samplerate = 44100)
         {
             var ret = LogSweep(from, to, length, samplerate).ToList();

@@ -1,0 +1,53 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+                    xmlns:pt="http://propertytools.org/wpf"
+                    xmlns:signalFactories="clr-namespace:DspSharpDemo.ViewModel.Signal.SignalFactories"
+                    xmlns:viewModel="clr-namespace:DspSharpDemo.ViewModel"
+                    xmlns:dspSharpDemo="clr-namespace:DspSharpDemo">
+
+    <DataTemplate DataType="{x:Type dspSharpDemo:AutoBiquad}">
+        <StackPanel>
+            <u:PropGroupControl Header="Frequency Range">
+                <u:PropControl Header="Start [Hz]">
+                    <u:StringControl Value="{Binding RangeStart}" />
+                </u:PropControl>
+                <u:PropControl Header="Stop [Hz]">
+                    <u:StringControl Value="{Binding RangeEnd}" />
+                </u:PropControl>
+                <u:PropControl Header="Number of Points">
+                    <u:StringControl Value="{Binding NumberOfPoints}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+            <u:PropGroupControl Header="Optimitation Settings">
+                <u:PropControl Header="Max Gain [dB]">
+                    <u:StringControl Value="{Binding MaxGain}" />
+                </u:PropControl>
+                <u:PropControl Header="Flatness Target [dB]">
+                    <u:StringControl Value="{Binding FlatnessTarget}" />
+                </u:PropControl>
+                <u:PropControl Header="Max Number of Filters">
+                    <u:StringControl Value="{Binding MaxStages}" />
+                </u:PropControl>
+                <u:PropControl Header="Initial Q">
+                    <u:StringControl Value="{Binding StartQ}" />
+                </u:PropControl>
+                <u:PropControl Header="Q Iterations">
+                    <u:StringControl Value="{Binding QStages}" />
+                </u:PropControl>
+                <u:PropControl Header="Initial Step Size">
+                    <u:StringControl Value="{Binding QStages}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type viewModel:AutoBiquadViewModel}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding AutoBiquad}" />
+            <Button Command="{Binding ExecuteCommand}">Do it</Button>
+        </StackPanel>
+    </DataTemplate>
+
+
+</ResourceDictionary>

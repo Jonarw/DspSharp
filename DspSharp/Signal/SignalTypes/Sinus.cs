@@ -8,7 +8,6 @@ using System;
 using System.Numerics;
 using DspSharp.Series;
 using DspSharp.Spectrum;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -30,7 +29,7 @@ namespace DspSharp.Signal
         {
             this.Frequency = frequency;
             this.PhaseOffset = phaseOffset;
-            if ((frequency < 0) || (frequency > sampleRate / 2))
+            if (frequency < 0 || frequency > sampleRate / 2)
                 throw new Exception();
 
             var frequencies = new CustomSeries(new[] {0, frequency, frequency, frequency, sampleRate / 2});
@@ -38,16 +37,13 @@ namespace DspSharp.Signal
             this.DisplayName = "sinus, f = " + frequency;
         }
 
+        public double Frequency { get; }
+
+        public double PhaseOffset { get; }
+
         /// <summary>
         ///     Gets the spectrum.
         /// </summary>
         public override ISpectrum Spectrum { get; }
-
-        [Category("sinus")]
-        [DisplayName("frequency")]
-        public double Frequency { get; }
-
-        [DisplayName("phase offset")]
-        public double PhaseOffset { get; }
     }
 }

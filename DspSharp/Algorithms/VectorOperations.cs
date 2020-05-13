@@ -7,46 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
     public static class VectorOperations
     {
-        /// <summary>
-        ///     Appends the specified element to the sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <param name="element">The element.</param>
-        public static IEnumerable<T> Append<T>(this IEnumerable<T> sequence, T element)
-        {
-            foreach (var item in sequence)
-            {
-                yield return item;
-            }
-
-            yield return element;
-        }
-
-        /// <summary>
-        ///     Appends the specified elements to the sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <param name="elements">The elements.</param>
-        public static IEnumerable<T> Append<T>(this IEnumerable<T> sequence, params T[] elements)
-        {
-            foreach (var item in sequence)
-            {
-                yield return item;
-            }
-
-            foreach (var item in elements)
-            {
-                yield return item;
-            }
-        }
-
         /// <summary>
         ///     Performs a circular shift on an array.
         /// </summary>
@@ -103,6 +69,57 @@ namespace DspSharp.Algorithms
                 return list.GetRangeOptimized(start, stop - start);
 
             return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop));
+        }
+
+        //TODO: Unit test
+        public static void GetElementsAboveThreshold<T>(
+            IEnumerable<double> x,
+            IEnumerable<T> y,
+            double threshold,
+            out IEnumerable<double> xOut,
+            out IEnumerable<T> yOut)
+        {
+            var index = x.FirstIndex(d => d > threshold);
+            if (index < 0)
+            {
+                xOut = Enumerable.Empty<double>();
+                yOut = Enumerable.Empty<T>();
+                return;
+            }
+
+            xOut = x.Skip(index);
+            yOut = y.Skip(index);
+        }
+
+        public static void GetElementsBelowThreshold<T>(
+            IEnumerable<double> x,
+            IEnumerable<T> y,
+            double threshold,
+            out IEnumerable<double> xOut,
+            out IEnumerable<T> yOut)
+        {
+            var index = x.FirstIndex(d => d >= threshold);
+            if (index < 1)
+            {
+                xOut = x;
+                yOut = y;
+                return;
+            }
+
+            xOut = x.Take(index - 1);
+            yOut = y.Take(index - 1);
+        }
+
+        public static void GetElementsInRange<T>(
+            IEnumerable<double> x,
+            IEnumerable<T> y,
+            double lowerThreshold,
+            double upperThreshold,
+            out IEnumerable<double> xOut,
+            out IEnumerable<T> yOut)
+        {
+            GetElementsAboveThreshold(x, y, lowerThreshold, out var x2, out var y2);
+            GetElementsBelowThreshold(x2, y2, upperThreshold, out xOut, out yOut);
         }
 
         /// <summary>
@@ -174,9 +191,7 @@ namespace DspSharp.Algorithms
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            var inputlist = input as IReadOnlyList<double>;
-
-            if (inputlist == null)
+            if (!(input is IReadOnlyList<double> inputlist))
             {
                 var c = 0;
 
@@ -194,9 +209,7 @@ namespace DspSharp.Algorithms
             var stop = Math.Min(startindex + length, inputlist.Count);
 
             for (var i = startindex; i < stop; i++)
-            {
                 yield return inputlist[i];
-            }
         }
 
         /// <summary>
@@ -224,31 +237,30 @@ namespace DspSharp.Algorithms
             }
         }
 
-        /// <summary>
-        ///     Loops the provided sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The sequence.</param>
-        /// <param name="loops">The number of loops. If smaller than 0, the source is looped indefinitely.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentOutOfRangeException"></exception>
-        public static IEnumerable<T> Loop<T>(this IReadOnlyList<T> source, int loops)
+        public static bool AreIdentical<T>(this IEnumerable<T> sequence1, IEnumerable<T> sequence2)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-            if (loops < 0)
-                throw new ArgumentOutOfRangeException(nameof(loops));
+            if (sequence1 == null)
+                throw new ArgumentNullException(nameof(sequence1));
+            if (sequence2 == null)
+                throw new ArgumentNullException(nameof(sequence2));
 
-            if (loops == 0)
-                yield break;
+            if (ReferenceEquals(sequence1, sequence2))
+                return true;
 
-            for (var i = 0; i != loops; i++)
+            using (var e1 = sequence1.GetEnumerator())
+            using (var e2 = sequence2.GetEnumerator())
             {
-                foreach (var element in source)
+                while (e1.MoveNext())
                 {
-                    yield return element;
+                    if (!e2.MoveNext() || !e1.Current.Equals(e2.Current))
+                        return false;
                 }
+
+                if (e2.MoveNext())
+                    return false;
             }
+
+            return true;
         }
 
         /// <summary>
@@ -287,41 +299,6 @@ namespace DspSharp.Algorithms
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             return input.Concat(Enumerable.Repeat(padElement, count));
-        }
-
-        /// <summary>
-        ///     Prepends the specified elements to the sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <param name="elements">The elements.</param>
-        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> sequence, params T[] elements)
-        {
-            foreach (var item in elements)
-            {
-                yield return item;
-            }
-
-            foreach (var item in sequence)
-            {
-                yield return item;
-            }
-        }
-
-        /// <summary>
-        ///     Prepends the specified element to the sequence.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <param name="element">The element.</param>
-        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> sequence, T element)
-        {
-            yield return element;
-
-            foreach (var item in sequence)
-            {
-                yield return item;
-            }
         }
 
         /// <summary>

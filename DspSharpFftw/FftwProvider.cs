@@ -31,7 +31,7 @@ namespace DspSharpFftw
                 n = input.Count;
 
             if (n == 0)
-                return Enumerable.Empty<Complex>().ToReadOnlyList();
+                return Enumerable.Empty<Complex>().ToList();
 
             if (!this.ComplexForwardPlans.ContainsKey(n))
                 this.ComplexForwardPlans.Add(n, new ComplexToComplexFftPlan(n, FftwDirection.Forward));
@@ -46,7 +46,7 @@ namespace DspSharpFftw
                 throw new ArgumentNullException(nameof(input));
 
             if (input.Count == 0)
-                return Enumerable.Empty<Complex>().ToReadOnlyList();
+                return Enumerable.Empty<Complex>().ToList();
 
             var n = input.Count;
 
@@ -113,7 +113,7 @@ namespace DspSharpFftw
                 n = input.Count;
 
             if (n == 0)
-                return Enumerable.Empty<Complex>().ToReadOnlyList();
+                return Enumerable.Empty<Complex>().ToList();
 
             var plan = ForwardRealFftPlan.GetPlan(n);
             return plan.Execute(input.ToArrayOptimized(), normalization);
@@ -130,7 +130,7 @@ namespace DspSharpFftw
                 throw new ArgumentNullException(nameof(input));
 
             if (input.Count == 0)
-                return Enumerable.Empty<double>().ToReadOnlyList();
+                return Enumerable.Empty<double>().ToList();
 
             if (n > 0 && input.Count != n / 2 + 1)
                 throw new ArgumentOutOfRangeException(nameof(n));

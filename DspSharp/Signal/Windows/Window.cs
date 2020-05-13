@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
+using UTilities.Extensions;
 
 namespace DspSharp.Signal.Windows
 {
@@ -29,12 +29,12 @@ namespace DspSharp.Signal.Windows
         ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
         ///     rectangular window and everyting between a tapered window.
         /// </param>
-        public Window(WindowTypes type, int start, int length, double samplerate, WindowModes mode, double ratio = 1)
+        public Window(WindowType type, int start, int length, double samplerate, WindowModes mode, double ratio = 1)
             : base(CreateWindow(type, mode, length, ratio), samplerate, start)
         {
             this.Type = type;
             this.Mode = mode;
-            this.DisplayName = type + " " + mode + " window, length = " + length;
+            this.DisplayName = $"{type} {mode} window, length = {length}";
         }
 
         /// <summary>
@@ -48,13 +48,17 @@ namespace DspSharp.Signal.Windows
         ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
         ///     rectangular window and everyting between a tapered window.
         /// </param>
-        public Window(WindowTypes type, int length, double samplerate, WindowModes mode, double ratio = 1)
+        public Window(WindowType type, int length, double samplerate, WindowModes mode, double ratio = 1)
             : this(type, GetDefaultStart(mode, length), length, samplerate, mode, ratio)
         {
         }
 
+        public WindowModes Mode { get; }
+
+        public WindowType Type { get; }
+
         /// <summary>
-        /// Creates the window.
+        ///     Creates the window.
         /// </summary>
         /// <param name="type">The window type.</param>
         /// <param name="length">The window length.</param>
@@ -63,7 +67,7 @@ namespace DspSharp.Signal.Windows
         ///     The ratio of the window. Values can be between 0 and 1 where 1 is a "normal" window, 0 a
         ///     rectangular window and everyting between a tapered window.
         /// </param>
-        public static IReadOnlyList<double> CreateWindow(WindowTypes type, WindowModes mode, int length, double ratio)
+        public static IReadOnlyList<double> CreateWindow(WindowType type, WindowModes mode, int length, double ratio)
         {
             var l = Convert.ToInt32(length * ratio);
 
@@ -99,7 +103,7 @@ namespace DspSharp.Signal.Windows
         /// <param name="type">The window type.</param>
         /// <param name="length">The length of the half window.</param>
         /// <returns></returns>
-        public static IEnumerable<double> GetAntiCausalHalfWindow(WindowTypes type, int length)
+        public static IEnumerable<double> GetAntiCausalHalfWindow(WindowType type, int length)
         {
             var winfunc = GetWindowFunction(type);
             return Enumerable.Range(1, length).Select(i => winfunc((double)i / length));
@@ -111,7 +115,7 @@ namespace DspSharp.Signal.Windows
         /// <param name="type">The window type.</param>
         /// <param name="length">The length of the half window.</param>
         /// <returns></returns>
-        public static IEnumerable<double> GetCausalHalfWindow(WindowTypes type, int length)
+        public static IEnumerable<double> GetCausalHalfWindow(WindowType type, int length)
         {
             var winfunc = GetWindowFunction(type);
             return Enumerable.Range(1, length).Reverse().Select(i => winfunc((double)i / length));
@@ -123,41 +127,41 @@ namespace DspSharp.Signal.Windows
         /// <param name="type">The window type.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        public static IEnumerable<double> GetWindow(WindowTypes type, int length)
+        public static IEnumerable<double> GetWindow(WindowType type, int length)
         {
             var hw = GetCausalHalfWindow(type, (length >> 1) + 1).ToReadOnlyList();
             return hw.Reverse().Concat(hw.GetPaddedRange(1, ((length + 1) >> 1) - 1));
         }
 
         /// <remarks>https://en.wikipedia.org/wiki/Window_function#A_list_of_window_functions</remarks>
-        public static Func<double, double> GetWindowFunction(WindowTypes windowType)
+        public static Func<double, double> GetWindowFunction(WindowType windowType)
         {
             switch (windowType)
             {
-            case WindowTypes.Rectangular:
+            case WindowType.Rectangular:
                 return d => 1;
-            case WindowTypes.Hann:
+            case WindowType.Hann:
                 return HannWindow;
-            case WindowTypes.Hamming:
+            case WindowType.Hamming:
                 return HammingWindow;
-            case WindowTypes.Triangular:
+            case WindowType.Triangular:
                 return TriangularWindow;
-            case WindowTypes.Welch:
+            case WindowType.Welch:
                 return WelchWindow;
-            case WindowTypes.Blackman:
+            case WindowType.Blackman:
                 return BlackmanWindow;
-            case WindowTypes.BlackmanHarris:
+            case WindowType.BlackmanHarris:
                 return BlackmanHarrisWindow;
-            case WindowTypes.KaiserAlpha2:
+            case WindowType.KaiserAlpha2:
                 return Kaiser2Window;
-            case WindowTypes.KaiserAlpha3:
+            case WindowType.KaiserAlpha3:
                 return Kaiser3Window;
             }
 
             throw new ArgumentOutOfRangeException(nameof(windowType), windowType, null);
         }
 
-        public static double GetWindowValue(WindowTypes windowType, double value)
+        public static double GetWindowValue(WindowType windowType, double value)
         {
             if (value <= 0)
                 return 0;
@@ -168,7 +172,7 @@ namespace DspSharp.Signal.Windows
             return GetWindowFunction(windowType)(value);
         }
 
-        public static IEnumerable<double> GetWindowValues(WindowTypes windowType, IEnumerable<double> value)
+        public static IEnumerable<double> GetWindowValues(WindowType windowType, IEnumerable<double> value)
         {
             var winfunc = GetWindowFunction(windowType);
 
@@ -241,12 +245,5 @@ namespace DspSharp.Signal.Windows
         {
             return 1 - Math.Pow(1 - value, 2);
         }
-
-        [Category("window")]
-        [DisplayName("type")]
-        public WindowTypes Type { get; }
-
-        [DisplayName("mode")]
-        public WindowModes Mode { get; }
     }
 }

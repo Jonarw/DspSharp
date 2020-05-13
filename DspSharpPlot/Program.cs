@@ -9,7 +9,7 @@ namespace DspSharpPlot
         static void Main(string[] args)
         {
             var serviceHost = new ServiceHost(typeof(PlotServer.PlotServer), new Uri("net.pipe://localhost/DspSharp"));
-            var binding = new NetNamedPipeBinding();
+            var binding = new NetNamedPipeBinding() {MaxReceivedMessageSize = 50000000};
             serviceHost.AddServiceEndpoint(typeof(IPlotContract), binding, "PlotService");
             serviceHost.Open();
 

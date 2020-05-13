@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using DspSharp.Algorithms;
-using DspSharp.CircularBuffers;
+using DspSharp.Buffers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DspSharpTest
@@ -35,24 +35,24 @@ namespace DspSharpTest
             double[] init = {.1, .2, .3, .4, .5, .6, .7, .8};
             var ret = new double[3];
 
-            var test = new CircularBlockBuffer(init, 3);
+            var test = new CircularBlockBuffer(init);
             fixed (double* pRet = ret)
             {
-                test.GetBlock((byte*)pRet);
+                test.GetBlock((byte*)pRet, 3);
             }
 
             DspAssert.ListsAreReasonablyClose(ret, new[] {.1, .2, .3});
 
             fixed (double* pRet = ret)
             {
-                test.GetBlock((byte*)pRet);
+                test.GetBlock((byte*)pRet, 3);
             }
 
             DspAssert.ListsAreReasonablyClose(ret, new[] {.4, .5, .6});
 
             fixed (double* pRet = ret)
             {
-                test.GetBlock((byte*)pRet);
+                test.GetBlock((byte*)pRet, 3);
             }
 
             DspAssert.ListsAreReasonablyClose(ret, new[] {.7, .8, .1});
@@ -88,21 +88,21 @@ namespace DspSharpTest
             double[] a5 = {.13, .14, .15};
             double[] a6 = {.16, .17, .18};
 
-            var test = new DoubleBlockBuffer(8 * sizeof(double), 3 * sizeof(double));
+            var test = new DoubleBlockBuffer(8 * sizeof(double));
 
             test.BufferSwitch += this.TestOnBufferSwitch1;
 
             fixed (double* pRet = a1)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
             fixed (double* pRet = a2)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
             fixed (double* pRet = a3)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
 
             test.BufferSwitch -= this.TestOnBufferSwitch1;
@@ -110,25 +110,25 @@ namespace DspSharpTest
 
             fixed (double* pRet = a4)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
             fixed (double* pRet = a5)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
             fixed (double* pRet = a6)
             {
-                test.InputBlock((byte*)pRet);
+                test.InputBlock((byte*)pRet, 3 * sizeof(double));
             }
         }
 
-        private unsafe void TestOnBufferSwitch1(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
+        private unsafe void TestOnBufferSwitch1(object sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
             var buffer = bufferSwitchEventArgs.NewWorkBuffer;
             DspAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.1, .2, .3, .4, .5, .6, .7, .8});
         }
 
-        private unsafe void TestOnBufferSwitch2(DoubleBlockBuffer sender, BufferSwitchEventArgs bufferSwitchEventArgs)
+        private unsafe void TestOnBufferSwitch2(object sender, BufferSwitchEventArgs bufferSwitchEventArgs)
         {
             var buffer = bufferSwitchEventArgs.NewWorkBuffer;
             DspAssert.ListsAreReasonablyClose(Unsafe.ToManagedArray((double*)buffer, 8), new[] {.9, .10, .11, .12, .13, .14, .15, .16});

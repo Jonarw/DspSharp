@@ -9,14 +9,11 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Windows.Input;
-using DspSharp;
 using DspSharp.Signal;
-using DspSharp.Utilities;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Wpf;
-using PropertyTools.DataAnnotations;
-using PropertyTools.Wpf;
+using UTilities.Observable;
 using Axis = OxyPlot.Axes.Axis;
 using PdfExporter = OxyPlot.Pdf.PdfExporter;
 using Series = OxyPlot.Series.Series;
@@ -28,15 +25,10 @@ namespace DspSharpPlot
     {
         private double _Height = 275;
         private string _OutputPath;
-        private ICommand _SavePlotCommand;
         private double _Width = 450;
-
         private double _XMax;
-
         private double _XMin;
-
         private double _YMax;
-
         private double _YMin;
 
         protected SignalPlot()
@@ -62,11 +54,72 @@ namespace DspSharpPlot
 
         public string DisplayName { get; set; }
 
+        public double Height
+        {
+            get => this._Height;
+            set => this.SetField(ref this._Height, value);
+        }
+
         public PlotModel Model { get; } = new PlotModel();
 
+        public string OutputPath
+        {
+            get => this._OutputPath;
+            set => this.SetField(ref this._OutputPath, value);
+        }
+
         public IList<ISignal> Signals { get; } = new List<ISignal>();
+
+        public double Width
+        {
+            get => this._Width;
+            set => this.SetField(ref this._Width, value);
+        }
+
         public abstract Axis XAxis { get; }
+
+        public double XMax
+        {
+            get => this._XMax;
+            set
+            {
+                this.SetField(ref this._XMax, value);
+                this.XAxis.Maximum = this.XMax;
+            }
+        }
+
+        public double XMin
+        {
+            get => this._XMin;
+            set
+            {
+                this.SetField(ref this._XMin, value);
+                this.XAxis.Minimum = this.XMin;
+                this.Update(true);
+            }
+        }
+
         public abstract Axis YAxis { get; }
+
+        public double YMax
+        {
+            get => this._YMax;
+            set
+            {
+                this.SetField(ref this._YMax, value);
+                this.YAxis.Maximum = this.YMax;
+            }
+        }
+
+        public double YMin
+        {
+            get => this._YMin;
+            set
+            {
+                this.SetField(ref this._YMin, value);
+                this.YAxis.Minimum = this.YMin;
+            }
+        }
 
         public void Update(bool updateData)
         {
@@ -79,9 +132,7 @@ namespace DspSharpPlot
             this.Model.Series.Clear();
 
             foreach (var signal in this.Signals)
-            {
                 this.Model.Series.Add(this.CreateGraph(signal));
-            }
 
             this.Model.InvalidatePlot(true);
         }
@@ -122,82 +173,8 @@ namespace DspSharpPlot
                     Height = (int)this.Height
                 };
             }
+
             exporter?.Export(this.Model, stream);
-        }
-
-        [PropertyTools.DataAnnotations.Category("Override Axis Limits")]
-        [PropertyTools.DataAnnotations.DisplayName("Xmin")]
-        public double XMin
-        {
-            get { return this._XMin; }
-            set
-            {
-                this.SetField(ref this._XMin, value);
-                this.XAxis.Minimum = this.XMin;
-                this.Update(true);
-            }
-        }
-
-        [PropertyTools.DataAnnotations.DisplayName("Xmax")]
-        public double XMax
-        {
-            get { return this._XMax; }
-            set
-            {
-                this.SetField(ref this._XMax, value);
-                this.XAxis.Maximum = this.XMax;
-            }
-        }
-
-        [PropertyTools.DataAnnotations.DisplayName("Ymin")]
-        public double YMin
-        {
-            get { return this._YMin; }
-            set
-            {
-                this.SetField(ref this._YMin, value);
-                this.YAxis.Minimum = this.YMin;
-            }
-        }
-
-        [PropertyTools.DataAnnotations.DisplayName("YMax")]
-        public double YMax
-        {
-            get { return this._YMax; }
-            set
-            {
-                this.SetField(ref this._YMax, value);
-                this.YAxis.Maximum = this.YMax;
-            }
-        }
-
-        [PropertyTools.DataAnnotations.Category("Save Plot")]
-        [PropertyTools.DataAnnotations.DisplayName("Save")]
-        public ICommand SavePlotCommand
-            =>
-                this._SavePlotCommand ??
-                (this._SavePlotCommand = new DelegateCommand(this.SavePlot, () => this.Model != null && !string.IsNullOrEmpty(this.OutputPath)));
-
-        [OutputFilePath("pdf", "PDF|*.pdf|SVG|*.svg|PNG|*.png")]
-        [PropertyTools.DataAnnotations.DisplayName("Output Path")]
-        public string OutputPath
-        {
-            get { return this._OutputPath; }
-            set { this.SetField(ref this._OutputPath, value); }
-        }
-
-        [PropertyTools.DataAnnotations.DisplayName("Height")]
-        public double Height
-        {
-            get { return this._Height; }
-            set { this.SetField(ref this._Height, value); }
-        }
-
-        [PropertyTools.DataAnnotations.DisplayName("Width")]
-        public double Width
-        {
-            get { return this._Width; }
-            set { this.SetField(ref this._Width, value); }
         }
     }
 }

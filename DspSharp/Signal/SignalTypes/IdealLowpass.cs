@@ -9,7 +9,6 @@ using System.Numerics;
 using DspSharp.Algorithms;
 using DspSharp.Series;
 using DspSharp.Spectrum;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -28,7 +27,7 @@ namespace DspSharp.Signal
         public IdealLowpass(double sampleRate, double fc)
             : base(time => Mathematic.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate)
         {
-            if ((fc < 0) || (fc > sampleRate / 2))
+            if (fc < 0 || fc > sampleRate / 2)
                 throw new Exception();
 
             this.Fc = fc;
@@ -37,13 +36,11 @@ namespace DspSharp.Signal
             this.DisplayName = "ideal lowpass, fc = " + fc;
         }
 
+        public double Fc { get; }
+
         /// <summary>
         ///     Gets the spectrum.
         /// </summary>
         public override ISpectrum Spectrum { get; }
-
-        [Category("ideal lowpass")]
-        [DisplayName("cutoff frequency")]
-        public double Fc { get; }
     }
 }

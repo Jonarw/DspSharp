@@ -17,7 +17,7 @@ namespace DspSharp.Filter.LtiFilters.Fir
     {
         protected Convolver(double samplerate) : base(samplerate)
         {
-            this.Name = "Convolver";
+            this.DisplayName = "Convolver";
         }
 
         public abstract IReadOnlyList<double> ImpulseResponse { get; }

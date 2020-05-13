@@ -5,8 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using DspSharp.Utilities;
-using PropertyTools.DataAnnotations;
+using UTilities.Observable;
 
 namespace DspSharp.Filter
 {
@@ -44,6 +43,12 @@ namespace DspSharp.Filter
         public bool HasEffect
         {
             get { return this.Enabled && this.HasEffectOverride; }
+        }
+
+        public string DisplayName
+        {
+            get { return this._Name; }
+            set { this.SetField(ref this._Name, value); }
         }
 
         /// <summary>
@@ -98,13 +103,6 @@ namespace DspSharp.Filter
         {
             this.OnChange();
             this.Changed?.Invoke(this, new FilterChangedEventArgs());
-        }
-
-        [DisplayName("display name")]
-        public string Name
-        {
-            get { return this._Name; }
-            set { this.SetField(ref this._Name, value); }
         }
     }
 }

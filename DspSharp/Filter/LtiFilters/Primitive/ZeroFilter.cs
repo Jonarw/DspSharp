@@ -16,7 +16,7 @@ namespace DspSharp.Filter.LtiFilters.Primitive
     {
         public ZeroFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "Zero Filter";
+            this.DisplayName = "Zero Filter";
         }
 
         /// <summary>

@@ -36,6 +36,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OxyPlot, Version=1.0.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
       <HintPath>..\packages\OxyPlot.Core.1.0.0\lib\net45\OxyPlot.dll</HintPath>
@@ -54,7 +58,13 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Primitives, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ComponentModel.Primitives.4.3.0\lib\net45\System.ComponentModel.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xaml">
@@ -69,34 +79,36 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="EnumCombo.cs" />
-    <Compile Include="EnumToStringConverter.cs" />
-    <Compile Include="IListItemConverter.cs" />
-    <Compile Include="LocalPropertyGridControlFactory.cs" />
-    <Compile Include="MultiSelectBehaviours.cs" />
-    <Compile Include="PerformanceHelper.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="SignalFactory\AvailableSignals.cs" />
-    <Compile Include="SignalFactory\CommonSignalConfig.cs" />
-    <Compile Include="SignalFactory\DialogClose.cs" />
-    <Compile Include="SignalFactory\FileFrequencyResponseFactory.cs" />
-    <Compile Include="SignalFactory\FileImpulseResponseFactory.cs" />
-    <Compile Include="SignalFactory\WindowFactory.cs" />
-    <Compile Include="SignalFactory\DiracFactory.cs" />
-    <Compile Include="SignalFactory\LogSweepFactory.cs" />
-    <Compile Include="SignalFactory\IdealLowpassFactory.cs" />
-    <Compile Include="SignalFactory\SignalDialog.xaml.cs">
+    <Compile Include="AutoBiquad.cs" />
+    <Compile Include="ViewModel\AutoBiquadViewModel.cs" />
+    <Compile Include="ViewModel\FiltersViewModel.cs" />
+    <Compile Include="View\IListItemConverter.cs" />
+    <Compile Include="View\MultiSelectBehaviours.cs" />
+    <Compile Include="ViewModel\Signal\SignalType.cs" />
+    <Compile Include="View\Signal\DialogClose.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\FileFrequencyResponseFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\FileImpulseResponseFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\WindowFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\DiracFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\LogSweepFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\IdealLowpassFactory.cs" />
+    <Compile Include="View\Signal\SignalDialog.xaml.cs">
       <DependentUpon>SignalDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SignalFactory\SignalFactory.cs" />
-    <Compile Include="SignalFactory\SignalFactoryFactory.cs" />
-    <Compile Include="SignalFactory\SincFactory.cs" />
-    <Compile Include="SignalFactory\IdealHighpassFactory.cs" />
-    <Compile Include="SignalFactory\WhiteNoiseFactory.cs" />
-    <Compile Include="SignalFactory\SinusFactory.cs" />
-    <Compile Include="SignalFactory\ViewModel.cs" />
-    <Compile Include="TwoListSynchronizer.cs" />
-    <Compile Include="ViewModel.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\SignalFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactoryFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\SincFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\IdealHighpassFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\WhiteNoiseFactory.cs" />
+    <Compile Include="ViewModel\Signal\SignalFactories\SinusFactory.cs" />
+    <Compile Include="ViewModel\Signal\ViewModel.cs" />
+    <Compile Include="ViewModel\SignalsViewModel.cs" />
+    <Compile Include="View\TwoListSynchronizer.cs" />
+    <Compile Include="ViewModel\ViewModel.cs" />
+    <Page Include="View\PlotResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -109,9 +121,21 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="SignalFactory\SignalDialog.xaml">
+    <Page Include="View\FilterResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AutoBiquadResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Signal\SignalDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SignalFactoryResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +167,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\USound Measurement Tool\UMT-Utilities\UMT-Utilities.csproj">
+      <Project>{053f2110-9a23-4897-b948-b917dc2a4454}</Project>
+      <Name>UMT-Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\USound Measurement Tool\UTilities\UTilities.csproj">
+      <Project>{cde718ab-c416-4b43-a5c4-fd82d2f4fc9a}</Project>
+      <Name>UTilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DspSharpFftw\DspSharpFftw.csproj">
       <Project>{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}</Project>
       <Name>DspSharpFftw</Name>
@@ -156,6 +188,7 @@
       <Name>DspSharp</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -72,7 +72,7 @@ namespace DspSharpTest
                 0.097131781235848,
             };
 
-            Assert.AreEqual(0.387786928745146, x.Mean(), 1e-13);
+            Assert.AreEqual(0.387786928745146, x.ArithmeticMean(), 1e-13);
         }
     }
 }

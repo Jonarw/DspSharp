@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using DspSharp.Signal;
 using DspSharp.Signal.Windows;
-using DspSharp.Utilities.Collections;
+using UTilities.Collections;
 
 #pragma warning disable 1591
 // work in progress!
@@ -55,12 +55,12 @@ namespace DspSharp.Filter.LtiFilters.Fir
 
         private UpdateModes _UpdateMode;
 
-        private Window _window;
-        private WindowTypes _WindowType = WindowTypes.Hann;
+        //private Window _window;
+        private WindowType _WindowType = WindowType.Hann;
 
         public CorrectingFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "correcting filter";
+            this.DisplayName = "correcting filter";
         }
 
         public int FilterLength
@@ -159,13 +159,13 @@ namespace DspSharp.Filter.LtiFilters.Fir
             set { this.SetField(ref this._UpdateMode, value); }
         }
 
-        public WindowTypes WindowType
+        public WindowType WindowType
         {
             get { return this._WindowType; }
             set
             {
-                if (this.SetField(ref this._WindowType, value))
-                    this._window = null;
+               // if (this.SetField(ref this._WindowType, value))
+                    //this._window = null;
             }
         }
 

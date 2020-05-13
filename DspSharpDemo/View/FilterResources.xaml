@@ -1,0 +1,122 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+                    xmlns:pt="http://propertytools.org/wpf"
+                    xmlns:signalFactories="clr-namespace:DspSharpDemo.ViewModel.Signal.SignalFactories"
+                    xmlns:filter="clr-namespace:DspSharp.Filter;assembly=DspSharp"
+                    xmlns:primitive="clr-namespace:DspSharp.Filter.LtiFilters.Primitive;assembly=DspSharp"
+                    xmlns:iir="clr-namespace:DspSharp.Filter.LtiFilters.Iir;assembly=DspSharp">
+
+
+    <DataTemplate x:Key="FilterBase" DataType="{x:Type filter:IFilter}">
+        <u:PropGroupControl Header="General">
+            <u:PropControl Header="Samplerate [Hz]">
+                <u:ReadOnlyStringControl Value="{Binding Samplerate}" />
+            </u:PropControl>
+            <u:PropControl Header="Is Infinite">
+                <u:ReadOnlyStringControl Value="{Binding HasInfiniteImpulseResponse}" />
+            </u:PropControl>
+        </u:PropGroupControl>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type primitive:DelayFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+            <u:PropGroupControl Header="Delay">
+                <u:PropControl Header="Delay [samples]">
+                    <u:StringControl Value="{Binding SampleDelay}" />
+                </u:PropControl>
+                <u:PropControl Header="Delay [s]">
+                    <u:ReadOnlyStringControl Value="{Binding Delay}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type primitive:DiracFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type primitive:GainFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+            <u:PropGroupControl Header="Gain">
+                <u:PropControl Header="Gain [linear]">
+                    <u:StringControl Value="{Binding Gain}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type primitive:InvertFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type primitive:ZeroFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type iir:BiquadFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+            <u:PropGroupControl Header="Biquad">
+                <u:PropControl Header="Type">
+                    <u:EnumControl Value="{Binding Type}" />
+                </u:PropControl>
+                <u:PropControl Header="Fc [Hz]">
+                    <u:StringControl Value="{Binding Fc}" />
+                </u:PropControl>
+                <u:PropControl Header="Q">
+                    <u:StringControl Value="{Binding Q}" />
+                </u:PropControl>
+                <u:PropControl Header="Gain" IsEnabled="{Binding IsGainUsed}">
+                    <u:StringControl Value="{Binding Gain}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+            <u:PropGroupControl Header="Coefficients">
+                <u:PropControl Header="a0">
+                    <u:ReadOnlyStringControl Value="{Binding a0}" />
+                </u:PropControl>
+                <u:PropControl Header="a1">
+                    <u:ReadOnlyStringControl Value="{Binding a1}" />
+                </u:PropControl>
+                <u:PropControl Header="a2">
+                    <u:ReadOnlyStringControl Value="{Binding a2}" />
+                </u:PropControl>
+                <u:PropControl Header="b0">
+                    <u:ReadOnlyStringControl Value="{Binding b0}" />
+                </u:PropControl>
+                <u:PropControl Header="b1">
+                    <u:ReadOnlyStringControl Value="{Binding b1}" />
+                </u:PropControl>
+                <u:PropControl Header="b2">
+                    <u:ReadOnlyStringControl Value="{Binding b2}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+    
+    <DataTemplate DataType="{x:Type iir:ButterworthFilter}">
+        <StackPanel>
+            <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FilterBase}" />
+            <u:PropGroupControl Header="Butterworth">
+                <u:PropControl Header="Order">
+                    <u:StringControl Value="{Binding FilterOrder}" />
+                </u:PropControl>
+                <u:PropControl Header="Type">
+                    <u:EnumControl Value="{Binding FilterType}" />
+                </u:PropControl>
+                <u:PropControl Header="Fc [Hz]">
+                    <u:StringControl Value="{Binding Fc}" />
+                </u:PropControl>
+            </u:PropGroupControl>
+        </StackPanel>
+    </DataTemplate>
+
+</ResourceDictionary>

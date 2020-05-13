@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
@@ -35,17 +36,125 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Calculates the mean of the specified sequence.
+        ///     Calculates the arithmetic mean of the specified sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
-        /// <returns>The mean of the sequence.</returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        public static double Mean(this IEnumerable<double> input)
+        public static double ArithmeticMean(this IEnumerable<double> input)
         {
             if (input == null)
                 throw new ArgumentNullException(nameof(input));
 
             return input.Average();
+        }
+
+        public static IEnumerable<double> Trim(this IReadOnlyList<double> input, double trimLowerRatio, double trimUpperRatio)
+        {
+            return input.OrderBy(d => d).Skip(Convert.ToInt32(input.Count * trimLowerRatio)).Take(Convert.ToInt32(input.Count / (1 - trimLowerRatio - trimUpperRatio)));
+        }
+
+        //TODO: Unit test
+        /// <summary>
+        ///     Calculates the arithmetic mean of the specified sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        public static double TrimmedStandardDeviation(this IReadOnlyList<double> input, double trimLower, double trimUpper)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            if (trimLower < 0 || trimLower > 1)
+                throw new ArgumentOutOfRangeException(nameof(trimLower));
+
+            if (trimUpper < 0 || trimUpper > 1)
+                throw new ArgumentOutOfRangeException(nameof(trimUpper));
+
+            return input.Trim(trimLower, trimUpper).StandardDeviation();
+        }
+
+        /// <summary>
+        /// Fits a line to a collection of (x,y) points.
+        /// </summary>
+        /// <param name="xVals">The x-axis values.</param>
+        /// <param name="yVals">The y-axis values.</param>
+        /// <param name="rSquared">The r^2 value of the line.</param>
+        /// <param name="yIntercept">The y-intercept value of the line (i.e. y = ax + b, yIntercept is b).</param>
+        /// <param name="slope">The slop of the line (i.e. y = ax + b, slope is a).</param>
+        public static void LinearRegression(
+            IReadOnlyList<double> xVals,
+            IReadOnlyList<double> yVals,
+            out double rSquared,
+            out double yIntercept,
+            out double slope)
+        {
+            if (xVals.Count != yVals.Count)
+            {
+                throw new Exception("Input values should be with the same length.");
+            }
+
+            double sumOfX = 0;
+            double sumOfY = 0;
+            double sumOfXSq = 0;
+            double sumOfYSq = 0;
+            double sumCodeviates = 0;
+
+            for (var i = 0; i < xVals.Count; i++)
+            {
+                var x = xVals[i];
+                var y = yVals[i];
+                sumCodeviates += x * y;
+                sumOfX += x;
+                sumOfY += y;
+                sumOfXSq += x * x;
+                sumOfYSq += y * y;
+            }
+
+            var count = xVals.Count;
+            var ssX = sumOfXSq - ((sumOfX * sumOfX) / count);
+            var ssY = sumOfYSq - ((sumOfY * sumOfY) / count);
+
+            var rNumerator = (count * sumCodeviates) - (sumOfX * sumOfY);
+            var rDenom = (count * sumOfXSq - (sumOfX * sumOfX)) * (count * sumOfYSq - (sumOfY * sumOfY));
+            var sCo = sumCodeviates - ((sumOfX * sumOfY) / count);
+
+            var meanX = sumOfX / count;
+            var meanY = sumOfY / count;
+            var dblR = rNumerator / Math.Sqrt(rDenom);
+
+            rSquared = dblR * dblR;
+            yIntercept = meanY - ((sCo / ssX) * meanX);
+            slope = sCo / ssX;
+        }
+
+        //TODO: Unit test
+        /// <summary>
+        ///     Calculates the arithmetic mean of the specified sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        public static double TrimmedMean(this IReadOnlyList<double> input, double trimLower, double trimUpper)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            if (trimLower < 0 || trimLower > 1)
+                throw new ArgumentOutOfRangeException(nameof(trimLower));
+
+            if (trimUpper < 0 || trimUpper > 1)
+                throw new ArgumentOutOfRangeException(nameof(trimUpper));
+
+            return input.Trim(trimLower, trimUpper).Average();
+        }
+
+        /// <summary>
+        ///     Calculates the geometric mean of the specified sequence.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        public static double GeometricMean(this IEnumerable<double> input)
+        {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
+            var inputlist = input.ToReadOnlyList();
+            return Math.Pow(10, inputlist.Log(10).Sum() / inputlist.Count);
         }
 
         /// <summary>

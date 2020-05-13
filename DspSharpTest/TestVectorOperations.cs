@@ -85,15 +85,6 @@ namespace DspSharpTest
         }
 
         [TestMethod]
-        public void TestLoop()
-        {
-            var target = this.input.Concat(this.input).Concat(this.input).ToReadOnlyList();
-            DspAssert.ListsAreReasonablyClose(target, this.input.Loop(3).ToReadOnlyList());
-
-            Assert.IsTrue(this.input.Loop(0).ToReadOnlyList().Count == 0);
-        }
-
-        [TestMethod]
         public void TestPadLeft()
         {
             DspAssert.ListsAreReasonablyClose(this.input, this.input.PadLeft(0).ToReadOnlyList());

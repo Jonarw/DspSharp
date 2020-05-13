@@ -10,6 +10,7 @@ using System.Linq;
 using System.Numerics;
 using DspSharp.Buffers;
 using DspSharp.Signal.Windows;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
@@ -229,7 +230,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             return Fft.RealIfft(FrequencyWindowedBandpassSpectrum(input, samplerate, fc1, fc2, windowBwL, windowBwH, windowType), input.Count);
         }
@@ -241,7 +242,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             var fftinput = Fft.RealFft(input);
             var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
@@ -274,7 +275,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             return
                 Fft.RealIfft(
@@ -296,7 +297,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             return
                 Fft.RealIfft(
@@ -318,7 +319,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             var fftinput = Fft.RealFft(input);
             var frequencies = Fft.GetFrequencies(samplerate, input.Count).ToReadOnlyList();
@@ -354,7 +355,7 @@ namespace DspSharp.Algorithms
             double fc2,
             double windowBwL,
             double windowBwH,
-            WindowTypes windowType)
+            WindowType windowType)
         {
             var fftinput = Fft.RealFft(input);
 

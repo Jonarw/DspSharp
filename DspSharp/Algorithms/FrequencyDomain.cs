@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
@@ -199,21 +200,18 @@ namespace DspSharp.Algorithms
 
             if (a.Count < b.Count)
                 a = a.PadRight(b.Count - a.Count).ToReadOnlyList();
-            else
-            {
-                if (b.Count < a.Count)
-                    b = b.PadRight(a.Count - b.Count).ToReadOnlyList();
-            }
+            else if (b.Count < a.Count)
+                b = b.PadRight(a.Count - b.Count).ToReadOnlyList();
 
             if ((a.Count == 0) || (a[0] == 0))
                 throw new Exception("a0 cannot be 0.");
 
             var n = a.Count;
-            var factor = 2 * Math.PI / samplerate;
+            var twoPiOverFs = 2 * Math.PI / samplerate;
 
             foreach (var d in frequencies)
             {
-                var w = d * factor;
+                var w = d * twoPiOverFs;
                 Complex nom = 0;
                 Complex den = 0;
                 for (var c1 = 0; c1 < n; c1++)
@@ -247,7 +245,7 @@ namespace DspSharp.Algorithms
         /// <param name="minValue">The minimum return value.</param>
         /// <returns>A new array of the same length as <paramref name="linear" /> containing the result.</returns>
         public static IEnumerable<double> LinearToDb(
-            IEnumerable<double> linear,
+            this IEnumerable<double> linear,
             double minValue = double.NegativeInfinity)
         {
             if (linear == null)

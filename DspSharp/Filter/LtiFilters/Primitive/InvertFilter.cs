@@ -16,7 +16,7 @@ namespace DspSharp.Filter.LtiFilters.Primitive
     {
         public InvertFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "invert filter";
+            this.DisplayName = "invert filter";
         }
 
         /// <summary>

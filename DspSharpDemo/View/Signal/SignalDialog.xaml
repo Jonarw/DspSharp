@@ -1,0 +1,39 @@
+﻿<Window x:Class="DspSharpDemo.ViewModel.Signal.SignalDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        signalViewModel:DialogCloser.DialogResult="{Binding DialogResult}"
+        xmlns:u="clr-namespace:UmtUtilities.Controls;assembly=UMT-Utilities"
+        xmlns:signalViewModel="clr-namespace:DspSharpDemo.ViewModel.SignalViewModel"
+        Title="Add Signal" Height="387" Width="321">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="35" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <GroupBox Header="Selected Signal Type">
+                <u:EnumControl Value="{Binding SelectedSignalType}" />
+            </GroupBox>
+            <ContentPresenter Content="{Binding SignalFactory}">
+                <ContentPresenter.Resources>
+                    <ResourceDictionary Source="SignalResources.xaml" />
+                </ContentPresenter.Resources>
+            </ContentPresenter>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="100" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" Margin="5" Command="{Binding OkCommand}">OK</Button>
+            <Button Grid.Column="2" Margin="5" Command="{Binding CancelCommand}">Cancel</Button>
+        </Grid>
+    </Grid>
+</Window>

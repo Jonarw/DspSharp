@@ -15,7 +15,7 @@ namespace DspSharp.Filter.LtiFilters.Primitive
     {
         public DiracFilter(double samplerate) : base(samplerate)
         {
-            this.Name = "Dirac Filter";
+            this.DisplayName = "Dirac Filter";
         }
 
         /// <summary>

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using DspSharp.Algorithms;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -31,6 +30,10 @@ namespace DspSharp.Signal
             this.NoiseSource = SignalGenerators.WhiteNoise().GetEnumerator();
             this.DisplayName = "white noise, µ = " + mean + ",σ² = " + variance;
         }
+
+        public double Mean { get; }
+
+        public double Variance { get; }
 
         private List<double> Cache { get; set; }
         private int CacheEnd { get; set; }
@@ -83,12 +86,5 @@ namespace DspSharp.Signal
 
             return ret;
         }
-
-        [Category("white noise")]
-        [DisplayName("mean")]
-        public double Mean { get; }
-
-        [DisplayName("variance")]
-        public double Variance { get; }
     }
 }

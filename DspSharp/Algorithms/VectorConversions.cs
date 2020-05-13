@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
@@ -25,45 +26,10 @@ namespace DspSharp.Algorithms
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            var array = sequence as T[];
-
-            if (array != null)
+            if (sequence is T[] array)
                 return array;
 
             return sequence.ToArray();
-        }
-
-        /// <summary>
-        ///     Creates an enumerable containing a single element.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="element">The element.</param>
-        /// <returns></returns>
-        public static IEnumerable<T> ToEnumerable<T>(this T element)
-        {
-            return Enumerable.Repeat(element, 1);
-        }
-
-        /// <summary>
-        ///     Returns a readonly list containing the specified sequence, evaluating it if necessary.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="sequence">The sequence.</param>
-        /// <returns></returns>
-        public static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> sequence)
-        {
-            if (sequence == null)
-                throw new ArgumentNullException(nameof(sequence));
-
-            var ilist = sequence as IList<T>;
-            if (ilist != null)
-                return new ReadOnlyCollection<T>(ilist);
-
-            var irlist = sequence as IReadOnlyList<T>;
-            if (irlist != null)
-                return irlist;
-
-            return new ReadOnlyCollection<T>(sequence.ToList());
         }
 
         /// <summary>
@@ -78,8 +44,7 @@ namespace DspSharp.Algorithms
             if (sequence == null)
                 throw new ArgumentNullException(nameof(sequence));
 
-            var ilist = sequence as IList<T>;
-            if (ilist != null)
+            if (sequence is IList<T> ilist)
             {
                 if (ilist.Count <= maximumLength)
                     return new ReadOnlyCollection<T>(ilist);
@@ -87,8 +52,7 @@ namespace DspSharp.Algorithms
                 return ilist.Take(maximumLength).ToReadOnlyList();
             }
 
-            var irolist = sequence as IReadOnlyList<T>;
-            if (irolist != null)
+            if (sequence is IReadOnlyList<T> irolist)
             {
                 if (irolist.Count <= maximumLength)
                     return irolist;

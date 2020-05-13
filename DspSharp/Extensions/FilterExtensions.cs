@@ -4,9 +4,9 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using DspSharp.Algorithms;
 using DspSharp.Filter;
 using DspSharp.Signal;
+using UTilities.Extensions;
 
 namespace DspSharp.Extensions
 {
@@ -27,8 +27,7 @@ namespace DspSharp.Extensions
 
         public static IFilter Chain(this IFilter filter1, IFilter filter2)
         {
-            var set = filter1 as FilterSet;
-            if (set != null)
+            if (filter1 is FilterSet set)
                 set.Filters.Add(filter2);
             else
             {

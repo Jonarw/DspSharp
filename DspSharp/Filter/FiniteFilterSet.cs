@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using DspSharp.Utilities.Collections;
+using UTilities.Collections;
 
 namespace DspSharp.Filter
 {

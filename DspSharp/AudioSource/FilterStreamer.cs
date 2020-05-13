@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using DspSharp.Algorithms;
 using DspSharp.Filter;
+using UTilities.Extensions;
 
 namespace DspSharp.AudioSource
 {

@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using DspSharp.Algorithms;
 using DspSharp.Spectrum;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -50,6 +49,8 @@ namespace DspSharp.Signal
         /// </summary>
         public IEnumerable<double> Signal { get; }
 
+        public int Start { get; }
+
         /// <summary>
         ///     Gets a section of the signal in time domain.
         /// </summary>
@@ -62,9 +63,5 @@ namespace DspSharp.Signal
         {
             return this.Signal.GetPaddedRange(start - this.Start, length);
         }
-
-        [Category("enumerable signal")]
-        [DisplayName("start time")]
-        public int Start { get; }
     }
 }

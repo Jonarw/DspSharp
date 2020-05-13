@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DspSharp.Algorithms;
 using DspSharp.Series;
+using UTilities.Extensions;
 
 namespace DspSharp.Spectrum
 {
@@ -57,7 +58,7 @@ namespace DspSharp.Spectrum
             if (frequency > this.Frequencies.Values[this.Length - 1])
                 return this.Values[this.Length - 1];
 
-            int c = 0;
+            var c = 0;
             while (this.Frequencies.Values[c] < frequency)
             {
                 c++;
@@ -76,31 +77,19 @@ namespace DspSharp.Spectrum
         /// <summary>
         ///     Gets the group delay.
         /// </summary>
-        public IReadOnlyList<double> GroupDelay
-        {
-            get
-            {
-                return this._groupDelay ??
-                       (this._groupDelay =
-                           FrequencyDomain.CalculateGroupDelay(this.Frequencies.Values, this.Phase).ToReadOnlyList());
-            }
-        }
+        public IReadOnlyList<double> GroupDelay => this._groupDelay ??
+                                                   (this._groupDelay =
+                                                       FrequencyDomain.CalculateGroupDelay(this.Frequencies.Values, this.Phase).ToReadOnlyList());
 
         /// <summary>
         ///     Gets the magnitude.
         /// </summary>
-        public IReadOnlyList<double> Magnitude
-        {
-            get { return this._magnitude ?? (this._magnitude = this.Values.Magitude().ToReadOnlyList()); }
-        }
+        public IReadOnlyList<double> Magnitude => this._magnitude ?? (this._magnitude = this.Values.Magitude().ToReadOnlyList());
 
         /// <summary>
         ///     Gets the phase.
         /// </summary>
-        public IReadOnlyList<double> Phase
-        {
-            get { return this._phase ?? (this._phase = this.Values.Phase().ToReadOnlyList()); }
-        }
+        public IReadOnlyList<double> Phase => this._phase ?? (this._phase = this.Values.Phase().ToReadOnlyList());
 
         /// <summary>
         ///     Gets the complex values.

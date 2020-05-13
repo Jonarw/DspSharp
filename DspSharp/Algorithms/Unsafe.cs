@@ -88,7 +88,7 @@ namespace DspSharp.Algorithms
                 count = Math.Min(destination.Length, source.Length);
             else
             {
-                if ((count > destination.Length) || (count > source.Length))
+                if (count > destination.Length || count > source.Length)
                     throw new ArgumentOutOfRangeException(nameof(count));
             }
 
@@ -160,6 +160,21 @@ namespace DspSharp.Algorithms
         /// <param name="count">The count (in bytes).</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static void Memcpy(byte* pDestination, byte* pSource, int count)
+        {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            Interop.memcpy(pDestination, pSource, count);
+        }
+
+        /// <summary>
+        ///     Copies data from one memory location to another.
+        /// </summary>
+        /// <param name="pDestination">The destination memory location.</param>
+        /// <param name="pSource">The source memory location.</param>
+        /// <param name="count">The count (in bytes).</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static void Memcpy(void* pDestination, void* pSource, int count)
         {
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
@@ -310,7 +325,7 @@ namespace DspSharp.Algorithms
                 count = Math.Min(destination.Length, source.Length);
             else
             {
-                if ((count > destination.Length) || (count > source.Length))
+                if (count > destination.Length || count > source.Length)
                     throw new ArgumentOutOfRangeException(nameof(count));
             }
 
@@ -334,7 +349,7 @@ namespace DspSharp.Algorithms
                 count = Math.Min(destination.Length, source.Length);
             else
             {
-                if ((count > destination.Length) || (count > source.Length))
+                if (count > destination.Length || count > source.Length)
                     throw new ArgumentOutOfRangeException(nameof(count));
             }
 
@@ -472,6 +487,91 @@ namespace DspSharp.Algorithms
             {
                 Interop.memset(pDest, value, length * 2 * sizeof(double));
             }
+        }
+
+        /// <summary>
+        ///     Copies the specified double vector to a new byte vector.
+        /// </summary>
+        /// <param name="source">The source vector.</param>
+        public static byte[] ToByteArray(double[] source)
+        {
+            var len = source.Length * sizeof(double);
+            var ret = new byte[len];
+            fixed (void* pret = ret)
+            fixed (void* psource = source)
+            {
+                Interop.memcpy(pret, psource, len);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        ///     Copies the specified double vector to a new byte vector.
+        /// </summary>
+        /// <param name="source">The source vector.</param>
+        public static byte[] ToByteArray(float[] source)
+        {
+            var len = source.Length * sizeof(float);
+            var ret = new byte[len];
+            fixed (void* pret = ret)
+            fixed (void* psource = source)
+            {
+                Interop.memcpy(pret, psource, len);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        ///     Copies the specified Complex vector to a new byte vector.
+        /// </summary>
+        /// <param name="source">The source vector.</param>
+        public static byte[] ToByteArray(Complex[] source)
+        {
+            var len = source.Length * sizeof(double) * 2;
+            var ret = new byte[len];
+            fixed (void* pret = ret)
+            fixed (void* psource = source)
+            {
+                Interop.memcpy(pret, psource, len);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        ///     Copies the specified byte vector to a new Complex vector.
+        /// </summary>
+        /// <param name="source">The source vector.</param>
+        public static Complex[] ToComplexArray(byte[] source)
+        {
+            var len = source.Length;
+            var ret = new Complex[len / (sizeof(double) * 2)];
+            fixed (void* pret = ret)
+            fixed (void* psource = source)
+            {
+                Interop.memcpy(pret, psource, len);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        ///     Copies the specified byte vector to a new double vector.
+        /// </summary>
+        /// <param name="source">The source vector.</param>
+        public static double[] ToDoubleArray(byte[] source)
+        {
+            var len = source.Length;
+            var ret = new double[len / sizeof(double)];
+            fixed (void* pret = ret)
+            fixed (void* psource = source)
+            {
+                Interop.memcpy(pret, psource, len);
+            }
+
+            return ret;
         }
 
         /// <summary>

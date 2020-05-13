@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using DspSharp.Algorithms;
 using DspSharp.Series;
 using DspSharp.Spectrum;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -80,6 +79,8 @@ namespace DspSharp.Signal
         /// </summary>
         IEnumerable<double> IEnumerableSignal.Signal => this.Signal;
 
+        public int Start { get; }
+
         /// <summary>
         ///     Gets the sample at the specified time.
         /// </summary>
@@ -89,11 +90,13 @@ namespace DspSharp.Signal
         /// </returns>
         public double GetSample(int time)
         {
-            if ((time < this.Start) || (time >= this.Stop))
+            if (time < this.Start || time >= this.Stop)
                 return 0.0;
 
             return this.Signal[time - this.Start];
         }
+
+        public int Length { get; }
 
         /// <summary>
         ///     Gets the signal in time domain.
@@ -133,6 +136,8 @@ namespace DspSharp.Signal
             private set { this._spectrum = value; }
         }
 
+        public int Stop { get; }
+
         /// <summary>
         ///     Gets a section of the signal in time domain.
         /// </summary>
@@ -145,15 +150,5 @@ namespace DspSharp.Signal
         {
             return this.Signal.GetPaddedRange(start - this.Start, length);
         }
-
-        [Category("finite signal")]
-        [DisplayName("start time")]
-        public int Start { get; }
-
-        [DisplayName("length")]
-        public int Length { get; }
-
-        [DisplayName("end time")]
-        public int Stop { get; }
     }
 }

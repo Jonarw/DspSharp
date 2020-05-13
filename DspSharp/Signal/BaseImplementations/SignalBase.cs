@@ -6,15 +6,14 @@
 
 using System.Collections.Generic;
 using DspSharp.Algorithms;
-using DspSharp.Utilities;
-using PropertyTools.DataAnnotations;
+using UTilities.Observable;
+using UTilities.Extensions;
 
 namespace DspSharp.Signal
 {
     /// <summary>
     ///     Base class for all signals.
     /// </summary>
-    /// <seealso cref="Observable" />
     /// <seealso cref="ISignal" />
     public abstract class SignalBase : ISignal
     {
@@ -26,6 +25,8 @@ namespace DspSharp.Signal
         {
             this.SampleRate = sampleRate;
         }
+
+        public string DisplayName { get; set; }
 
         /// <summary>
         ///     Gets a section of the signal in time domain.
@@ -42,11 +43,6 @@ namespace DspSharp.Signal
             return new FiniteSignal(this.GetWindowedSamples(start, length).ToReadOnlyList(), this.SampleRate);
         }
 
-        [Category("general")]
-        [DisplayName("display name")]
-        public string DisplayName { get; set; }
-
-        [DisplayName("sample rate")]
         public double SampleRate { get; }
     }
 }

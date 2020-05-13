@@ -51,14 +51,14 @@ namespace DspSharpFftw
 
                 fixed (double* pinputarray = input)
                 {
-                    Interop.memcpy(pInput, pinputarray, input.Length * sizeof(double));
+                    Unsafe.Memcpy(pInput, pinputarray, input.Length * sizeof(double));
 
                     if (input.Length < this.FftLength)
                     {
-                        Interop.memset(
+                        Unsafe.Memset(
                             (double*)pInput + input.Length,
                             0,
-                            (this.FftLength - input.Length) * sizeof(double));
+                            this.FftLength - input.Length);
                     }
                 }
 
@@ -66,7 +66,7 @@ namespace DspSharpFftw
 
                 fixed (Complex* poutputarray = output)
                 {
-                    Interop.memcpy(poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
+                    Unsafe.Memcpy(poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
                 }
             }
             finally

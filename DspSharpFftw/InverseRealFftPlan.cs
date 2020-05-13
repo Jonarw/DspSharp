@@ -48,16 +48,16 @@ namespace DspSharpFftw
                 pInput = FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
                 pOutput = FftwInterop.Malloc(this.FftLength * sizeof(double));
 
-                fixed (Complex* pinputarray = input)
+                fixed (void* pinputarray = input)
                 {
-                    Interop.memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
+                    Unsafe.Memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
                 }
 
                 this.ExecuteUnsafe(pInput, pOutput, normalization);
 
                 fixed (double* pRet = output)
                 {
-                    Interop.memcpy(pRet, pOutput, this.FftLength * sizeof(double));
+                    Unsafe.Memcpy(pRet, pOutput, this.FftLength * sizeof(double));
                 }
             }
             finally

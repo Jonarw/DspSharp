@@ -9,7 +9,6 @@ using System.Numerics;
 using DspSharp.Algorithms;
 using DspSharp.Series;
 using DspSharp.Spectrum;
-using PropertyTools.DataAnnotations;
 
 namespace DspSharp.Signal
 {
@@ -26,10 +25,11 @@ namespace DspSharp.Signal
         /// <param name="fc">The corner frequency.</param>
         /// <exception cref="System.Exception"></exception>
         public IdealHighpass(double sampleRate, double fc)
-            : base(time => (time == 0 ? 1.0 : 0.0) - Mathematic.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate), sampleRate
-                )
+            : base(
+                time => (time == 0 ? 1.0 : 0.0) - Mathematic.Sinc(2 * fc * time / sampleRate) * (2 * fc / sampleRate),
+                sampleRate)
         {
-            if ((fc < 0) || (fc > sampleRate / 2))
+            if (fc < 0 || fc > sampleRate / 2)
                 throw new Exception();
 
             this.Fc = fc;
@@ -38,13 +38,11 @@ namespace DspSharp.Signal
             this.DisplayName = "ideal highpass, fc = " + fc;
         }
 
+        public double Fc { get; }
+
         /// <summary>
         ///     Gets the spectrum.
         /// </summary>
         public override ISpectrum Spectrum { get; }
-
-        [Category("ideal highpass")]
-        [DisplayName("cutoff frequency")]
-        public double Fc { get; }
     }
 }

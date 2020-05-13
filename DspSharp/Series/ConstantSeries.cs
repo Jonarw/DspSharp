@@ -4,7 +4,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using DspSharp.Algorithms;
+using UTilities.Extensions;
 
 namespace DspSharp.Series
 {

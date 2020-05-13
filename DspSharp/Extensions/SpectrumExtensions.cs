@@ -1,6 +1,7 @@
 ﻿using System;
 using DspSharp.Algorithms;
 using DspSharp.Spectrum;
+using UTilities.Extensions;
 
 namespace DspSharp.Extensions
 {
