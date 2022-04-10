@@ -88,7 +88,7 @@ namespace DspSharpTest
             double[] a5 = {.13, .14, .15};
             double[] a6 = {.16, .17, .18};
 
-            var test = new DoubleBlockBuffer(8 * sizeof(double));
+            var test = new DoubleBuffer(8 * sizeof(double));
 
             test.BufferSwitch += this.TestOnBufferSwitch1;
 

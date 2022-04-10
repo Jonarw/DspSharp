@@ -1,18 +1,18 @@
+// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ButterworthFilter.cs">
+//   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
+// </copyright>
+// --------------------------------------------------------------------------------------------------------------------
+
 using System;
 using System.Collections.Generic;
 
 namespace DspSharp.Filter.LtiFilters.Iir
 {
-    public enum ButterworthFilterType
-    {
-        Lowpass,
-        Highpass
-    }
 
     /// <summary>
-    ///     Represents a Butterworth filter of arbitrary order.
+    /// Represents a Butterworth filter of arbitrary order.
     /// </summary>
-    /// <seealso cref="FilterBase" />
     /// <remarks>https://en.wikipedia.org/wiki/Butterworth_filter</remarks>
     public class ButterworthFilter : FilterBase
     {
@@ -32,6 +32,9 @@ namespace DspSharp.Filter.LtiFilters.Iir
             this._Fc = fc;
         }
 
+        /// <summary>
+        /// Gets or sets the cutoff frequency.
+        /// </summary>
         public double Fc
         {
             get => this._Fc;
@@ -42,6 +45,9 @@ namespace DspSharp.Filter.LtiFilters.Iir
             }
         }
 
+        /// <summary>
+        /// Gets or sets the filter order.
+        /// </summary>
         public int FilterOrder
         {
             get => this._FilterOrder;
@@ -52,6 +58,9 @@ namespace DspSharp.Filter.LtiFilters.Iir
             }
         }
 
+        /// <summary>
+        /// Gets or sets the type of filter.
+        /// </summary>
         public ButterworthFilterType FilterType
         {
             get => this._FilterType;
@@ -64,7 +73,7 @@ namespace DspSharp.Filter.LtiFilters.Iir
 
         protected override bool HasEffectOverride => true;
 
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             if (this.internalFilter == null)
                 this.UpdateInternalFilter();
@@ -100,13 +109,13 @@ namespace DspSharp.Filter.LtiFilters.Iir
             }
 
             var n = this.FilterOrder;
-            for (int k = 1; k <= this.FilterOrder / 2; k++)
+            for (var k = 1; k <= this.FilterOrder / 2; k++)
             {
                 var q = 1d / (-2 * Math.Cos((2d * k + n - 1) / (2 * n) * Math.PI));
                 set.Filters.Add(
                     new BiquadFilter(
                         this.Samplerate,
-                        this.FilterType == ButterworthFilterType.Highpass ? BiquadFilter.BiquadFilters.Highpass : BiquadFilter.BiquadFilters.Lowpass,
+                        this.FilterType == ButterworthFilterType.Highpass ? BiquadFilterType.Highpass : BiquadFilterType.Lowpass,
                         this.Fc,
                         q));
             }

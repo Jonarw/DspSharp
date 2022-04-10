@@ -156,6 +156,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -167,21 +170,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\USound Measurement Tool\UMT-Utilities\UMT-Utilities.csproj">
-      <Project>{053f2110-9a23-4897-b948-b917dc2a4454}</Project>
-      <Name>UMT-Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\USound Measurement Tool\UTilities\UTilities.csproj">
-      <Project>{cde718ab-c416-4b43-a5c4-fd82d2f4fc9a}</Project>
-      <Name>UTilities</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DspSharpFftw\DspSharpFftw.csproj">
       <Project>{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}</Project>
       <Name>DspSharpFftw</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DspSharpPlot\DspSharpPlot.csproj">
-      <Project>{1f3fbbd4-79e7-4f3f-9feb-44822e4545fa}</Project>
-      <Name>DspSharpPlot</Name>
     </ProjectReference>
     <ProjectReference Include="..\DspSharp\DspSharp.csproj">
       <Project>{17269798-53cf-4088-b7ac-157108e8eaca}</Project>

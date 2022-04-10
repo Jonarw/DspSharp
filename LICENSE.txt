@@ -15,10 +15,6 @@ DspSharp uses the CubicSpline and TriDiagonalMatrix classes by Ryan Seghers.
 The CPOL applies. For terms and conditions, see licenses/CPOL.txt.
 For more information, visit https://www.codeproject.com/Articles/560163/Csharp-Cubic-Spline-Interpolation
 
-DspSharp uses PropertyTools.
-The MIT license applies. For terms and conditions, see licenses/MIT.txt. 
-For more information, visit https://github.com/objorke/PropertyTools
-
 DspSharpPlot uses OxyPlot.
 The MIT license applies. For terms and conditions, see licenses/MIT.txt.
 For more information, visit https://github.com/oxyplot/oxyplot

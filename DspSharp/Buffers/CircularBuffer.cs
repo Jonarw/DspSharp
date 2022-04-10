@@ -4,15 +4,13 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DspSharp.Algorithms;
+using System;
 
 namespace DspSharp.Buffers
 {
     /// <summary>
-    ///     Represents a circular buffer.
+    /// Represents a circular buffer.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class CircularBuffer<T>
@@ -20,7 +18,7 @@ namespace DspSharp.Buffers
         private readonly T[] storage;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CircularBuffer{T}" /> class.
+        /// Initializes a new instance of the <see cref="CircularBuffer{T}" /> class.
         /// </summary>
         /// <param name="length">The length of the buffer.</param>
         public CircularBuffer(int length)
@@ -29,134 +27,144 @@ namespace DspSharp.Buffers
         }
 
         /// <summary>
-        ///     Gets or sets the length.
+        /// Gets or sets the length.
         /// </summary>
         public int Length => this.storage.Length;
 
         private int Position { get; set; }
 
         /// <summary>
-        ///     Retrieves an item without changing the current position.
+        /// Retrieves an item without changing the current position.
         /// </summary>
         /// <param name="position">
-        ///     The position of the item where 0 is the current item, -1 the item before that and +1 the next
-        ///     item to come.
+        /// The position of the item. 0 is the current item, -1 the previous item and +1 the next item.
         /// </param>
-        /// <returns></returns>
         public T Peek(int position)
         {
             return this.storage[Mathematic.Mod(this.Position + position, this.Length)];
         }
 
         /// <summary>
-        ///     Stores a new value at the current position and increments the current position.
+        /// Retrieves the current value and increments the current position.
+        /// </summary>
+        public T Retrieve()
+        {
+            var ret = this.storage[this.Position];
+            this.Increment(1);
+            return ret;
+        }
+
+        /// <summary>
+        /// Stores a new value at the current position and increments the current position.
         /// </summary>
         /// <param name="item">The item.</param>
         public void Store(T item)
         {
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1) % this.Length;
+            this.Increment(1);
         }
 
         /// <summary>
-        ///     Stores the specified items starting at the current position and increments the current position be the number of
-        ///     items.
+        /// Stores the specified items starting at the current position and increments the current position be the number of items.
         /// </summary>
         /// <param name="items">The items.</param>
-        public void Store(IEnumerable<T> items)
+        public void Store(T[] items)
         {
-            var itemarray = items.ToArray();
+            var length = items.Length;
 
-            if (itemarray.Length + this.Position <= this.Length)
-                Array.Copy(itemarray, 0, this.storage, this.Position, itemarray.Length);
+            if (length + this.Position <= this.Length)
+            {
+                Array.Copy(items, 0, this.storage, this.Position, length);
+            }
             else
             {
-                if (itemarray.Length <= this.Length)
+                if (length <= this.Length)
                 {
                     var remaining = this.Length - this.Position;
 
-                    Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
-
-                    Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
+                    Array.Copy(items, 0, this.storage, this.Position, remaining);
+                    Array.Copy(items, remaining, this.storage, 0, length - remaining);
                 }
                 else
                 {
                     var remaining = this.Length - this.Position;
-                    var difference = itemarray.Length - this.Length;
+                    var difference = length - this.Length;
 
-                    Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
+                    Array.Copy(items, difference, this.storage, this.Position, remaining);
 
                     if (remaining < this.Length)
-                        Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
+                        Array.Copy(items, difference + remaining, this.storage, 0, this.Length - remaining);
                 }
             }
 
-            this.Position = (this.Position + itemarray.Length) % this.Length;
+            this.Increment(length);
         }
 
         /// <summary>
-        ///     Retrieves the current value, stores a new value at this position and increments the current position.
+        /// Retrieves the current value, stores a new value at this position and increments the current position.
         /// </summary>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
+        /// <param name="item">The item to store.</param>
         public T StoreAndRetrieve(T item)
         {
             var ret = this.storage[this.Position];
             this.storage[this.Position] = item;
-            this.Position = (this.Position + 1) % this.Length;
+            this.Increment(1);
             return ret;
         }
 
         /// <summary>
-        ///     Retrieves the number of provided items starting from the current position, stores the provided items to that range
-        ///     and increments the current position by the number of provided items.
+        /// Retrieves the number of provided items starting from the current position, stores the provided items to that range and increments the current position by the number of items.
         /// </summary>
-        /// <param name="items">The items.</param>
-        /// <returns></returns>
-        public T[] StoreAndRetrieve(IEnumerable<T> items)
+        /// <param name="itemsToStore">The items to store.</param>
+        /// <param name="retrieveBuffer">The buffer for retrieving items. Must be the same length as <paramref name="itemsToStore"/>.</param>
+        public void StoreAndRetrieve(T[] itemsToStore, T[] retrieveBuffer)
         {
-            var itemarray = items.ToArray();
+            if (retrieveBuffer.Length != itemsToStore.Length)
+                throw new InvalidOperationException("The retrieve buffer must be the same length as the store buffer.");
 
-            var ret = new T[itemarray.Length];
+            var length = itemsToStore.Length;
 
-            if (itemarray.Length + this.Position <= this.Length)
+            if (length + this.Position <= this.Length)
             {
-                Array.Copy(this.storage, this.Position, ret, 0, itemarray.Length);
-                Array.Copy(itemarray, 0, this.storage, this.Position, itemarray.Length);
+                Array.Copy(this.storage, this.Position, retrieveBuffer, 0, length);
+                Array.Copy(itemsToStore, 0, this.storage, this.Position, length);
             }
             else
             {
-                if (itemarray.Length <= this.Length)
+                if (length <= this.Length)
                 {
                     var remaining = this.Length - this.Position;
 
-                    Array.Copy(this.storage, this.Position, ret, 0, remaining);
-                    Array.Copy(itemarray, 0, this.storage, this.Position, remaining);
+                    Array.Copy(this.storage, this.Position, retrieveBuffer, 0, remaining);
+                    Array.Copy(itemsToStore, 0, this.storage, this.Position, remaining);
 
-                    Array.Copy(this.storage, 0, ret, remaining, itemarray.Length - remaining);
-                    Array.Copy(itemarray, remaining, this.storage, 0, itemarray.Length - remaining);
+                    Array.Copy(this.storage, 0, retrieveBuffer, remaining, length - remaining);
+                    Array.Copy(itemsToStore, remaining, this.storage, 0, length - remaining);
                 }
                 else
                 {
                     var remaining = this.Length - this.Position;
-                    var difference = itemarray.Length - this.Length;
+                    var difference = length - this.Length;
 
-                    Array.Copy(this.storage, this.Position, ret, 0, remaining);
-                    Array.Copy(itemarray, difference, this.storage, this.Position, remaining);
+                    Array.Copy(this.storage, this.Position, retrieveBuffer, 0, remaining);
+                    Array.Copy(itemsToStore, difference, this.storage, this.Position, remaining);
 
                     if (remaining < this.Length)
                     {
-                        Array.Copy(this.storage, 0, ret, remaining, this.Length - remaining);
-                        Array.Copy(itemarray, difference + remaining, this.storage, 0, this.Length - remaining);
+                        Array.Copy(this.storage, 0, retrieveBuffer, remaining, this.Length - remaining);
+                        Array.Copy(itemsToStore, difference + remaining, this.storage, 0, this.Length - remaining);
                     }
 
-                    Array.Copy(itemarray, 0, ret, this.Length, difference);
+                    Array.Copy(itemsToStore, 0, retrieveBuffer, this.Length, difference);
                 }
             }
 
-            this.Position = (this.Position + itemarray.Length) % this.Length;
+            this.Increment(length);
+        }
 
-            return ret;
+        private void Increment(int amount)
+        {
+            this.Position = (this.Position + amount) % this.Length;
         }
     }
 }

@@ -4,70 +4,56 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DspSharp;
-using DspSharp.Algorithms;
 
 namespace DspSharpFftw
 {
     /// <summary>
-    ///     Plan for a real-valued forward FFT.
+    /// Plan for a real-valued forward FFT.
     /// </summary>
     public unsafe class ForwardRealFftPlan : RealFftPlan
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
+        /// Initializes a new instance of the <see cref="ForwardRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
-        public ForwardRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftR2C1D)
+        public ForwardRealFftPlan(int fftLength, FftwFlags flags = FftwFlags.Measure | FftwFlags.DestroyInput) : base(fftLength, FftwInterop.PlanDftR2C1D, flags)
         {
             this.NFactor = 1D / fftLength;
             this.SqrNFactor = Math.Sqrt(this.NFactor);
         }
 
         private double NFactor { get; }
-
-        private static Dictionary<int, ForwardRealFftPlan> PlanCache { get; } =
-            new Dictionary<int, ForwardRealFftPlan>();
-
         private double SqrNFactor { get; }
 
-        public void Execute(double[] input, Complex[] output, NormalizationKind normalization)
+        public void Execute(IReadOnlyList<double> input, IList<Complex> output, NormalizationKind normalization)
         {
-            if (input.Length > this.FftLength)
+            if (input.Count > this.FftLength)
                 throw new ArgumentException();
 
-            if (output.Length < this.SpectrumLength)
+            if (output.Count < this.SpectrumLength)
                 throw new ArgumentException();
 
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (double*)0;
+            var pOutput = (Complex*)0;
             try
             {
-                pInput = FftwInterop.Malloc(this.FftLength * sizeof(double));
-                pOutput = FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
+                pInput = (double*)FftwInterop.Malloc(this.FftLength * sizeof(double));
+                pOutput = (Complex*)FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
 
-                fixed (double* pinputarray = input)
+                Memory.Copy(input, pInput);
+
+                if (input.Count < this.FftLength)
                 {
-                    Unsafe.Memcpy(pInput, pinputarray, input.Length * sizeof(double));
-
-                    if (input.Length < this.FftLength)
-                    {
-                        Unsafe.Memset(
-                            (double*)pInput + input.Length,
-                            0,
-                            this.FftLength - input.Length);
-                    }
+                    Memory.Clear(pInput + input.Count, this.FftLength - input.Count);
                 }
 
                 this.ExecuteUnsafe(pInput, pOutput, normalization);
 
-                fixed (Complex* poutputarray = output)
-                {
-                    Unsafe.Memcpy(poutputarray, pOutput, this.SpectrumLength * 2 * sizeof(double));
-                }
+                Memory.Copy(pOutput, output);
             }
             finally
             {
@@ -76,7 +62,7 @@ namespace DspSharpFftw
             }
         }
 
-        public Complex[] Execute(double[] input, NormalizationKind normalization)
+        public Complex[] Execute(IReadOnlyList<double> input, NormalizationKind normalization)
         {
             var ret = new Complex[this.SpectrumLength];
             this.Execute(input, ret, normalization);
@@ -95,17 +81,6 @@ namespace DspSharpFftw
                 {
                     dpOutput[i] *= factor;
                 }
-            }
-        }
-
-        public static ForwardRealFftPlan GetPlan(int length)
-        {
-            return new ForwardRealFftPlan(length);
-            if (!PlanCache.ContainsKey(length))
-            {
-                var plan = new ForwardRealFftPlan(length);
-                if (!PlanCache.ContainsKey(length))
-                    PlanCache.Add(length, plan);
             }
         }
     }

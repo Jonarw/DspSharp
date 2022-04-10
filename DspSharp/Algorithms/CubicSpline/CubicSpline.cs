@@ -72,15 +72,13 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="y">Input. Y coordinates to fit.</param>
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
-        /// <param name="debug">Turn on console output. Default is false.</param>
         public CubicSpline(
             double[] x,
             double[] y,
             double startSlope = double.NaN,
-            double endSlope = double.NaN,
-            bool debug = false)
+            double endSlope = double.NaN)
         {
-            this.Fit(x, y, startSlope, endSlope, debug);
+            this.Fit(x, y, startSlope, endSlope);
         }
 
         /// <summary>
@@ -140,9 +138,8 @@ namespace DspSharp.Algorithms.CubicSpline
         ///     FitAndEval().
         /// </summary>
         /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
-        /// <param name="debug">Turn on console output. Default is false.</param>
         /// <returns>The computed y values for each x.</returns>
-        public double[] EvalSlope(double[] x, bool debug = false)
+        public double[] EvalSlope(double[] x)
         {
             this.CheckAlreadyFitted();
 
@@ -161,9 +158,9 @@ namespace DspSharp.Algorithms.CubicSpline
                 var t = (x[i] - this.xOrig[j]) / dx;
 
                 // From equation 5 we could also compute q' (qp) which is the slope at this x
-                qPrime[i] = dy / dx
-                            + (1 - 2 * t) * (this.a[j] * (1 - t) + this.b[j] * t) / dx
-                            + t * (1 - t) * (this.b[j] - this.a[j]) / dx;
+                qPrime[i] = (dy / dx)
+                            + ((1 - (2 * t)) * ((this.a[j] * (1 - t)) + (this.b[j] * t)) / dx)
+                            + (t * (1 - t) * (this.b[j] - this.a[j]) / dx);
             }
 
             return qPrime;
@@ -179,13 +176,11 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="y">Input. Y coordinates to fit.</param>
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
-        /// <param name="debug">Turn on console output. Default is false.</param>
         public void Fit(
             double[] x,
             double[] y,
             double startSlope = double.NaN,
-            double endSlope = double.NaN,
-            bool debug = false)
+            double endSlope = double.NaN)
         {
             if (double.IsInfinity(startSlope) || double.IsInfinity(endSlope))
                 throw new Exception("startSlope and endSlope cannot be infinity.");
@@ -226,7 +221,7 @@ namespace DspSharp.Algorithms.CubicSpline
 
                 dy1 = y[i] - y[i - 1];
                 dy2 = y[i + 1] - y[i];
-                r[i] = 3 * (dy1 / (dx1 * dx1) + dy2 / (dx2 * dx2));
+                r[i] = 3 * ((dy1 / (dx1 * dx1)) + (dy2 / (dx2 * dx2)));
             }
 
             // Last row also different (equation 17 from the article)
@@ -255,8 +250,8 @@ namespace DspSharp.Algorithms.CubicSpline
             {
                 dx1 = x[i] - x[i - 1];
                 dy1 = y[i] - y[i - 1];
-                this.a[i - 1] = k[i - 1] * dx1 - dy1; // equation 10 from the article
-                this.b[i - 1] = -k[i] * dx1 + dy1; // equation 11 from the article
+                this.a[i - 1] = (k[i - 1] * dx1) - dy1; // equation 10 from the article
+                this.b[i - 1] = (-k[i] * dx1) + dy1; // equation 11 from the article
             }
         }
 
@@ -325,7 +320,7 @@ namespace DspSharp.Algorithms.CubicSpline
             {
                 var dx = x[i] - x[i - 1];
                 var dy = y[i] - y[i - 1];
-                var dist = Math.Sqrt(dx * dx + dy * dy);
+                var dist = Math.Sqrt((dx * dx) + (dy * dy));
                 totalDist += dist;
                 dists[i] = totalDist;
             }
@@ -371,7 +366,7 @@ namespace DspSharp.Algorithms.CubicSpline
         {
             var dx = this.xOrig[j + 1] - this.xOrig[j];
             var t = (x - this.xOrig[j]) / dx;
-            var y = (1 - t) * this.yOrig[j] + t * this.yOrig[j + 1] + t * (1 - t) * (this.a[j] * (1 - t) + this.b[j] * t);
+            var y = ((1 - t) * this.yOrig[j]) + (t * this.yOrig[j + 1]) + (t * (1 - t) * ((this.a[j] * (1 - t)) + (this.b[j] * t)));
             // equation 9
             return y;
         }
@@ -398,15 +393,17 @@ namespace DspSharp.Algorithms.CubicSpline
         {
             if (!double.IsNaN(dx) && !double.IsNaN(dy))
             {
-                var d = Math.Sqrt(dx * dx + dy * dy);
+                var d = Math.Sqrt((dx * dx) + (dy * dy));
 
                 if (d > double.Epsilon) // probably not conservative enough, but catches the (0,0) case at least
                 {
-                    dx = dx / d;
-                    dy = dy / d;
+                    dx /= d;
+                    dy /= d;
                 }
                 else
+                {
                     throw new ArgumentException("The input vector is too small to be normalized.");
+                }
             }
             else
             {

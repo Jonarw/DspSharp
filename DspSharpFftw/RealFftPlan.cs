@@ -7,17 +7,17 @@
 namespace DspSharpFftw
 {
     /// <summary>
-    ///     Handles the creating of an fftw plan and the associated memory blocks.
+    /// Handles the creating of an fftw plan and the associated memory blocks.
     /// </summary>
     public abstract unsafe class RealFftPlan : FftPlan
     {
         /// <summary>
-        ///     Initializes a new instance of the base class <see cref="RealFftPlan" />.
+        /// Initializes a new instance of the base class <see cref="RealFftPlan" />.
         /// </summary>
         /// <param name="fftLength">The FFT lenght the plan is used for.</param>
         /// <param name="createPlanDelegate"></param>
-        protected RealFftPlan(int fftLength, CreateRealPlanDelegate createPlanDelegate)
-            : base(fftLength, CreatePlan(fftLength, createPlanDelegate))
+        protected RealFftPlan(int fftLength, CreateRealPlanDelegate createPlanDelegate, FftwFlags flags)
+            : base(fftLength, CreatePlan(fftLength, createPlanDelegate), flags)
         {
             this.SpectrumLength = (this.FftLength >> 1) + 1;
         }

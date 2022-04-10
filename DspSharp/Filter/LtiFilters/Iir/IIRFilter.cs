@@ -1,61 +1,60 @@
 // --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IIRFilter.cs">
+// <copyright file="IirFilter.cs">
 //   Copyright (c) 2017 Jonathan Arweck, see LICENSE.txt for license information
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Algorithms;
+using DspSharp.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
-using DspSharp.Algorithms;
-using UTilities.Extensions;
 
 namespace DspSharp.Filter.LtiFilters.Iir
 {
     /// <summary>
-    ///     Represents a filter with a_n and b_n coefficients with an infinite impulse response.
+    /// Represents a digital IIR (infinite impulse response) filter.
     /// </summary>
-    public class IirFilter : FilterBase
+    public abstract class IirFilter : FilterBase
     {
         private IReadOnlyList<double> _a;
         private IReadOnlyList<double> _b;
         private int _order;
 
-        public IirFilter(double samplerate) : base(samplerate)
+        protected IirFilter(double samplerate) : base(samplerate)
         {
             this.DisplayName = "IIR filter";
         }
 
         /// <summary>
-        ///     Gets or sets the denominator coefficients.
+        /// Gets or sets the denominator coefficients.
         /// </summary>
         public IReadOnlyList<double> A
         {
-            get { return this._a; }
-            private set { this.SetField(ref this._a, value); }
+            get => this._a;
+            private set => this.SetField(ref this._a, value);
         }
 
         /// <summary>
-        ///     Gets or sets the numerator coefficients.
+        /// Gets or sets the numerator coefficients.
         /// </summary>
         public IReadOnlyList<double> B
         {
-            get { return this._b; }
-            private set { this.SetField(ref this._b, value); }
+            get => this._b;
+            private set => this.SetField(ref this._b, value);
         }
 
         /// <summary>
-        ///     Gets the filter order.
+        /// Gets the filter order.
         /// </summary>
         public int Order
         {
-            get { return this._order; }
-            private set { this.SetField(ref this._order, value); }
+            get => this._order;
+            private set => this.SetField(ref this._order, value);
         }
 
-        /// <summary>
-        ///     True if coefficients are valid, false otherwise.
-        /// </summary>
+        /// <inheritdoc/>
         protected override bool HasEffectOverride
         {
             get
@@ -68,35 +67,37 @@ namespace DspSharp.Filter.LtiFilters.Iir
             }
         }
 
-        protected override void OnChange()
+        /// <summary>
+        /// Gets the frequency response of the filter at the specified frequency points.
+        /// </summary>
+        /// <param name="frequencies">The frequencies.</param>
+        public ILazyReadOnlyCollection<Complex> GetFrequencyResponse(IReadOnlyList<double> frequencies)
         {
-            this.frequencyResponseCache = null;
-            base.OnChange();
+            return FrequencyDomain.IirFrequencyResponse(this.A, this.B, frequencies, this.Samplerate);
         }
 
-        private IReadOnlyList<Complex> frequencyResponseCache;
-
-        public IReadOnlyList<Complex> GetFrequencyResponse(IReadOnlyList<double> frequencies)
-        {
-            return this.frequencyResponseCache ?? (this.frequencyResponseCache = FrequencyDomain.IirFrequencyResponse(this.A, this.B, frequencies, this.Samplerate).ToReadOnlyList());
-        }
-
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return TimeDomain.IirFilter(signal, this.A, this.B);
         }
 
+        /// <summary>
+        /// Sets the filter coefficients.
+        /// </summary>
+        /// <param name="a">The denominator coefficients.</param>
+        /// <param name="b">The numerator coefficients.</param>
         protected void SetCoefficients(IEnumerable<double> a, IEnumerable<double> b)
         {
-            this.A = a.ToReadOnlyList();
-            this.B = b.ToReadOnlyList();
+            var aList = a.ToList();
+            var bList = b.ToList();
 
-            var n = this.A.Count;
+            if (aList.Count != bList.Count)
+                throw new ArgumentException("a and b must be the same length.");
 
-            if (n != this.B.Count)
-                throw new ArgumentException();
-
-            this.Order = n - 1;
+            this.A = aList;
+            this.B = bList;
+            this.Order = aList.Count - 1;
         }
     }
 }

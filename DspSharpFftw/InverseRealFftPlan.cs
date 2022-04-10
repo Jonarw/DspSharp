@@ -4,24 +4,23 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using DspSharp;
-using DspSharp.Algorithms;
 
 namespace DspSharpFftw
 {
     /// <summary>
-    ///     Plan for a real-valued IFFT.
+    /// Plan for a real-valued IFFT.
     /// </summary>
     public unsafe class InverseRealFftPlan : RealFftPlan
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="InverseRealFftPlan" /> class.
+        /// Initializes a new instance of the <see cref="InverseRealFftPlan" /> class.
         /// </summary>
         /// <param name="fftLength">The FFT length the plan is used for.</param>
-        public InverseRealFftPlan(int fftLength) : base(fftLength, FftwInterop.PlanDftC2R1D)
+        public InverseRealFftPlan(int fftLength, FftwFlags flags = FftwFlags.Measure | FftwFlags.DestroyInput) : base(fftLength, FftwInterop.PlanDftC2R1D, flags)
         {
             this.NFactor = 1D / fftLength;
             this.SqrNFactor = Math.Sqrt(this.NFactor);
@@ -30,35 +29,24 @@ namespace DspSharpFftw
         private double NFactor { get; }
         private double SqrNFactor { get; }
 
-        private static Dictionary<int, InverseRealFftPlan> PlanCache { get; } =
-            new Dictionary<int, InverseRealFftPlan>();
-
-        public void Execute(Complex[] input, double[] output, NormalizationKind normalization)
+        public void Execute(IReadOnlyList<Complex> input, IList<double> output, NormalizationKind normalization)
         {
-            if (input.Length != this.SpectrumLength)
+            if (input.Count != this.SpectrumLength)
                 throw new ArgumentException();
 
-            if (output.Length < this.FftLength)
+            if (output.Count < this.FftLength)
                 throw new ArgumentException();
 
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (Complex*)0;
+            var pOutput = (double*)0;
             try
             {
-                pInput = FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
-                pOutput = FftwInterop.Malloc(this.FftLength * sizeof(double));
+                pInput = (Complex*)FftwInterop.Malloc(this.SpectrumLength * 2 * sizeof(double));
+                pOutput = (double*)FftwInterop.Malloc(this.FftLength * sizeof(double));
 
-                fixed (void* pinputarray = input)
-                {
-                    Unsafe.Memcpy(pInput, pinputarray, this.SpectrumLength * 2 * sizeof(double));
-                }
-
+                Memory.Copy(input, pInput);
                 this.ExecuteUnsafe(pInput, pOutput, normalization);
-
-                fixed (double* pRet = output)
-                {
-                    Unsafe.Memcpy(pRet, pOutput, this.FftLength * sizeof(double));
-                }
+                Memory.Copy(pOutput, output);
             }
             finally
             {
@@ -67,7 +55,7 @@ namespace DspSharpFftw
             }
         }
 
-        public double[] Execute(Complex[] input, NormalizationKind normalization)
+        public double[] Execute(IReadOnlyList<Complex> input, NormalizationKind normalization)
         {
             var ret = new double[this.FftLength];
             this.Execute(input, ret, normalization);
@@ -87,14 +75,6 @@ namespace DspSharpFftw
                     dpOutput[i] *= factor;
                 }
             }
-        }
-
-        public static InverseRealFftPlan GetPlan(int length)
-        {
-            return new InverseRealFftPlan(length);
-            if (!PlanCache.ContainsKey(length))
-                PlanCache.Add(length, new InverseRealFftPlan(length));
-
         }
     }
 }

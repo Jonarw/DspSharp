@@ -13,7 +13,7 @@ namespace DspSharpDemo.ViewModel.Signal.SignalFactories
     {
         private bool _CustomStart;
         private int _Length = 1024;
-        private WindowModes _Mode = WindowModes.Symmetric;
+        private WindowMode _Mode = WindowMode.Symmetric;
         private int _Start;
         private WindowTypes _type = WindowTypes.Hann;
 
@@ -33,7 +33,7 @@ namespace DspSharpDemo.ViewModel.Signal.SignalFactories
             set { this.SetField(ref this._Length, value); }
         }
 
-        public WindowModes Mode
+        public WindowMode Mode
         {
             get { return this._Mode; }
             set { this.SetField(ref this._Mode, value); }

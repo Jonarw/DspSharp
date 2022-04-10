@@ -5,22 +5,22 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using UTilities.Collections;
 
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Represents a set of filters which are applied in succession.
+    /// Represents a set of filters which are applied in succession.
     /// </summary>
     /// <seealso cref="FilterBase" />
     public class FilterSet : FilterBase
     {
-        private readonly IObservableList<IFilter> _Filters = new ObservableList<IFilter>();
+        private readonly ObservableCollection<IFilter> _Filters = new ObservableCollection<IFilter>();
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="FilterSet" /> class.
+        /// Initializes a new instance of the <see cref="FilterSet" /> class.
         /// </summary>
         /// <param name="samplerate">The samplerate.</param>
         public FilterSet(double samplerate) : base(samplerate)
@@ -29,28 +29,18 @@ namespace DspSharp.Filter
         }
 
         /// <summary>
-        ///     Gets the contained filters.
+        /// Gets the contained filters.
         /// </summary>
         public IList<IFilter> Filters => this._Filters;
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance has infinite impulse response.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
-        /// </value>
+        /// <inheritdoc/>
         public override bool HasInfiniteImpulseResponse => this.Filters.Any(f => f.HasInfiniteImpulseResponse);
 
-        protected override bool HasEffectOverride => this.Filters.Count > 0;
+        /// <inheritdoc/>
+        protected override bool HasEffectOverride => this.Filters.Any(f => f.HasEffect);
 
-        /// <summary>
-        ///     Processes the specified signal.
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        /// <returns>
-        ///     The processed signal.
-        /// </returns>
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             foreach (var filter in this.Filters)
             {

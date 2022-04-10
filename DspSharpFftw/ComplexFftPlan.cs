@@ -4,25 +4,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
-using System.Numerics;
-using DspSharp;
 using DspSharp.Algorithms;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace DspSharpFftw
 {
     /// <summary>
-    ///     Handles the creating of an fftw plan and the associated memory blocks.
+    /// Handles the creating of an fftw plan and the associated memory blocks.
     /// </summary>
     public unsafe class ComplexToComplexFftPlan : FftPlan
     {
         /// <summary>
-        ///     Initializes a new instance of the base class <see cref="ComplexToComplexFftPlan" />.
+        /// Initializes a new instance of the base class <see cref="ComplexToComplexFftPlan" />.
         /// </summary>
         /// <param name="fftLength">The FFT lenght the plan is used for.</param>
         /// <param name="direction">The FFT direction.</param>
-        public ComplexToComplexFftPlan(int fftLength, FftwDirection direction)
-            : base(fftLength, CreatePlan(fftLength, direction))
+        public ComplexToComplexFftPlan(int fftLength, FftwDirection direction, FftwFlags flags = FftwFlags.DestroyInput)
+            : base(fftLength, CreatePlan(fftLength, direction), flags)
         {
             this.Direction = direction;
             this.NFactor = 1D / fftLength;
@@ -35,47 +35,36 @@ namespace DspSharpFftw
         private double SqrNFactor { get; }
 
         /// <summary>
-        ///     Executes the plan for the specified input, writing to an already existing array.
+        /// Executes the plan for the specified input, writing to an already existing array.
         /// </summary>
-        /// <param name="input">The input array.</param>
-        /// <param name="output">The output array.</param>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="output">The output sequence.</param>
         /// <exception cref="ArgumentException">
         /// </exception>
-        public void Execute(Complex[] input, Complex[] output, NormalizationKind normalization)
+        public void Execute(IReadOnlyList<Complex> input, IList<Complex> output, NormalizationKind normalization)
         {
-            if (input.Length > this.FftLength)
+            if (input.Count > this.FftLength)
                 throw new ArgumentException();
 
-            if (output.Length < this.FftLength)
+            if (output.Count < this.FftLength)
                 throw new ArgumentException();
 
-            var pInput = (void*)0;
-            var pOutput = (void*)0;
+            var pInput = (Complex*)0;
+            var pOutput = (Complex*)0;
 
             try
             {
-                pInput = FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
-                pOutput = FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
+                pInput = (Complex*)FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
+                pOutput = (Complex*)FftwInterop.Malloc(this.FftLength * 2 * sizeof(double));
 
-                fixed (Complex* pinputarray = input)
-                {
-                    Unsafe.Memcpy(pInput, pinputarray, input.Length * 2 * sizeof(double));
+                Memory.Copy(input, pInput);
 
-                    if (input.Length < this.FftLength)
-                    {
-                        Unsafe.Memset(
-                            (Complex*)pInput + input.Length,
-                            0,
-                            (this.FftLength - input.Length));
-                    }
-                }
+                if (input.Count < this.FftLength)
+                    Memory.Clear(pInput + input.Count, this.FftLength - input.Count);
 
                 this.ExecuteUnsafe(pInput, pOutput, normalization);
 
-                fixed (Complex* pRet = output)
-                {
-                    Unsafe.Memcpy(pRet, pOutput, this.FftLength * 2 * sizeof(double));
-                }
+                Memory.Copy(pOutput, output);
             }
             finally
             {
@@ -85,11 +74,11 @@ namespace DspSharpFftw
         }
 
         /// <summary>
-        ///     Executes the plan for the provided data, creating a new result array.
+        /// Executes the plan for the provided data, creating a new result array.
         /// </summary>
-        /// <param name="input">The input data.</param>
+        /// <param name="input">The input.</param>
         /// <returns>The (I)FFT of the input data.</returns>
-        public Complex[] Execute(Complex[] input, NormalizationKind normalization)
+        public Complex[] Execute(IReadOnlyList<Complex> input, NormalizationKind normalization)
         {
             var ret = new Complex[this.FftLength];
             this.Execute(input, ret, normalization);

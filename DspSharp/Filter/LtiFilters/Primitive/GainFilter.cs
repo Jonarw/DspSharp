@@ -10,7 +10,7 @@ using DspSharp.Algorithms;
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
     /// <summary>
-    ///     Represents a filter with a constant gain and no effects otherwise.
+    /// Represents a filter with a constant gain.
     /// </summary>
     public class GainFilter : FiniteFilter
     {
@@ -22,29 +22,19 @@ namespace DspSharp.Filter.LtiFilters.Primitive
         }
 
         /// <summary>
-        ///     Gets or sets the linear gain factor of the <see cref="GainFilter" />.
+        /// Gets or sets the linear gain factor of the <see cref="GainFilter" />.
         /// </summary>
         public double Gain
         {
-            get { return this._Gain; }
-            set { this.SetField(ref this._Gain, value); }
+            get => this._Gain;
+            set => this.SetField(ref this._Gain, value);
         }
 
-        /// <summary>
-        ///     True if <see cref="Gain" /> is not 1, false otherwise.
-        /// </summary>
-        protected override bool HasEffectOverride
-        {
-            get
-            {
-                if (this.Gain == 1)
-                    return false;
+        /// <inheritdoc/>
+        protected override bool HasEffectOverride => this.Gain != 1;
 
-                return true;
-            }
-        }
-
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal.Multiply(this.Gain);
         }

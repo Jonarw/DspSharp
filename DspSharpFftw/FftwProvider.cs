@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -14,54 +15,51 @@ namespace DspSharpFftw
 {
     public class FftwProvider : IFftProvider
     {
-        private Dictionary<int, ComplexToComplexFftPlan> ComplexForwardPlans { get; } =
-            new Dictionary<int, ComplexToComplexFftPlan>();
-
-        private Dictionary<int, ComplexToComplexFftPlan> ComplexInversePlans { get; } =
-            new Dictionary<int, ComplexToComplexFftPlan>();
+        private readonly object planningLock = new object();
+        private readonly Dictionary<int, ComplexToComplexFftPlan> ComplexForwardPlans = new Dictionary<int, ComplexToComplexFftPlan>();
+        private readonly Dictionary<int, ForwardRealFftPlan> RealForwardPlans = new Dictionary<int, ForwardRealFftPlan>();
+        private readonly Dictionary<int, InverseRealFftPlan> RealInversePlans = new Dictionary<int, InverseRealFftPlan>();
+        private readonly Dictionary<int, ComplexToComplexFftPlan> ComplexInversePlans = new Dictionary<int, ComplexToComplexFftPlan>();
 
         private Dictionary<int, int> OptimalFftLengths { get; } = new Dictionary<int, int>();
 
-        public IReadOnlyList<Complex> ComplexFft(IReadOnlyList<Complex> input, int n = -1, NormalizationKind normalization = NormalizationKind.None)
+        /// <inheritdoc/>
+        public Complex[] ComplexFft(IReadOnlyList<Complex> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (n < 0)
-                n = input.Count;
-
-            if (n == 0)
-                return Enumerable.Empty<Complex>().ToList();
-
-            if (!this.ComplexForwardPlans.ContainsKey(n))
-                this.ComplexForwardPlans.Add(n, new ComplexToComplexFftPlan(n, FftwDirection.Forward));
-
-            var plan = this.ComplexForwardPlans[n];
-            return plan.Execute(input.ToArrayOptimized(), normalization);
-        }
-
-        public IReadOnlyList<Complex> ComplexIfft(IReadOnlyList<Complex> input, NormalizationKind normalization = NormalizationKind.N)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (input.Count == 0)
-                return Enumerable.Empty<Complex>().ToList();
-
-            var n = input.Count;
-
-            if (!this.ComplexInversePlans.ContainsKey(n))
-                this.ComplexInversePlans.Add(n, new ComplexToComplexFftPlan(n, FftwDirection.Backward));
-
-            var plan = this.ComplexInversePlans[n];
-            return plan.Execute(input.ToArrayOptimized(), normalization);
-        }
-
-        public int GetOptimalFftLength(int originalLength)
-        {
-            if (!this.OptimalFftLengths.ContainsKey(originalLength))
+            ComplexToComplexFftPlan plan;
+            lock (this.planningLock)
             {
-                var ret = originalLength - 1;
+                if (!this.ComplexForwardPlans.TryGetValue(input.Count, out plan))
+                {
+                    plan = new ComplexToComplexFftPlan(input.Count, FftwDirection.Forward);
+                    this.ComplexForwardPlans.Add(input.Count, plan);
+                }
+            }
+
+            return plan.Execute(input, NormalizationKind.None);
+        }
+
+        public Complex[] ComplexIfft(IReadOnlyList<Complex> input)
+        {
+            ComplexToComplexFftPlan plan;
+            lock (this.planningLock)
+            {
+                if (!this.ComplexInversePlans.TryGetValue(input.Count, out plan))
+                {
+                    plan = new ComplexToComplexFftPlan(input.Count, FftwDirection.Backward);
+                    this.ComplexInversePlans.Add(input.Count, plan);
+                }
+            }
+
+            return plan.Execute(input, NormalizationKind.N);
+        }
+
+        public int GetOptimalFftLength(int minLength)
+        {
+            // fftw does mixed-radix ffts with prime factors 2, 3, 5 and 7
+            if (!this.OptimalFftLengths.ContainsKey(minLength))
+            {
+                var ret = minLength - 1;
                 int i;
 
                 do
@@ -91,60 +89,44 @@ namespace DspSharpFftw
                 }
                 while (i > 7);
 
-                this.OptimalFftLengths.Add(originalLength, ret);
+                this.OptimalFftLengths.Add(minLength, ret);
             }
 
-            return this.OptimalFftLengths[originalLength];
+            return this.OptimalFftLengths[minLength];
         }
 
-        /// <summary>
-        ///     Computes the FFT over real-valued input data. Only the positive half of the hermitian symmetric fourier spectrum is
-        ///     returned.
-        /// </summary>
-        /// <param name="input">The real-valued input data.</param>
-        /// <param name="n">The desired fft length. If set, the <paramref name="input" /> is zero-padded to <paramref name="n" />.</param>
-        /// <returns>The positive half of the hermitian-symmetric spectrum, including DC and Nyquist/2.</returns>
-        public IReadOnlyList<Complex> RealFft(IReadOnlyList<double> input, int n = -1, NormalizationKind normalization = NormalizationKind.None)
+        /// <inheritdoc/>
+        public Complex[] RealFft(IReadOnlyList<double> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (n < 0)
-                n = input.Count;
-
-            if (n == 0)
-                return Enumerable.Empty<Complex>().ToList();
-
-            var plan = ForwardRealFftPlan.GetPlan(n);
-            return plan.Execute(input.ToArrayOptimized(), normalization);
-        }
-
-        /// <summary>
-        ///     Computes the iFFT over the positive half of a hermitian-symmetric spectrum.
-        /// </summary>
-        /// <param name="input">The positive half of a hermitian-symmetric spectrum.</param>
-        /// <returns>The computed time-domain values. Always has an even length.</returns>
-        public IReadOnlyList<double> RealIfft(IReadOnlyList<Complex> input, int n = -1, NormalizationKind normalization = NormalizationKind.N)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (input.Count == 0)
-                return Enumerable.Empty<double>().ToList();
-
-            if (n > 0 && input.Count != n / 2 + 1)
-                throw new ArgumentOutOfRangeException(nameof(n));
-
-            if (n < 0)
+            ForwardRealFftPlan plan;
+            lock (this.planningLock)
             {
-                if (Math.Abs(input[input.Count - 1].Imaginary) > 1e-13)
-                    n = (input.Count << 1) - 1;
-                else
-                    n = (input.Count - 1) << 1;
+                if (!this.RealForwardPlans.TryGetValue(input.Count, out plan))
+                {
+                    plan = new ForwardRealFftPlan(input.Count);
+                    this.RealForwardPlans.Add(input.Count, plan);
+                }
             }
 
-            var plan = InverseRealFftPlan.GetPlan(n);
-            return plan.Execute(input.ToArrayOptimized(), normalization);
+            return plan.Execute(input, NormalizationKind.None);
+        }
+
+        /// <inheritdoc/>
+        public double[] RealIfft(IReadOnlyList<Complex> input, bool isEven)
+        {
+            InverseRealFftPlan plan;
+            var n = isEven ? (input.Count << 1) - 1 : (input.Count - 1) << 1;
+
+            lock (this.planningLock)
+            {
+                if (!this.RealInversePlans.TryGetValue(n, out plan))
+                {
+                    plan = new InverseRealFftPlan(n);
+                    this.RealInversePlans.Add(n, plan);
+                }
+            }
+
+            return plan.Execute(input, NormalizationKind.N);
         }
     }
 }

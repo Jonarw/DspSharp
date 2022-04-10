@@ -1,0 +1,182 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+using DspSharp.Extensions;
+using DspSharp.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+
+namespace DspSharp.Algorithms
+{
+    public static class VectorArithmetic
+    {
+<#
+
+var names = new[] {"Add", "Subtract", "Multiply", "Divide"};
+var verbs = new[] {"Adds", "Subtracts", "Multiplies", "Divides"};
+var operators = new[] {"+", "-", "*", "/"};
+var scalar = new [] {false, true, false, true};
+
+var negatePrototype = 
+@"        /// <summary>
+        /// Negates a sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static IEnumerable<{0}> Negate(this IEnumerable<{0}> input)
+        {
+            return input.Select(c => -c);
+        }
+
+        /// <summary>
+        /// Negates a sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyCollection<{0}> Negate(this IReadOnlyCollection<{0}> input)
+        {
+            return input.SelectWithCount(c => -c);
+        }
+
+        /// <summary>
+        /// Negates a sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyList<{0}> Negate(this IReadOnlyList<{0}> input)
+        {
+            return input.SelectIndexed(c => -c);
+        }
+
+";
+
+var scalarPrototype = 
+@"        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""scalar"">The scalar.</param>
+        /// <param name=""input"">The sequence.</param>
+        public static IEnumerable<{0}> {1}(this {0} scalar, IEnumerable<{0}> input)
+        {
+            return input.Select(c => scalar {3} c);
+        }
+
+        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""scalar"">The scalar.</param>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyCollection<{0}> {1}(this {0} scalar, IReadOnlyCollection<{0}> input)
+        {
+            return input.SelectWithCount(c => scalar {3} c);
+        }
+
+        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""scalar"">The scalar.</param>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyList<{0}> {1}(this {0} scalar, IReadOnlyList<{0}> input)
+        {
+            return input.SelectIndexed(c => scalar {3} c);
+        }
+
+";
+
+var prototypeOperation = 
+@"        /// <summary>
+        /// {2} two sequences element-wise. The sequences must be the same length.
+        /// </summary>
+        /// <param name=""input"">The first sequence.</param>
+        /// <param name=""input2"">The second sequence.</param>
+        public static IEnumerable<{0}> {1}(this IEnumerable<{0}> input, IEnumerable<{0}> input2)
+        {
+            return input.ZipExact(input2, (c1, c2) => c1 {3} c2);
+        }
+
+        /// <summary>
+        /// {2} two sequences element-wise. The sequences must be the same length.
+        /// </summary>
+        /// <param name=""input"">The first sequence.</param>
+        /// <param name=""input2"">The second sequence.</param>
+        public static ILazyReadOnlyCollection<{0}> {1}(this IReadOnlyCollection<{0}> input, IReadOnlyCollection<{0}> input2)
+        {
+            return input.ZipWithCount(input2, (c1, c2) => c1 {3} c2);
+        }
+
+        /// <summary>
+        /// {2} two sequences element-wise. The sequences must be the same length.
+        /// </summary>
+        /// <param name=""input"">The first sequence.</param>
+        /// <param name=""input2"">The second sequence.</param>
+        public static ILazyReadOnlyList<{0}> {1}(this IReadOnlyList<{0}> input, IReadOnlyList<{0}> input2)
+        {
+            return input.ZipIndexed(input2, (c1, c2) => c1 {3} c2);
+        }
+
+        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        /// <param name=""scalar"">The scalar.</param>
+        public static IEnumerable<{0}> {1}(this IEnumerable<{0}> input, {0} scalar)
+        {
+            return input.Select(c => c {3} scalar);
+        }
+
+        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        /// <param name=""scalar"">The scalar.</param>
+        public static ILazyReadOnlyCollection<{0}> {1}(this IReadOnlyCollection<{0}> input, {0} scalar)
+        {
+            return input.SelectWithCount(c => c {3} scalar);
+        }
+
+        /// <summary>
+        /// {2} a sequence with a scalar.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        /// <param name=""scalar"">The scalar.</param>
+        public static ILazyReadOnlyList<{0}> {1}(this IReadOnlyList<{0}> input, {0} scalar)
+        {
+            return input.SelectIndexed(c => c {3} scalar);
+        }
+
+";
+
+var types = new[] {"float", "double", "Complex", "int", "uint", "long", "ulong" };
+foreach (var type in types)
+{
+    for (var i = 0; i < 4; i++)
+    {
+        var str = prototypeOperation
+            .Replace("{0}", type)
+            .Replace("{1}", names[i])
+            .Replace("{2}", verbs[i])
+            .Replace("{3}", operators[i]);
+#><#= str #><#    
+    
+        if (scalar[i])
+        {
+            var scalarStr = scalarPrototype
+                .Replace("{0}", type)
+                .Replace("{1}", names[i])
+                .Replace("{2}", verbs[i])
+                .Replace("{3}", operators[i]);
+
+            #><#= scalarStr #><#  
+        }
+    }
+
+    if (!type.StartsWith("u"))
+    {
+        var negateStr = negatePrototype
+            .Replace("{0}", type);
+        #><#= negateStr #><#
+    }
+}
+#>
+    }
+}

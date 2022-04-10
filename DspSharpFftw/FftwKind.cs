@@ -7,7 +7,7 @@
 namespace DspSharpFftw
 {
     /// <summary>
-    ///     Kinds of real-to-real transforms
+    /// Kinds of real-to-real transforms
     /// </summary>
     public enum FftwRealToRealKind : uint
     {

@@ -5,18 +5,18 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using UTilities.Collections;
+using System.Linq;
 
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Represents a set of finite filters which are applied in succession.
+    /// Represents a set of finite filters which are applied in succession.
     /// </summary>
-    /// <seealso cref="FiniteFilter" />
     public class FiniteFilterSet : FiniteFilter
     {
-        private readonly IObservableList<IFiniteFilter> _Filters = new ObservableList<IFiniteFilter>();
+        private readonly ObservableCollection<IFiniteFilter> _Filters = new ObservableCollection<IFiniteFilter>();
 
         public FiniteFilterSet(double samplerate) : base(samplerate)
         {
@@ -24,21 +24,15 @@ namespace DspSharp.Filter
         }
 
         /// <summary>
-        ///     Gets the contained filters.
+        /// Gets the contained filters.
         /// </summary>
         public IList<IFiniteFilter> Filters => this._Filters;
 
-        /// <summary>
-        ///     Specifies whether the filter object has an effect or not.
-        /// </summary>
-        protected override bool HasEffectOverride => this.Filters.Count > 0;
+        /// <inheritdoc/>
+        protected override bool HasEffectOverride => this.Filters.Any(f => f.HasEffect);
 
-        /// <summary>
-        ///     Processes the specified sequence.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
         {
             foreach (var filter in this.Filters)
             {

@@ -81,7 +81,7 @@ namespace DspSharpDemo
             var q = this.StartQ;
             var stepSize = this.InitialStepSize;
 
-            var ret = new BiquadFilter(this.SampleRate, BiquadFilter.BiquadFilters.Peaking, frequency, q, gain);
+            var ret = new BiquadFilter(this.SampleRate, BiquadFilter.BiquadFilterType.Peaking, frequency, q, gain);
 
             var error = this.GetError(ret.GetFrequencyResponse(x), y);
 

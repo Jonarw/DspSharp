@@ -10,7 +10,7 @@ using System.Linq;
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
     /// <summary>
-    ///     Represents a filter with a constant gain and no effects otherwise.
+    /// Represents a 'filter' which only returns zeros.
     /// </summary>
     public class ZeroFilter : FiniteFilter
     {
@@ -19,14 +19,13 @@ namespace DspSharp.Filter.LtiFilters.Primitive
             this.DisplayName = "Zero Filter";
         }
 
-        /// <summary>
-        ///     Returns true.
-        /// </summary>
+        /// <inheritdoc/>
         protected override bool HasEffectOverride => true;
 
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
-            return signal.Select(d => 0.0);
+            return signal.Select(_ => 0.0);
         }
     }
 }

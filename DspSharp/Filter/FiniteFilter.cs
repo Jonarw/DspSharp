@@ -5,47 +5,36 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using DspSharp.Algorithms;
-using UTilities.Extensions;
+using System.Linq;
 
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Represents a filter with a finite impulse response.
+    /// Represents a filter with a finite impulse response.
     /// </summary>
-    /// <seealso cref="FilterBase" />
-    /// <seealso cref="IFiniteFilter" />
     public abstract class FiniteFilter : FilterBase, IFiniteFilter
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="FiniteFilter" /> class.
+        /// Initializes a new instance of the <see cref="FiniteFilter" /> class.
         /// </summary>
         /// <param name="samplerate">The samplerate.</param>
         protected FiniteFilter(double samplerate) : base(samplerate)
         {
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance has infinite impulse response.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
-        /// </value>
+        /// <inheritdoc/>
         public sealed override bool HasInfiniteImpulseResponse => false;
 
+        /// <inheritdoc/>
         public IReadOnlyList<double> Process(IReadOnlyList<double> input)
         {
             return this.HasEffect ? this.ProcessOverride(input) : input;
         }
 
-        /// <summary>
-        ///     Processes the specified sequence.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public IReadOnlyList<double> ProcessOverride(IReadOnlyList<double> input)
+        /// <inheritdoc/>
+        protected IReadOnlyList<double> ProcessOverride(IReadOnlyList<double> input)
         {
-            return this.ProcessOverride((IEnumerable<double>)input).ToReadOnlyList();
+            return this.ProcessOverride((IEnumerable<double>)input).ToList();
         }
     }
 }

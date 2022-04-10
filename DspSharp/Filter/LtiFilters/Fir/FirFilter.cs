@@ -4,38 +4,25 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System.Collections.Generic;
+using DspSharp.Algorithms;
 using DspSharp.Extensions;
-using DspSharp.Signal;
 using DspSharp.Signal.Windows;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UTilities;
 
 namespace DspSharp.Filter.LtiFilters.Fir
 {
     /// <summary>
-    ///     A standard FIR filter, e.g. lowpass, highpass etc.
+    /// Represents a FIR lowpass or highpass filter.
     /// </summary>
     public class FirFilter : Convolver
     {
-        /// <summary>
-        ///     Enumeration of the supported filter types.
-        /// </summary>
-        public enum Types
-        {
-            /// <summary>
-            ///     FIR lowpass filter.
-            /// </summary>
-            Lowpass,
-
-            /// <summary>
-            ///     FIR highpass filter.
-            /// </summary>
-            Highpass
-        }
-
         private const int Defaultfilterlength = 10000;
         private double _F0;
         private int _FilterLength = Defaultfilterlength;
-        private Types _FilterType;
+        private FirFilterType _FilterType;
         private WindowType _WindowType = WindowType.Hann;
 
         public FirFilter(double samplerate) : base(samplerate)
@@ -44,59 +31,51 @@ namespace DspSharp.Filter.LtiFilters.Fir
         }
 
         /// <summary>
-        ///     The cut-off frequency.
+        /// The cut-off frequency.
         /// </summary>
         public double Fc
         {
-            get { return this._F0; }
-            set
-            {
-                this.SetField(ref this._F0, value);
-                this.Coefficients = null;
-            }
+            get => this._F0;
+            set => this.SetField(ref this._F0, value, this.InvalidateCoefficients);
         }
 
         /// <summary>
-        ///     The length of the FIR-Filter.
+        /// The length of the FIR-Filter.
         /// </summary>
         public int FilterLength
         {
-            get { return this._FilterLength; }
-            set
-            {
-                this.SetField(ref this._FilterLength, value);
-                this.Coefficients = null;
-            }
+            get => this._FilterLength;
+            set => this.SetField(ref this._FilterLength, value, this.InvalidateCoefficients);
         }
 
         /// <summary>
-        ///     Gets or sets the type of the filter.
+        /// Gets or sets the type of the filter.
         /// </summary>
-        public Types FilterType
+        public FirFilterType FilterType
         {
-            get { return this._FilterType; }
-            set
-            {
-                this.SetField(ref this._FilterType, value);
-                this.Coefficients = null;
-            }
+            get => this._FilterType;
+            set => this.SetField(ref this._FilterType, value, this.InvalidateCoefficients);
         }
 
+        /// <inheritdoc/>
         public override IReadOnlyList<double> ImpulseResponse
         {
             get
             {
                 if (this.Coefficients == null)
                 {
-                    var win = new Window(this.WindowType, this.FilterLength, this.Samplerate, WindowModes.Symmetric);
+                    var w = 2 * this.Fc / this.Samplerate;
+                    Func<int, double> sinc = this.FilterType switch
+                    {
+                        FirFilterType.Lowpass => time => Mathematic.Sinc(2 * time) * w,
+                        FirFilterType.Highpass => time => (time == 0 ? 1.0 : 0.0) - Mathematic.Sinc(2 * time) * w,
+                        _ => throw EnumOutOfRangeException.Create(this.FilterType),
+                    };
 
-                    ISignal coef;
-                    if (this.FilterType == Types.Highpass)
-                        coef = new IdealHighpass(this.Samplerate, this.Fc);
-                    else
-                        coef = new IdealLowpass(this.Samplerate, this.Fc);
-
-                    this.Coefficients = coef.Multiply(win).Signal;
+                    var win = Window.CreateWindow(this.WindowType, WindowMode.Symmetric, this.FilterLength);
+                    this.Coefficients = win
+                        .SelectWithCount((d, i) => d * sinc(i - this.FilterLength / 2))
+                        .ToList();
                 }
 
                 return this.Coefficients;
@@ -104,31 +83,22 @@ namespace DspSharp.Filter.LtiFilters.Fir
         }
 
         /// <summary>
-        ///     The type of the window used for fading out the infinite-length sinc pulse.
+        /// The type of the window used for fading out the infinite-length sinc pulse.
         /// </summary>
         public WindowType WindowType
         {
-            get { return this._WindowType; }
-            set
-            {
-                this.SetField(ref this._WindowType, value);
-                this.Coefficients = null;
-            }
+            get => this._WindowType;
+            set => this.SetField(ref this._WindowType, value, this.InvalidateCoefficients);
         }
 
-        /// <summary>
-        ///     Returns true if all parameters are valid, false otherwise.
-        /// </summary>
-        protected override bool HasEffectOverride
-        {
-            get
-            {
-                if (this.Fc <= 0 || this.FilterLength <= 0)
-                    return false;
-                return true;
-            }
-        }
+        /// <inheritdoc/>
+        protected override bool HasEffectOverride => this.Fc > 0 && this.FilterLength > 0;
 
         private IReadOnlyList<double> Coefficients { get; set; }
+
+        private void InvalidateCoefficients()
+        {
+            this.Coefficients = null;
+        }
     }
 }

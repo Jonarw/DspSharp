@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
     /// <summary>
-    ///     A filter with a transfer function of 1.
+    /// A 'filter' which does nothing.
     /// </summary>
     public class DiracFilter : FiniteFilter
     {
@@ -18,12 +18,11 @@ namespace DspSharp.Filter.LtiFilters.Primitive
             this.DisplayName = "Dirac Filter";
         }
 
-        /// <summary>
-        ///     Returns false.
-        /// </summary>
+        /// <inheritdoc/>
         protected override bool HasEffectOverride => false;
 
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal;
         }

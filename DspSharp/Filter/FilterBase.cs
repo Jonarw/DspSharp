@@ -4,20 +4,18 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
-using UTilities.Observable;
 
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Base class for all types of filters.
+    /// Base class for all types of filters.
     /// </summary>
     public abstract class FilterBase : Observable, IFilter
     {
-        internal const double DefaultSamplerate = 44100;
-
+        internal const double DefaultSamplerate = 48000;
         private bool _Enabled = true;
-
         private string _Name;
 
         protected FilterBase(double samplerate)
@@ -25,45 +23,42 @@ namespace DspSharp.Filter
             this.Samplerate = samplerate;
         }
 
-        public static IReadOnlyList<double> DefaultSampleRates { get; } =
-            new List<double> {44100, 48000, 88200, 96000, 192000}.AsReadOnly();
-
         /// <summary>
-        ///     Determines whether the filter object is enabled.
+        ///  Invoked when the filter object has changed.
         /// </summary>
-        public bool Enabled
-        {
-            get { return this._Enabled; }
-            set { this.SetField(ref this._Enabled, value); }
-        }
+        public event EventHandler<EventArgs> ResponseChanged;
 
-        /// <summary>
-        ///     Indicates whether the <see cref="FilterBase" /> object has an effect.
-        /// </summary>
-        public bool HasEffect
-        {
-            get { return this.Enabled && this.HasEffectOverride; }
-        }
+        public static IReadOnlyList<double> DefaultSampleRates { get; } = new[] { 44100d, 48000, 88200, 96000, 192000 };
 
+        /// <inheritdoc/>
         public string DisplayName
         {
-            get { return this._Name; }
-            set { this.SetField(ref this._Name, value); }
+            get => this._Name;
+            set => this.SetField(ref this._Name, value);
         }
 
+        /// <inheritdoc/>
+        public bool Enabled
+        {
+            get => this._Enabled;
+            set => this.SetField(ref this._Enabled, value);
+        }
+
+        /// <inheritdoc/>
+        public bool HasEffect => this.Enabled && this.HasEffectOverride;
+
+        /// <inheritdoc/>
+        public virtual bool HasInfiniteImpulseResponse => true;
+
+        /// <inheritdoc/>
+        public double Samplerate { get; }
+
         /// <summary>
-        ///     Specifies whether the filter object has an effect or not.
+        /// Specifies whether the filter object has an effect.
         /// </summary>
         protected virtual bool HasEffectOverride => true;
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance has infinite impulse response.
-        /// </summary>
-        /// <value>
-        ///     <c>true</c> if this instance has an infinite impulse response; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool HasInfiniteImpulseResponse => true;
-
+        /// <inheritdoc/>
         public IEnumerable<double> Process(IEnumerable<double> input)
         {
             if (this.HasEffect)
@@ -73,36 +68,26 @@ namespace DspSharp.Filter
         }
 
         /// <summary>
-        ///     Gets or sets the samplerate of the <see cref="FilterBase" /> object.
-        /// </summary>
-        public double Samplerate { get; }
-
-        /// <summary>
-        ///     Invoked when the filter object has changed.
-        /// </summary>
-        public event ChangeEventHandler Changed;
-
-        /// <summary>
-        ///     Processes the specified signal.
-        /// </summary>
-        /// <param name="signal">The signal.</param>
-        /// <returns>The processed signal.</returns>
-        public abstract IEnumerable<double> ProcessOverride(IEnumerable<double> signal);
-
-        /// <summary>
-        ///     Can be overridden by a child class to perform a certain action every time the filter is changed.
+        /// Can be overridden by a child class to perform a certain action every time the filter is changed.
         /// </summary>
         protected virtual void OnChange()
         {
         }
 
         /// <summary>
-        ///     Should be called every time the filter object is changed in a way that alters its filter effect.
+        /// Processes the specified signal.
+        /// </summary>
+        /// <param name="signal">The signal.</param>
+        /// <returns>The processed signal.</returns>
+        protected abstract IEnumerable<double> ProcessOverride(IEnumerable<double> signal);
+
+        /// <summary>
+        /// Should be called every time the filter object is changed in a way that alters its filter effect.
         /// </summary>
         protected void RaiseChangedEvent()
         {
             this.OnChange();
-            this.Changed?.Invoke(this, new FilterChangedEventArgs());
+            this.ResponseChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

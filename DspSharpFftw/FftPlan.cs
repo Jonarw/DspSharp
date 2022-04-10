@@ -10,21 +10,23 @@ namespace DspSharpFftw
 {
     public abstract unsafe class FftPlan
     {
-        protected FftPlan(int fftLength, void* plan)
+        protected FftPlan(int fftLength, void* plan, FftwFlags flags)
         {
             this.FftLength = fftLength;
             this.Plan = plan;
             FftwInterop.ExportWisdom();
+            this.Flags = flags;
         }
-
-        public int FftLength { get; }
-        public void* Plan { get; }
-
-        public abstract void ExecuteUnsafe(void* input, void* output, NormalizationKind normalization);
 
         ~FftPlan()
         {
             FftwInterop.DestroyPlan(this.Plan);
         }
+
+        public int FftLength { get; }
+        public FftwFlags Flags { get; }
+        public void* Plan { get; }
+
+        public abstract void ExecuteUnsafe(void* input, void* output, NormalizationKind normalization);
     }
 }

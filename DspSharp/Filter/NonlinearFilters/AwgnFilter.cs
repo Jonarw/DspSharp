@@ -11,7 +11,7 @@ using DspSharp.Algorithms;
 namespace DspSharp.Filter.NonlinearFilters
 {
     /// <summary>
-    ///     Represents a filter that adds white Gaussian noise to a signal.
+    /// Represents a filter that adds white Gaussian noise to a signal.
     /// </summary>
     /// <seealso cref="FilterBase" />
     public class AwgnFilter : FiniteFilter
@@ -20,7 +20,7 @@ namespace DspSharp.Filter.NonlinearFilters
         private double _Variance;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="AwgnFilter" /> class.
+        /// Initializes a new instance of the <see cref="AwgnFilter" /> class.
         /// </summary>
         /// <param name="samplerate">The samplerate.</param>
         public AwgnFilter(double samplerate) : base(samplerate)
@@ -28,9 +28,12 @@ namespace DspSharp.Filter.NonlinearFilters
             this.Variance = .1;
         }
 
+        /// <summary>
+        /// Gets or sets the noise standard deviation.
+        /// </summary>
         public double Sigma
         {
-            get { return this._Sigma; }
+            get => this._Sigma;
             set
             {
                 this.SetField(ref this._Sigma, value);
@@ -38,9 +41,12 @@ namespace DspSharp.Filter.NonlinearFilters
             }
         }
 
+        /// <summary>
+        /// Gets or sets the noise variance.
+        /// </summary>
         public double Variance
         {
-            get { return this._Variance; }
+            get => this._Variance;
             set
             {
                 this.SetField(ref this._Variance, value);
@@ -48,17 +54,11 @@ namespace DspSharp.Filter.NonlinearFilters
             }
         }
 
-        /// <summary>
-        ///     Specifies whether the filter object has an effect or not.
-        /// </summary>
+        /// <inheritdoc/>
         protected override bool HasEffectOverride => true;
 
-        /// <summary>
-        ///     Processes the specified sequence.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> input)
         {
             return input.Add(SignalGenerators.WhiteNoise().Multiply(this.Sigma));
         }

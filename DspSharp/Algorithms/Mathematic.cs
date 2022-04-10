@@ -6,14 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
     public static class Mathematic
-    { 
+    {
         /// <summary>
-        ///     Uses a simple iterative algorithm to find the root of a (locally) monotonous function.
+        /// Uses a simple iterative algorithm to find the root of a (locally) monotonous function.
         /// </summary>
         /// <param name="function">The function.</param>
         /// <param name="startValue">The start value.</param>
@@ -24,11 +23,8 @@ namespace DspSharp.Algorithms
             Func<double, double> function,
             double startValue,
             double initialStepSize,
-            double threshold = 1e-16)
+            double threshold = 1e-15)
         {
-            if (function == null)
-                throw new ArgumentNullException(nameof(function));
-
             if (initialStepSize == 0)
                 throw new ArgumentOutOfRangeException(nameof(initialStepSize));
 
@@ -47,7 +43,7 @@ namespace DspSharp.Algorithms
                 if (Math.Abs(e - e1) < threshold)
                     break;
 
-                stepsize = stepsize * (e / (e1 - e));
+                stepsize *= e / (e1 - e);
 
                 e1 = e;
                 x += stepsize;
@@ -60,11 +56,10 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Approximates the Lambert W function.
+        /// Approximates the Lambert W function.
         /// </summary>
         /// <remarks>https://en.wikipedia.org/wiki/Lambert_W_function#Numerical_evaluation</remarks>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
         public static double LambertW(double input)
         {
             if (input < -1 / Math.E)
@@ -80,7 +75,7 @@ namespace DspSharp.Algorithms
             {
                 ewj = Math.Exp(wj);
                 pwj = wj;
-                wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
+                wj -= ((wj * ewj) - input) / ((ewj * (wj + 1)) - ((wj + 2) * ((wj * ewj) - input) / ((2 * wj) + 2)));
                 i++;
                 if (i > 1000)
                     throw new Exception("Not converging...");
@@ -88,34 +83,31 @@ namespace DspSharp.Algorithms
             while (Math.Abs(wj - pwj) > 1e-15);
 
             ewj = Math.Exp(wj);
-            wj = wj - (wj * ewj - input) / (ewj * (wj + 1) - (wj + 2) * (wj * ewj - input) / (2 * wj + 2));
+            wj -= (((wj * ewj) - input) / ((ewj * (wj + 1)) - ((wj + 2) * ((wj * ewj) - input) / ((2 * wj) + 2))));
 
             return wj;
         }
 
         /// <summary>
-        ///     Finds the minimum distance between two neighbouring points of an array.
+        /// Finds the minimum distance between two neighbouring points of a sequence.
         /// </summary>
         /// <param name="input">The array.</param>
         /// <returns>The result.</returns>
         public static double MinimumDistance(IEnumerable<double> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            var inputlist = input.ToReadOnlyList();
-
             var ret = double.PositiveInfinity;
-            for (var c = 1; c < inputlist.Count; c++)
+            var previous = double.NegativeInfinity;
+            foreach (var item in input)
             {
-                ret = Math.Min(ret, inputlist[c] - inputlist[c - 1]);
+                ret = Math.Min(ret, Math.Abs(item - previous));
+                previous = item;
             }
 
             return ret;
         }
 
         /// <summary>
-        ///     Calculates the modulus (remainder of a division).
+        /// Calculates the integer modulus (remainder of a division).
         /// </summary>
         /// <param name="x">The dividend.</param>
         /// <param name="m">The divisor.</param>
@@ -128,11 +120,11 @@ namespace DspSharp.Algorithms
             if (m == 0)
                 throw new ArgumentOutOfRangeException(nameof(m));
 
-            return (x % m + m) % m;
+            return ((x % m) + m) % m;
         }
 
         /// <summary>
-        ///     Calculates the modulus (remainder of a division).
+        /// Calculates the modulus (remainder of a division).
         /// </summary>
         /// <param name="x">The dividend.</param>
         /// <param name="m">The divisor.</param>
@@ -145,11 +137,11 @@ namespace DspSharp.Algorithms
             if (m == 0)
                 return double.NaN;
 
-            return (x % m + m) % m;
+            return ((x % m) + m) % m;
         }
 
         /// <summary>
-        ///     Calculates the modified bessel function of the first kind for a single value.
+        /// Calculates the modified bessel function of the first kind for a single value.
         /// </summary>
         /// <param name="x">The value.</param>
         /// <returns>The result.</returns>
@@ -159,29 +151,42 @@ namespace DspSharp.Algorithms
             if (x < 0)
                 throw new ArgumentOutOfRangeException(nameof(x));
 
+            double ModBesselSmall()
+            {
+                return 1 + (Math.Pow(x, 2) / 4) + (Math.Pow(x, 4) / 64) + (Math.Pow(x, 6) / 2304) + (Math.Pow(x, 8) / 147456) + (Math.Pow(x, 10) / 14745600);
+            }
+
+            double ModBesselLarge()
+            {
+                return Math.Pow(Math.E, x) / Math.Sqrt(2 * Math.PI * x) *
+                       (1 + (1 / (8 * x)) + (9 / (128 * Math.Pow(x, 2))) + (225 / (3072 * Math.Pow(x, 3))) + (11025 / (98304 * Math.Pow(x, 4))) + (893025 / (3932160 * x)));
+            }
+
             if (x < 4.9)
             {
-                return 1 + Math.Pow(x, 2) / 4 + Math.Pow(x, 4) / 64 + Math.Pow(x, 6) / 2304 + Math.Pow(x, 8) / 147456 +
-                       Math.Pow(x, 10) / 14745600;
+                return ModBesselSmall();
             }
 
             if (x > 5.1)
             {
-                return Math.Pow(Math.E, x) / Math.Sqrt(2 * Math.PI * x) *
-                       (1 + 1 / (8 * x) + 9 / (128 * Math.Pow(x, 2)) + 225 / (3072 * Math.Pow(x, 3)) + 11025 / (98304 * Math.Pow(x, 4)) +
-                        893025 / (3932160 * x));
+                return ModBesselLarge();
             }
 
-            var t1 = 1 + Math.Pow(x, 2) / 4 + Math.Pow(x, 4) / 64 + Math.Pow(x, 6) / 2304 + Math.Pow(x, 8) / 147456 +
-                     Math.Pow(x, 10) / 14745600;
-            var t2 = Math.Pow(Math.E, x) / Math.Sqrt(2 * Math.PI * x) *
-                     (1 + 1 / (8 * x) + 9 / (128 * Math.Pow(x, 2)) + 225 / (3072 * Math.Pow(x, 3)) + 11025 / (98304 * Math.Pow(x, 4)) +
-                      893025 / (3932160 * x));
-            return t1 * (5.1 - x) / 0.2 + t2 * (x - 4.9) / 0.2;
+            return (ModBesselSmall() * (5.1 - x) / 0.2) + (ModBesselLarge() * (x - 4.9) / 0.2);
+        }
+
+        public static int Round(this double value)
+        {
+            return (int)Math.Round(value);
+        }
+
+        public static int Round(this float value)
+        {
+            return (int)Math.Round(value);
         }
 
         /// <summary>
-        ///     Calculates the sinc = sin(pi * x) / (pi * x) of a single value.
+        /// Calculates the sinc = sin(pi * x) / (pi * x) of a single value.
         /// </summary>
         /// <param name="x">The value.</param>
         /// <returns>The result.</returns>

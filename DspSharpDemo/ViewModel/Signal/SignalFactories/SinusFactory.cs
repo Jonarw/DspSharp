@@ -31,7 +31,7 @@ namespace DspSharpDemo.ViewModel.Signal.SignalFactories
 
         public override ISignal CreateItem()
         {
-            return new Sinus(this.SampleRate, this.Frequency, this.Phase);
+            return new Sine(this.SampleRate, this.Frequency, this.Phase);
         }
     }
 }

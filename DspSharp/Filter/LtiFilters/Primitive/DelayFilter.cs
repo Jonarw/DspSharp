@@ -4,19 +4,19 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DspSharp.Algorithms;
 
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
     /// <summary>
-    ///     Represents a filter with a constant group delay and no effects otherwise.
+    /// Represents a filter with a constant group delay and no effects otherwise.
     /// </summary>
     public class DelayFilter : FiniteFilter
     {
-        private double _delay;
+        private double _Delay;
         private int _SampleDelay;
 
         public DelayFilter(double samplerate) : base(samplerate)
@@ -25,46 +25,36 @@ namespace DspSharp.Filter.LtiFilters.Primitive
         }
 
         /// <summary>
-        ///     Gets the delay of the <see cref="DelayFilter" /> in seconds.
+        /// Gets the delay of the <see cref="DelayFilter" /> in seconds.
         /// </summary>
         public double Delay
         {
-            get { return this._delay; }
-            private set { this.SetField(ref this._delay, value); }
+            get => this._Delay;
+            private set => this.SetField(ref this._Delay, value);
         }
 
         /// <summary>
-        ///     Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
+        /// Gets or sets the delay of the <see cref="DelayFilter" /> in integer samples.
         /// </summary>
         public int SampleDelay
         {
-            get { return Convert.ToInt32(this.Delay * this.Samplerate); }
-            set
-            {
-                if (!this.SetField(ref this._SampleDelay, value))
-                    return;
-
-                this.Delay = value / this.Samplerate;
-                this.RaiseChangedEvent();
-            }
+            get => Convert.ToInt32(this.Delay * this.Samplerate);
+            set => this.SetField(ref this._SampleDelay, value, this.CoerceSampleDelay);
         }
 
-        /// <summary>
-        ///     True if <see cref="Delay" /> is not 0, false otherwise.
-        /// </summary>
-        protected override bool HasEffectOverride
-        {
-            get
-            {
-                if (this.SampleDelay == 0)
-                    return false;
-                return true;
-            }
-        }
+        /// <inheritdoc/>
+        protected override bool HasEffectOverride => this.SampleDelay != 0;
 
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return SignalGenerators.GetZeros(this.SampleDelay).Concat(signal);
+        }
+
+        private void CoerceSampleDelay()
+        {
+            this.Delay = this.Samplerate / this.Samplerate;
+            this.RaiseChangedEvent();
         }
     }
 }

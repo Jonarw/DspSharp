@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net45;net46</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Version>0.1.3-pre</Version>
     <Authors>Jonathan Arweck</Authors>
@@ -15,27 +15,14 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.Portable.Compatibility" Version="1.0.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DspSharp\DspSharp.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="DspSharp.Interop">
-      <HintPath>DspSharp.Interop.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
   <ItemGroup>    
-    <Content Include="DspSharp.Interop.dll">
-      <Pack>true</Pack>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>    
     <Content Include="libfftw3-3-32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>    

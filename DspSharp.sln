@@ -1,32 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpPlot", "DspSharpPlot\DspSharpPlot.csproj", "{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpDemo", "DspSharpDemo\DspSharpDemo.csproj", "{E5082A3F-27F3-41BC-A674-2010222ADE62}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DspSharp", "DspSharp\DspSharp.csproj", "{17269798-53CF-4088-B7AC-157108E8EACA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82088441-657A-4314-B3A5-D7BB3CE2D2F5}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		LICENSE.txt = LICENSE.txt
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharp.DynamicInterop", "DspSharp.DynamicInterop\DspSharp.DynamicInterop.csproj", "{74829BDE-ED15-489C-A29E-09C260F38F3A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharpTest", "DspSharpTest\DspSharpTest.csproj", "{F2939B79-68B6-4477-B716-5CCF11C0FDDB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DspSharpFftw", "DspSharpFftw\DspSharpFftw.csproj", "{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DspSharpAsio", "DspSharpAsio\DspSharpAsio.csproj", "{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UMT-Utilities", "..\USound Measurement Tool\UMT-Utilities\UMT-Utilities.csproj", "{053F2110-9A23-4897-B948-B917DC2A4454}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UTilities", "..\USound Measurement Tool\UTilities\UTilities.csproj", "{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DspSharp.DynamicInterop2", "DspSharp.DynamicInterop2\DspSharp.DynamicInterop2.csproj", "{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +24,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Preview|Any CPU.ActiveCfg = Release|Any CPU
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Preview|Any CPU.Build.0 = Release|Any CPU
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F3FBBD4-79E7-4F3F-9FEB-44822E4545FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5082A3F-27F3-41BC-A674-2010222ADE62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5082A3F-27F3-41BC-A674-2010222ADE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5082A3F-27F3-41BC-A674-2010222ADE62}.Preview|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,12 +36,6 @@ Global
 		{17269798-53CF-4088-B7AC-157108E8EACA}.Preview|Any CPU.Build.0 = Release|Any CPU
 		{17269798-53CF-4088-B7AC-157108E8EACA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17269798-53CF-4088-B7AC-157108E8EACA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Preview|Any CPU.ActiveCfg = Release|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Preview|Any CPU.Build.0 = Release|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{74829BDE-ED15-489C-A29E-09C260F38F3A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F2939B79-68B6-4477-B716-5CCF11C0FDDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F2939B79-68B6-4477-B716-5CCF11C0FDDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2939B79-68B6-4477-B716-5CCF11C0FDDB}.Preview|Any CPU.ActiveCfg = Release|Any CPU
@@ -71,30 +48,6 @@ Global
 		{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}.Preview|Any CPU.Build.0 = Release|Any CPU
 		{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BA736BB-BF16-40F7-A59F-8F271DD8CFA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Preview|Any CPU.ActiveCfg = Release|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Preview|Any CPU.Build.0 = Release|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8420C3E2-CA65-44A1-BBC7-F259751FAE9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Preview|Any CPU.ActiveCfg = Preview|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Preview|Any CPU.Build.0 = Preview|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{053F2110-9A23-4897-B948-B917DC2A4454}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Preview|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Preview|Any CPU.Build.0 = Debug|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDE718AB-C416-4B43-A5C4-FD82D2F4FC9A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Preview|Any CPU.ActiveCfg = Debug|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Preview|Any CPU.Build.0 = Debug|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{813B3BAC-3BFA-4D6F-A29A-2F1C54AC999D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

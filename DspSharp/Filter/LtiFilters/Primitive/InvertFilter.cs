@@ -10,7 +10,7 @@ using DspSharp.Algorithms;
 namespace DspSharp.Filter.LtiFilters.Primitive
 {
     /// <summary>
-    ///     A filter with a transfer function of -1.
+    /// A filter with a transfer function of -1.
     /// </summary>
     public class InvertFilter : FiniteFilter
     {
@@ -19,12 +19,11 @@ namespace DspSharp.Filter.LtiFilters.Primitive
             this.DisplayName = "invert filter";
         }
 
-        /// <summary>
-        ///     Returns true.
-        /// </summary>
+        /// <inheritdoc/>
         protected override bool HasEffectOverride => true;
 
-        public override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
+        /// <inheritdoc/>
+        protected override IEnumerable<double> ProcessOverride(IEnumerable<double> signal)
         {
             return signal.Negate();
         }

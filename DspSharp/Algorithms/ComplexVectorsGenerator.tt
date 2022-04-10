@@ -1,0 +1,65 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+using DspSharp.Extensions;
+using DspSharp.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+
+namespace DspSharp.Algorithms
+{
+    public static partial class ComplexVectors
+    {
+<#
+
+var functions = new[] {"Real", "Imaginary", "Magnitude", "Phase", "ComplexConjugate"};
+var returnTypes = new[] {"double", "double", "double", "double", "Complex"};
+var operation = new[] {"c.Real", "c.Imaginary", "c.Magnitude", "c.Phase", "new Complex(c.Real, -c.Imaginary)"};
+var descriptions = new[] {"real part", "imaginary part", "magnitude", "phase", "complex conjugate"};
+
+var prototypeOperation = 
+@"        /// <summary>
+        /// Calculates the {4} of a complex-valued sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static IEnumerable<{2}> {1}(this IEnumerable<Complex> input)
+        {
+            return input.Select(c => {3});
+        }
+
+        /// <summary>
+        /// Calculates the {4} of a complex-valued sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyCollection<{2}> {1}(this IReadOnlyCollection<Complex> input)
+        {
+            return input.SelectWithCount(c => {3});
+        }
+
+        /// <summary>
+        /// Calculates the {4} of a complex-valued sequence.
+        /// </summary>
+        /// <param name=""input"">The sequence.</param>
+        public static ILazyReadOnlyList<{2}> {1}(this IReadOnlyList<Complex> input)
+        {
+            return input.SelectIndexed(c => {3});
+        }
+
+";
+
+    for (var i = 0; i < 5; i++)
+    {
+        var str = prototypeOperation
+            .Replace("{1}", functions[i])
+            .Replace("{2}", returnTypes[i])
+            .Replace("{3}", operation[i])
+            .Replace("{4}", descriptions[i]);
+#><#= str #><#    
+    
+    }
+#>
+    }
+}

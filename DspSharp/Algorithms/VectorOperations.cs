@@ -4,297 +4,242 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Exceptions;
+using DspSharp.Extensions;
+using DspSharp.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UTilities.Extensions;
 
 namespace DspSharp.Algorithms
 {
     public static class VectorOperations
     {
         /// <summary>
-        ///     Performs a circular shift on an array.
+        /// Performs a circular shift.
         /// </summary>
-        /// <param name="input">The array to be circularly shifted.</param>
+        /// <param name="input">The sequence to be circularly shifted.</param>
         /// <param name="offset">
-        ///     The amount of samples the array should be shifted. Positive offsets are used for left-shifts while negative
-        ///     offsets are used for right-shifts.
+        /// The amount of samples the sequence should be shifted. Positive offsets are used for left-shifts while negative offsets are used for right-shifts.
         /// </param>
-        /// <returns>An array of the same length as <paramref name="input" /> containing the result.</returns>
-        public static IEnumerable<T> CircularShift<T>(this IReadOnlyList<T> input, int offset)
+        public static IReadOnlyList<T> CircularShift<T>(this IReadOnlyList<T> input, int offset)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
             if (input.Count == 0)
-                return Enumerable.Empty<T>();
+                return Array.Empty<T>();
 
             offset = Mathematic.Mod(offset, input.Count);
+            var ret = new T[input.Count];
+            var c = 0;
 
-            return input.Skip(offset).Concat(input.Take(offset));
+            for (var i = offset; i < input.Count; i++)
+                ret[c++] = input[i];
+
+            for (var i = 0; i < offset; i++)
+                ret[c++] = input[i];
+
+            return ret;
         }
 
         /// <summary>
-        ///     Gets a range from a sequence, wrapping around to zero if reaching the end of the sequence.
-        /// </summary>
-        /// <param name="fftResult">The sequence.</param>
-        /// <param name="start">The start of the range.</param>
-        /// <param name="length">The length of the range.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> GetCircularRange(this IEnumerable<double> fftResult, int start, int length)
-        {
-            if (fftResult == null)
-                throw new ArgumentNullException(nameof(fftResult));
-            if (length < 0)
-                throw new ArgumentOutOfRangeException(nameof(length));
-
-            var list = fftResult.ToReadOnlyList();
-
-            start = Mathematic.Mod(start, list.Count);
-
-            int stop;
-            if (length > list.Count)
-            {
-                stop = start == 0 ? list.Count - 1 : start - 1;
-                return
-                    list.GetRangeOptimized(start, list.Count - start)
-                        .Concat(list.Take(stop))
-                        .PadRight(length - list.Count);
-            }
-
-            stop = Mathematic.Mod(start + length, list.Count);
-
-            if (start < stop)
-                return list.GetRangeOptimized(start, stop - start);
-
-            return list.GetRangeOptimized(start, list.Count - start).Concat(list.Take(stop));
-        }
-
-        //TODO: Unit test
-        public static void GetElementsAboveThreshold<T>(
-            IEnumerable<double> x,
-            IEnumerable<T> y,
-            double threshold,
-            out IEnumerable<double> xOut,
-            out IEnumerable<T> yOut)
-        {
-            var index = x.FirstIndex(d => d > threshold);
-            if (index < 0)
-            {
-                xOut = Enumerable.Empty<double>();
-                yOut = Enumerable.Empty<T>();
-                return;
-            }
-
-            xOut = x.Skip(index);
-            yOut = y.Skip(index);
-        }
-
-        public static void GetElementsBelowThreshold<T>(
-            IEnumerable<double> x,
-            IEnumerable<T> y,
-            double threshold,
-            out IEnumerable<double> xOut,
-            out IEnumerable<T> yOut)
-        {
-            var index = x.FirstIndex(d => d >= threshold);
-            if (index < 1)
-            {
-                xOut = x;
-                yOut = y;
-                return;
-            }
-
-            xOut = x.Take(index - 1);
-            yOut = y.Take(index - 1);
-        }
-
-        public static void GetElementsInRange<T>(
-            IEnumerable<double> x,
-            IEnumerable<T> y,
-            double lowerThreshold,
-            double upperThreshold,
-            out IEnumerable<double> xOut,
-            out IEnumerable<T> yOut)
-        {
-            GetElementsAboveThreshold(x, y, lowerThreshold, out var x2, out var y2);
-            GetElementsBelowThreshold(x2, y2, upperThreshold, out xOut, out yOut);
-        }
-
-        /// <summary>
-        ///     Gets a range from a sequence, zero-padding at the start and end if necessary.
+        /// Gets a range from a sequence, wrapping around to zero if reaching the end of the sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
         /// <param name="start">The start of the range.</param>
         /// <param name="length">The length of the range.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> GetPaddedRange(this IEnumerable<double> input, int start, int length)
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<double> GetCircularRange(this IReadOnlyList<double> input, int start, int length)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            var c = start;
-            var i = 0;
-            while (c < 0 && i < length)
+            if (input.Count == 0 && length > 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
+            return Iterator().WithCount(length);
+
+            IEnumerable<double> Iterator()
             {
-                yield return 0.0;
-                i++;
-                c++;
-            }
+                var c = 0;
+                var i = Mathematic.Mod(start, input.Count);
 
-            c = 0;
-            using (var e = input.GetEnumerator())
-            {
-                while (c < start && e.MoveNext())
+                while (c < length)
                 {
-                    c++;
-                }
+                    for (; i < input.Count && c < length; i++)
+                    {
+                        yield return input[i];
+                        c++;
+                    }
 
-                while (c < start)
-                {
-                    c++;
+                    i = 0;
                 }
-
-                while (e.MoveNext() && i < length)
-                {
-                    yield return e.Current;
-                    i++;
-                    c++;
-                }
-            }
-
-            while (i < length)
-            {
-                yield return 0.0;
-                i++;
             }
         }
 
         /// <summary>
-        ///     Gets a range from a sequence, taking advantage of indexed access if the sequence type supports it. If the original
-        ///     sequence runs out of elements, the output sequence can be shorter than <see cref="length" />.
+        /// Gets a range from a sequence, zero-padding at the start and end if necessary.
+        /// </summary>
+        /// <param name="input">The sequence.</param>
+        /// <param name="start">The start of the range.</param>
+        /// <param name="length">The length of the range.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<double> GetPaddedRange(this IReadOnlyList<double> input, int start, int length)
+        {
+            if (length < 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
+            return Iterator().WithCount(length);
+
+            IEnumerable<double> Iterator()
+            {
+                var c = 0;
+                var i = start;
+                while (i < 0 && c < length)
+                {
+                    yield return 0.0;
+                    i++;
+                    c++;
+                }
+
+                while (i < input.Count && c < length)
+                {
+                    yield return input[i];
+                    i++;
+                    c++;
+                }
+
+                while (c < length)
+                {
+                    yield return 0.0;
+                    c++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a range from a sequence.
         /// </summary>
         /// <param name="input">The input sequence.</param>
         /// <param name="startindex">The start of the range.</param>
         /// <param name="length">The length of the range.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> GetRangeOptimized(this IEnumerable<double> input, int startindex, int length)
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<double> GetRange(this IReadOnlyList<double> input, int startindex, int length)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            if (startindex < 0)
+                throw new ArgumentOutOfRangeException(nameof(startindex));
+            if (length < 0 || length > input.Count - startindex)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
+            return Iterator().WithCount(length);
+
+            IEnumerable<double> Iterator()
+            {
+                for (var i = 0; i < length; i++)
+                {
+                    yield return input[i + startindex];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets a range from a sequence.
+        /// </summary>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="startindex">The start of the range.</param>
+        /// <param name="length">The length of the range.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<double> GetRange(this IEnumerable<double> input, int startindex, int length)
+        {
             if (startindex < 0)
                 throw new ArgumentOutOfRangeException(nameof(startindex));
             if (length < 0)
                 throw new ArgumentOutOfRangeException(nameof(length));
 
-            if (!(input is IReadOnlyList<double> inputlist))
-            {
-                var c = 0;
+            return Iterator().WithCount(length);
 
-                using (var e = input.Skip(startindex).GetEnumerator())
+            IEnumerable<double> Iterator()
+            {
+                using var e = input.GetEnumerator();
+                for (var i = 0; i < startindex; i++)
                 {
-                    while (e.MoveNext() && c++ < length)
-                    {
-                        yield return e.Current;
-                    }
+                    if (!e.MoveNext())
+                        throw new Exception("Sequence ran out of elements");
                 }
 
-                yield break;
+                for (var i = 0; i < length; i++)
+                {
+                    if (!e.MoveNext())
+                        throw new Exception("Sequence ran out of elements");
+
+                    yield return e.Current;
+                }
             }
-
-            var stop = Math.Min(startindex + length, inputlist.Count);
-
-            for (var i = startindex; i < stop; i++)
-                yield return inputlist[i];
         }
 
         /// <summary>
-        ///     Interleaves two sequences to a single sequence containing both vectors in an alternating pattern.
+        /// Interleaves two sequences to a single sequence by returning elements from both sequences in an alternating pattern.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="first">The first vector.</param>
-        /// <param name="second">The second vector.</param>
-        /// <returns></returns>
-        public static IEnumerable<T> InterleaveEnumerations<T>(this IEnumerable<T> first, IEnumerable<T> second)
+        /// <param name="first">The first sequence.</param>
+        /// <param name="second">The second sequence.</param>
+        public static IEnumerable<T> Interleave<T>(this IEnumerable<T> first, IEnumerable<T> second)
         {
-            if (first == null)
-                throw new ArgumentNullException(nameof(first));
-            if (second == null)
-                throw new ArgumentNullException(nameof(second));
-
-            using (var enumerator1 = first.GetEnumerator())
-            using (var enumerator2 = second.GetEnumerator())
+            using var enumerator1 = first.GetEnumerator();
+            using var enumerator2 = second.GetEnumerator();
+            while (enumerator1.MoveNext())
             {
-                while (enumerator1.MoveNext() && enumerator2.MoveNext())
+                if (!enumerator2.MoveNext())
+                    throw new LengthMismatchException();
+
+                yield return enumerator1.Current;
+                yield return enumerator2.Current;
+            }
+        }
+
+        /// <summary>
+        /// Interleaves two sequences to a single sequence by returning elements from both sequences in an alternating pattern.
+        /// </summary>
+        /// <param name="first">The first sequence.</param>
+        /// <param name="second">The second sequence.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<T> Interleave<T>(this IReadOnlyCollection<T> first, IReadOnlyCollection<T> second)
+        {
+            if (first.Count != second.Count)
+                throw new LengthMismatchException();
+
+            return Iterator().WithCount(first.Count * 2);
+
+            IEnumerable<T> Iterator()
+            {
+                using var enumerator1 = first.GetEnumerator();
+                using var enumerator2 = second.GetEnumerator();
+                for (var i = 0; i < first.Count; i++)
                 {
+                    enumerator1.MoveNext();
                     yield return enumerator1.Current;
+                    enumerator2.MoveNext();
                     yield return enumerator2.Current;
                 }
             }
         }
 
-        public static bool AreIdentical<T>(this IEnumerable<T> sequence1, IEnumerable<T> sequence2)
+        /// <summary>
+        /// Loops a sequence for the specified number of cycles.
+        /// </summary>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="loopCount">The number of cycles. If this is <0, the sequence is looped indefinitely.</param>
+        public static ILazyReadOnlyList<T> Loop<T>(this IReadOnlyList<T> sequence, int loopCount)
         {
-            if (sequence1 == null)
-                throw new ArgumentNullException(nameof(sequence1));
-            if (sequence2 == null)
-                throw new ArgumentNullException(nameof(sequence2));
-
-            if (ReferenceEquals(sequence1, sequence2))
-                return true;
-
-            using (var e1 = sequence1.GetEnumerator())
-            using (var e2 = sequence2.GetEnumerator())
-            {
-                while (e1.MoveNext())
-                {
-                    if (!e2.MoveNext() || !e1.Current.Equals(e2.Current))
-                        return false;
-                }
-
-                if (e2.MoveNext())
-                    return false;
-            }
-
-            return true;
+            return new LoopIterator<T>(sequence, loopCount);
         }
 
         /// <summary>
-        ///     Pads a sequence at the left side with the specified number of pad elements.
+        /// Pads a sequence at the end with the specified number of pad elements.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="input">The input sequence.</param>
         /// <param name="count">The number of pad elements.</param>
         /// <param name="padElement">The pad element.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IEnumerable<T> PadLeft<T>(this IEnumerable<T> input, int count, T padElement = default(T))
+        public static IEnumerable<T> PadEnd<T>(this IEnumerable<T> input, int count, T padElement = default)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-            if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
-
-            return Enumerable.Repeat(padElement, count).Concat(input);
-        }
-
-        /// <summary>
-        ///     Pads a sequence at the right side with the specified number of pad elements.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="input">The input sequence.</param>
-        /// <param name="count">The number of pad elements.</param>
-        /// <param name="padElement">The pad element.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static IEnumerable<T> PadRight<T>(this IEnumerable<T> input, int count, T padElement = default(T))
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
             if (count < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
@@ -302,18 +247,103 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Computes a sub-portion of a sequence by only including every xth element.
+        /// Pads a sequence at the start with the specified number of pad elements.
+        /// </summary>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="count">The number of pad elements.</param>
+        /// <param name="padElement">The pad element.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<T> PadEnd<T>(this IReadOnlyCollection<T> input, int count, T padElement = default)
+        {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            return input
+                .Concat(Enumerable.Repeat(padElement, count))
+                .WithCount(input.Count + count);
+        }
+
+        /// <summary>
+        /// Pads a sequence at the start with the specified number of pad elements.
+        /// </summary>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="count">The number of pad elements.</param>
+        /// <param name="padElement">The pad element.</param>
+        public static IEnumerable<T> PadStart<T>(this IEnumerable<T> input, int count, T padElement = default)
+        {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            return Enumerable.Repeat(padElement, count).Concat(input);
+        }
+
+        /// <summary>
+        /// Pads a sequence at the start with the specified number of pad elements.
+        /// </summary>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="count">The number of pad elements.</param>
+        /// <param name="padElement">The pad element.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<T> PadStart<T>(this IReadOnlyCollection<T> input, int count, T padElement = default)
+        {
+            if (count < 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            return Enumerable
+                .Repeat(padElement, count)
+                .Concat(input)
+                .WithCount(input.Count + count);
+        }
+
+        /// <summary>
+        /// Pads a sequence at the end with the specified number of pad elements.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input">The input sequence.</param>
+        /// <param name="totalLength">The total length of the resulting sequence.</param>
+        /// <param name="padElement">The pad element.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<T> PadToLength<T>(this IEnumerable<T> input, int totalLength, T padElement = default)
+        {
+            if (totalLength < 0)
+                throw new ArgumentOutOfRangeException(nameof(totalLength));
+
+            return PadToLengthIterator().WithCount(totalLength);
+
+            IEnumerable<T> PadToLengthIterator()
+            {
+                using var e = input.GetEnumerator();
+                var c = 0;
+                while (e.MoveNext())
+                {
+                    yield return e.Current;
+                    c++;
+                    if (c == totalLength)
+                        yield break;
+                }
+
+                while (c < totalLength)
+                {
+                    yield return padElement;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Computes a sub-portion of a sequence by only including every xth element.
         /// </summary>
         /// <param name="series">The sequence.</param>
         /// <param name="sparseFactor">The sparse factor.</param>
-        /// <returns></returns>
         public static IEnumerable<T> SparseSequence<T>(this IEnumerable<T> series, int sparseFactor)
         {
             if (series == null)
                 throw new ArgumentNullException(nameof(series));
 
-            using (var e = series.GetEnumerator())
+            return Iterator();
+
+            IEnumerable<T> Iterator()
             {
+                using var e = series.GetEnumerator();
                 while (true)
                 {
                     for (var i = 0; i < sparseFactor; i++)
@@ -328,30 +358,55 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Takes the specified amount of items from a sequence. If the end of the sequence is reached, it is zero-padded.
+        /// Computes a sub-portion of a sequence by only including every xth element.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <param name="length">The amount of items to take.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> TakeFull(this IEnumerable<double> input, int length)
+        /// <param name="series">The sequence.</param>
+        /// <param name="sparseFactor">The sparse factor.</param>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static IReadOnlyCollection<T> SparseSequence<T>(this IReadOnlyCollection<T> series, int sparseFactor)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            return ((IEnumerable<T>)series).SparseSequence(sparseFactor).WithCount(series.Count / sparseFactor);
+        }
 
-            using (var e = input.GetEnumerator())
+        private class LoopIterator<T> : ILazyReadOnlyList<T>
+        {
+            private readonly int loopCount;
+            private readonly IReadOnlyList<T> sequence;
+
+            public LoopIterator(IReadOnlyList<T> sequence, int loopCount)
             {
-                var c = 0;
-                while (e.MoveNext() && c < length)
+                this.sequence = sequence;
+                this.loopCount = loopCount;
+            }
+
+            public int Count => this.sequence.Count * this.loopCount;
+            public T this[int index] => this.sequence[index % this.sequence.Count];
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                if (this.loopCount < 0)
                 {
-                    yield return e.Current;
-                    c++;
+                    while (true)
+                    {
+                        for (var j = 0; j < this.sequence.Count; j++)
+                        {
+                            yield return this.sequence[j];
+                        }
+                    }
                 }
 
-                while (c < length)
+                for (var i = 0; i < this.loopCount; i++)
                 {
-                    yield return 0.0;
-                    c++;
+                    for (var j = 0; j < this.sequence.Count; j++)
+                    {
+                        yield return this.sequence[j];
+                    }
                 }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
             }
         }
     }

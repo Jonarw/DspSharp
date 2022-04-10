@@ -7,14 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UTilities.Extensions;
+using UTilities;
 
 namespace DspSharp.Algorithms
 {
     public static class Statistics
     {
         /// <summary>
-        ///     Enumerates the different normalisation modes for computing Variance and Standard Deviation.
+        /// Enumerates the different normalisation modes for computing Variance and Standard Deviation.
         /// </summary>
         public enum NormalisationMode
         {
@@ -36,39 +36,12 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Calculates the arithmetic mean of the specified sequence.
+        /// Calculates the arithmetic mean of the specified sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
         public static double ArithmeticMean(this IEnumerable<double> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
             return input.Average();
-        }
-
-        public static IEnumerable<double> Trim(this IReadOnlyList<double> input, double trimLowerRatio, double trimUpperRatio)
-        {
-            return input.OrderBy(d => d).Skip(Convert.ToInt32(input.Count * trimLowerRatio)).Take(Convert.ToInt32(input.Count / (1 - trimLowerRatio - trimUpperRatio)));
-        }
-
-        //TODO: Unit test
-        /// <summary>
-        ///     Calculates the arithmetic mean of the specified sequence.
-        /// </summary>
-        /// <param name="input">The sequence.</param>
-        public static double TrimmedStandardDeviation(this IReadOnlyList<double> input, double trimLower, double trimUpper)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (trimLower < 0 || trimLower > 1)
-                throw new ArgumentOutOfRangeException(nameof(trimLower));
-
-            if (trimUpper < 0 || trimUpper > 1)
-                throw new ArgumentOutOfRangeException(nameof(trimUpper));
-
-            return input.Trim(trimLower, trimUpper).StandardDeviation();
         }
 
         /// <summary>
@@ -87,9 +60,7 @@ namespace DspSharp.Algorithms
             out double slope)
         {
             if (xVals.Count != yVals.Count)
-            {
                 throw new Exception("Input values should be with the same length.");
-            }
 
             double sumOfX = 0;
             double sumOfY = 0;
@@ -110,7 +81,6 @@ namespace DspSharp.Algorithms
 
             var count = xVals.Count;
             var ssX = sumOfXSq - ((sumOfX * sumOfX) / count);
-            var ssY = sumOfYSq - ((sumOfY * sumOfY) / count);
 
             var rNumerator = (count * sumCodeviates) - (sumOfX * sumOfY);
             var rDenom = (count * sumOfXSq - (sumOfX * sumOfX)) * (count * sumOfYSq - (sumOfY * sumOfY));
@@ -125,153 +95,126 @@ namespace DspSharp.Algorithms
             slope = sCo / ssX;
         }
 
-        //TODO: Unit test
         /// <summary>
-        ///     Calculates the arithmetic mean of the specified sequence.
+        /// Calculates the geometric mean of the specified sequence.
         /// </summary>
         /// <param name="input">The sequence.</param>
-        public static double TrimmedMean(this IReadOnlyList<double> input, double trimLower, double trimUpper)
+        public static double GeometricMean(this IReadOnlyCollection<double> input)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            if (trimLower < 0 || trimLower > 1)
-                throw new ArgumentOutOfRangeException(nameof(trimLower));
-
-            if (trimUpper < 0 || trimUpper > 1)
-                throw new ArgumentOutOfRangeException(nameof(trimUpper));
-
-            return input.Trim(trimLower, trimUpper).Average();
+            return Math.Pow(10, input.Log(10).Sum() / input.Count);
         }
 
         /// <summary>
-        ///     Calculates the geometric mean of the specified sequence.
+        /// Gets the inter-quartile range from a sequence.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        public static double GeometricMean(this IEnumerable<double> input)
+        /// <param name="values">The sequence.</param>
+        public static double InterQuartileRange(this IEnumerable<double> values)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            var inputlist = input.ToReadOnlyList();
-            return Math.Pow(10, inputlist.Log(10).Sum() / inputlist.Count);
+            var list = values.OrderBy(d => d).ToList();
+            return list.InterQuartileRange();
         }
 
         /// <summary>
-        ///     Gets the median.
+        /// Gets the inter-quartile range from a SORTED sequence.
         /// </summary>
-        /// <param name="source">The source.</param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Cannot compute median for an empty set.</exception>
-        //TODO: unit test
-        public static double Median(this IEnumerable<double> source)
+        /// <param name="sortedValues">The SORTED sequence.</param>
+        public static double InterQuartileRange(this IReadOnlyList<double> sortedValues)
         {
-            var enumerable = source.ToReadOnlyList();
-
-            if (enumerable.Count == 0)
-                throw new InvalidOperationException("Cannot compute median for an empty set.");
-
-            var sortedList = enumerable.OrderBy(number => number);
-
-            var itemIndex = sortedList.Count() / 2;
-
-            if (sortedList.Count() % 2 == 0)
-                return (sortedList.ElementAt(itemIndex) + sortedList.ElementAt(itemIndex - 1)) / 2;
-
-            return sortedList.ElementAt(itemIndex);
+            var q1 = sortedValues.NthOrderStatistic(25);
+            var q3 = sortedValues.NthOrderStatistic(75);
+            return q3 - q1;
         }
 
         /// <summary>
-        ///     Gets the median.
+        /// Gets the median from a SORTED sequence.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="numbers">The numbers.</param>
-        /// <param name="selector">The selector.</param>
-        /// <returns></returns>
-        //TODO: unit test
-        public static double Median<T>(this IEnumerable<T> numbers, Func<T, double> selector)
+        /// <param name="sortedList">The SORTED sequence.</param>
+        public static T Median<T>(this IReadOnlyList<T> sortedList) where T : IComparable<T>
         {
-            return numbers.Select(selector).Median();
+            return sortedList.NthOrderStatistic(50);
+        }
+
+        /// <summary>
+        /// Gets the median from a sequence.
+        /// </summary>
+        /// <param name="sequence">The sequence.</param>
+        public static double Median(this IEnumerable<double> sequence)
+        {
+            var list = sequence.OrderBy(d => d).ToList();
+            return list.Median();
+        }
+
+        /// <summary>
+        /// Gets the nth-order statistic from a SORTED sequence.
+        /// </summary>
+        /// <param name="sortedList">The SORTED sequence.</param>
+        /// <param name="percentile">The percentile.</param>
+        public static T NthOrderStatistic<T>(this IReadOnlyList<T> sortedList, double percentile) where T : IComparable<T>
+        {
+            if (percentile == 100)
+                return sortedList[sortedList.Count - 1];
+
+            return sortedList[(int)(percentile / 100 * sortedList.Count)];
         }
 
         //TODO: unit test
-        public static double Rms(this IEnumerable<double> values)
+        public static double Rms(this IReadOnlyCollection<double> values)
         {
-            var valueslist = values.ToReadOnlyList();
-            return Math.Sqrt(valueslist.Aggregate(0d, (d, d1) => d + Math.Pow(d1, 2)) / valueslist.Count);
+            return Math.Sqrt(values.Aggregate(0d, (d, d1) => d + Math.Pow(d1, 2)) / values.Count);
         }
 
         /// <summary>
-        ///     Calculates the standard deviation of a sequence.
+        /// Calculates the standard deviation of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mode">The normalisation mode.</param>
-        /// <returns>The standard deviation of the sequence.</returns>
-        public static double StandardDeviation(this IEnumerable<double> values, NormalisationMode mode = NormalisationMode.Population)
+        public static double StandardDeviation(this IReadOnlyCollection<double> values, NormalisationMode mode = NormalisationMode.Population)
         {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            var valueslist = values.ToReadOnlyList();
-            return StandardDeviation(valueslist, valueslist.Average(), mode);
+            return StandardDeviation(values, values.Average(), mode);
         }
 
         /// <summary>
-        ///     Calculates the standard deviation of a sequence.
+        /// Calculates the standard deviation of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mean">The mean of the sequence.</param>
         /// <param name="mode">The normalisation mode.</param>
-        /// <returns>The standard deviation of the sequence.</returns>
-        public static double StandardDeviation(this IEnumerable<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
+        public static double StandardDeviation(this IReadOnlyCollection<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
         {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            var valueslist = values.ToReadOnlyList();
-            return Math.Sqrt(valueslist.Variance(mean, mode));
+            return Math.Sqrt(values.Variance(mean, mode));
         }
 
         /// <summary>
-        ///     Calculates the variance of a sequence.
+        /// Calculates the variance of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mode">The normalisation mode.</param>
-        /// <returns>The variance of the sequence.</returns>
-        public static double Variance(this IEnumerable<double> values, NormalisationMode mode = NormalisationMode.Population)
+        public static double Variance(this IReadOnlyCollection<double> values, NormalisationMode mode = NormalisationMode.Population)
         {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            var valueslist = values.ToReadOnlyList();
-            return Variance(valueslist, valueslist.Average(), mode);
+            return Variance(values, values.Average(), mode);
         }
 
         /// <summary>
-        ///     Calculates the variance of a sequence.
+        /// Calculates the variance of a sequence.
         /// </summary>
         /// <param name="values">The sequence.</param>
         /// <param name="mean">The mean of the sequence.</param>
         /// <param name="mode">The normalisation mode.</param>
-        /// <returns>The variance of the sequence.</returns>
-        public static double Variance(this IEnumerable<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
+        public static double Variance(this IReadOnlyCollection<double> values, double mean, NormalisationMode mode = NormalisationMode.Population)
         {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            var valueslist = values.ToReadOnlyList();
-
-            if (valueslist.Count == 0)
+            if (values.Count == 0)
                 return 0;
 
-            var variance = valueslist.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
+            var variance = values.Aggregate(0.0, (d, d1) => d + Math.Pow(d1 - mean, 2));
 
-            if (mode == NormalisationMode.Population)
-                return variance / valueslist.Count;
-            if (mode == NormalisationMode.Sample)
-                return variance / Math.Max(valueslist.Count - 1, 1);
+            var norm = mode switch
+            {
+                NormalisationMode.Population => values.Count,
+                NormalisationMode.Sample => Math.Max(values.Count - 1, 1),
+                _ => throw EnumOutOfRangeException.Create(mode),
+            };
 
-            throw new ArgumentException();
+            return variance / norm;
         }
     }
 }

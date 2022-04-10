@@ -4,6 +4,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using DspSharp.Extensions;
+using DspSharp.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,46 +13,50 @@ using System.Numerics;
 
 namespace DspSharp.Algorithms
 {
-    public static class ComplexVectors
+    public static partial class ComplexVectors
     {
         /// <summary>
-        ///     Calculates the complex conjugate of a sequence.
+        /// Combines two real-valued collections of magnitude and phase into one complex-valued collection.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns>The complex conjugate of the sequence.</returns>
-        public static IEnumerable<Complex> ComplexConjugate(this IEnumerable<Complex> input)
+        /// <param name="magnitude">The magnitude.</param>
+        /// <param name="phase">The phase. Must have the same length as <paramref name="magnitude"/>.</param>
+        /// <returns>The complex-valued collection.</returns>
+        public static IEnumerable<Complex> FromMagnitudeAndPhase(IEnumerable<double> magnitude, IEnumerable<double> phase)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(c => new Complex(c.Real, -c.Imaginary));
+            return magnitude.ZipExact(phase, Complex.FromPolarCoordinates);
         }
 
         /// <summary>
-        ///     Extracts the imaginary part of a complex sequence.
+        /// Combines two real-valued collections of magnitude and phase into one complex-valued collection.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Imaginary(this IEnumerable<Complex> input)
+        /// <param name="magnitude">The magnitude.</param>
+        /// <param name="phase">The phase. Must have the same length as <paramref name="magnitude"/>.</param>
+        /// <returns>The complex-valued collection.</returns>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static ILazyReadOnlyCollection<Complex> FromMagnitudeAndPhase(IReadOnlyCollection<double> magnitude, IReadOnlyCollection<double> phase)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(c => c.Imaginary);
+            return magnitude.ZipWithCount(phase, Complex.FromPolarCoordinates);
         }
 
         /// <summary>
-        ///     Converts a complex-valued vector to a real-valued vector containing the real and imaginary parts in an alternating
-        ///     pattern.
+        /// Combines two real-valued collections of magnitude and phase into one complex-valued collection.
         /// </summary>
-        /// <param name="c">The c.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Interleave(this IEnumerable<Complex> c)
+        /// <param name="magnitude">The magnitude.</param>
+        /// <param name="phase">The phase. Must have the same length as <paramref name="magnitude"/>.</param>
+        /// <returns>The complex-valued collection.</returns>
+        /// <remarks>This is evaluated lazily.</remarks>
+        public static ILazyReadOnlyList<Complex> FromMagnitudeAndPhase(IReadOnlyList<double> magnitude, IReadOnlyList<double> phase)
         {
-            if (c == null)
-                throw new ArgumentNullException(nameof(c));
+            return magnitude.ZipIndexed(phase, Complex.FromPolarCoordinates);
+        }
 
-            foreach (var complex in c)
+        /// <summary>
+        /// Converts a complex-valued vector to a real-valued vector containing the real and imaginary parts in an alternating pattern.
+        /// </summary>
+        /// <param name="sequence">The sequence.</param>
+        public static IEnumerable<double> Interleave(this IEnumerable<Complex> sequence)
+        {
+            foreach (var complex in sequence)
             {
                 yield return complex.Real;
                 yield return complex.Imaginary;
@@ -58,76 +64,28 @@ namespace DspSharp.Algorithms
         }
 
         /// <summary>
-        ///     Extracts the magnitude from a complex-valued sequence.
+        /// Creates a new complex sequence from a sequence of real parts.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Magitude(this IEnumerable<Complex> input)
+        /// <param name="sequence">The real-valued input sequence.</param>
+        public static IEnumerable<Complex> ToComplex(this IEnumerable<double> sequence)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(c => c.Magnitude);
+            return sequence.Select(d => new Complex(d, 0));
         }
 
         /// <summary>
-        ///     Extracts the phase from a complex-valued sequence.
+        /// Creates a complex-valued vector from an interleaved real-valued vector containing real and imaginary parts in an alternating pattern.
         /// </summary>
-        /// <param name="input">The sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Phase(this IEnumerable<Complex> input)
+        /// <param name="sequence">The sequence of interleaved real and imaginary parts.</param>
+        public static IEnumerable<Complex> UnInterleaveComplex(this IEnumerable<double> sequence)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(c => c.Phase);
-        }
-
-        /// <summary>
-        ///     Extracts the real part from a complex-valued vector.
-        /// </summary>
-        /// <param name="input">The vector.</param>
-        /// <returns></returns>
-        public static IEnumerable<double> Real(this IEnumerable<Complex> input)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(c => c.Real);
-        }
-
-        /// <summary>
-        ///     Creates a new complex sequence from a sequence of real parts.
-        /// </summary>
-        /// <param name="input">The real-valued input sequence.</param>
-        /// <returns></returns>
-        public static IEnumerable<Complex> ToComplex(this IEnumerable<double> input)
-        {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
-
-            return input.Select(d => new Complex(d, 0));
-        }
-
-        /// <summary>
-        ///     Creates a complex-valued vector from an interleaved real-valued vector containing real and imaginary parts in an
-        ///     alternating pattern.
-        /// </summary>
-        /// <param name="d">The d.</param>
-        /// <returns></returns>
-        public static IEnumerable<Complex> UnInterleaveComplex(this IEnumerable<double> d)
-        {
-            if (d == null)
-                throw new ArgumentNullException(nameof(d));
-
-            using (var enumerator = d.GetEnumerator())
+            using var enumerator = sequence.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                while (enumerator.MoveNext())
-                {
-                    var real = enumerator.Current;
-                    enumerator.MoveNext();
-                    yield return new Complex(real, enumerator.Current);
-                }
+                var real = enumerator.Current;
+                if (!enumerator.MoveNext())
+                    throw new ArgumentException("The sequence must have an even number of elements.");
+
+                yield return new Complex(real, enumerator.Current);
             }
         }
     }

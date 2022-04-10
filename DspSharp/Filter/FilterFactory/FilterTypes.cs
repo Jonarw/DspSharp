@@ -9,20 +9,17 @@ using System.ComponentModel;
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Enumerates the available filter types.
+    /// Enumerates the available filter types.
     /// </summary>
     public enum FilterType
     {
         Distortion,
         Biquad,
         Butterworth,
-        CustomConvolver,
-        Correcting,
         Delay,
         Dirac,
         Fir,
         Gain,
-        Iir,
         Invert,
         Zero
     }

@@ -10,28 +10,39 @@ using System.ComponentModel;
 namespace DspSharp.Filter
 {
     /// <summary>
-    ///     Describes a digital filter.
+    /// Describes a digital filter.
     /// </summary>
-    /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     public interface IFilter : INotifyPropertyChanged
     {
         /// <summary>
-        ///     Gets a value indicating whether this instance has an infinite impulse response.
+        /// Gets a value indicating whether this instance has an infinite impulse response.
         /// </summary>
         bool HasInfiniteImpulseResponse { get; }
 
         /// <summary>
-        ///     Gets the samplerate.
+        /// Gets the samplerate.
         /// </summary>
         double Samplerate { get; }
 
         /// <summary>
-        ///     Processes the specified input.
+        /// Processes the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
         IEnumerable<double> Process(IEnumerable<double> input);
 
+        /// <summary>
+        /// Gets or sets the display name.
+        /// </summary>
         string DisplayName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="IFilter"/> is enabled.
+        /// </summary>
         bool Enabled { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="IFilter"/> has an effect.
+        /// </summary>
+        bool HasEffect { get; }
     }
 }

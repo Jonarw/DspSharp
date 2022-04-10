@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# IDE0011: Add braces
+csharp_prefer_braces = when_multiline:suggestion
+
+# IDE0065: Misplaced using directive
+csharp_using_directive_placement = outside_namespace:suggestion
+
+# RCS1123: Add parentheses when necessary.
+dotnet_diagnostic.RCS1123.severity = silent
