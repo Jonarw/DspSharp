@@ -26,6 +26,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 
 namespace DspSharp.Algorithms.CubicSpline
 {
@@ -55,8 +56,8 @@ namespace DspSharp.Algorithms.CubicSpline
         private double[] b;
 
         // Save the original x and y for Eval
-        private double[] xOrig;
-        private double[] yOrig;
+        private IReadOnlyList<double> xOrig;
+        private IReadOnlyList<double> yOrig;
 
         /// <summary>
         ///     Default ctor.
@@ -73,8 +74,8 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         public CubicSpline(
-            double[] x,
-            double[] y,
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
@@ -90,10 +91,10 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public static double[] Compute(
-            double[] x,
-            double[] y,
-            double[] xs,
+        public static IReadOnlyList<double> Compute(
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
+            IReadOnlyList<double> xs,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
@@ -110,11 +111,11 @@ namespace DspSharp.Algorithms.CubicSpline
         /// </summary>
         /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
         /// <returns>The computed y values for each x.</returns>
-        public double[] Eval(double[] x)
+        public IReadOnlyList<double> Eval(IReadOnlyList<double> x)
         {
             this.CheckAlreadyFitted();
 
-            var n = x.Length;
+            var n = x.Count;
             var y = new double[n];
             this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
 
@@ -139,11 +140,11 @@ namespace DspSharp.Algorithms.CubicSpline
         /// </summary>
         /// <param name="x">Input. X coordinates to evaluate the fitted curve at.</param>
         /// <returns>The computed y values for each x.</returns>
-        public double[] EvalSlope(double[] x)
+        public IReadOnlyList<double> EvalSlope(IReadOnlyList<double> x)
         {
             this.CheckAlreadyFitted();
 
-            var n = x.Length;
+            var n = x.Count;
             var qPrime = new double[n];
             this._lastIndex = 0; // Reset simultaneous traversal in case there are multiple calls
 
@@ -177,8 +178,8 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         public void Fit(
-            double[] x,
-            double[] y,
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
@@ -189,7 +190,7 @@ namespace DspSharp.Algorithms.CubicSpline
             this.xOrig = x;
             this.yOrig = y;
 
-            var n = x.Length;
+            var n = x.Count;
             var r = new double[n]; // the right hand side numbers: wikipedia page overloads b
 
             var m = new TriDiagonalMatrixF(n);
@@ -267,10 +268,10 @@ namespace DspSharp.Algorithms.CubicSpline
         /// <param name="startSlope">Optional slope constraint for the first point. double.NaN means no constraint.</param>
         /// <param name="endSlope">Optional slope constraint for the final point. double.NaN means no constraint.</param>
         /// <returns>The computed y values for each xs.</returns>
-        public double[] FitAndEval(
-            double[] x,
-            double[] y,
-            double[] xs,
+        public IReadOnlyList<double> FitAndEval(
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
+            IReadOnlyList<double> xs,
             double startSlope = double.NaN,
             double endSlope = double.NaN)
         {
@@ -300,18 +301,18 @@ namespace DspSharp.Algorithms.CubicSpline
         /// </param>
         /// <param name="lastDy">See description of dxN.</param>
         public static void FitParametric(
-            double[] x,
-            double[] y,
+            IReadOnlyList<double> x,
+            IReadOnlyList<double> y,
             int nOutputPoints,
-            out double[] xs,
-            out double[] ys,
+            out IReadOnlyList<double> xs,
+            out IReadOnlyList<double> ys,
             double firstDx = double.NaN,
             double firstDy = double.NaN,
             double lastDx = double.NaN,
             double lastDy = double.NaN)
         {
             // Compute distances
-            var n = x.Length;
+            var n = x.Count;
             var dists = new double[n]; // cumulative distance
             dists[0] = 0;
             double totalDist = 0;
@@ -381,7 +382,7 @@ namespace DspSharp.Algorithms.CubicSpline
             if ((x < this.xOrig[this._lastIndex]) && (this._lastIndex > 0))
                 throw new ArgumentException("The X values to evaluate must be sorted.");
 
-            while ((this._lastIndex < this.xOrig.Length - 2) && (x > this.xOrig[this._lastIndex + 1]))
+            while ((this._lastIndex < this.xOrig.Count - 2) && (x > this.xOrig[this._lastIndex + 1]))
             {
                 this._lastIndex++;
             }

@@ -11,7 +11,7 @@
     <PackageLicenseUrl>https://github.com/Jonarw/DspSharp/blob/dev/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Jonarw/DspSharp/</PackageProjectUrl>
     <PackageTags>audio signal processing dsp filter fir iir</PackageTags>
-    <LangVersion>8</LangVersion>
+    <LangVersion>10</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 

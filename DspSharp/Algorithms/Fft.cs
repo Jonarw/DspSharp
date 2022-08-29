@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace DspSharp.Algorithms
@@ -35,7 +36,7 @@ namespace DspSharp.Algorithms
                 ? input
                 : input.PadToLength(n);
 
-            return FftProvider.ComplexFft(fftList);
+            return FftProvider.ComplexFft(fftList.ToList());
         }
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace DspSharp.Algorithms
             if (input.Count == 0)
                 return Array.Empty<Complex>();
 
-            return FftProvider.ComplexIfft(input);
+            return FftProvider.ComplexIfft(input.ToList());
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace DspSharp.Algorithms
                 ? input
                 : input.PadToLength(n);
 
-            return FftProvider.RealFft(fftList);
+            return FftProvider.RealFft(fftList.ToList());
         }
 
         /// <summary>
@@ -89,7 +90,7 @@ namespace DspSharp.Algorithms
             if (input.Count == 0)
                 return Array.Empty<double>();
 
-            return FftProvider.RealIfft(input, isEven);
+            return FftProvider.RealIfft(input.ToList(), isEven);
         }
 
         /// <summary>
